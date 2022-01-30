@@ -5,21 +5,36 @@ project(browsercontrol
     VERSION 0.0.1
     DESCRIPTION "Cross platform browsercontrol library"
     HOMEPAGE_URL "https://github.com/Open592/browsercontrol"
-    LANGUAGES CXX
+    LANGUAGES C CXX
 )
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(GNUInstallDirs)
 include(FindJNI)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(browsercontrol SHARED src/browsercontrol.cpp)
+add_library(browsercontrol
+    SHARED
+    src/browsercontrol.cpp
+)
 
 set_target_properties(browsercontrol
     PROPERTIES
     VERSION ${PROJECT_VERSION}
     PUBLIC_HEADER include/browsercontrol.h
 )
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_sources(browsercontrol
+        PRIVATE
+        src/platform/windows/init.cpp
+        src/platform/windows/browserwindow.cpp
+    )
+endif()
 
 configure_file(browsercontrol.pc.in browsercontrol.pc @ONLY)
 
