@@ -1,44 +1,81 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#pragma once
+#ifndef BROWSERCONTEXT_H
+#define BROWSERCONTEXT_H
 
 #include <cassert>
 #include <jawt.h>
+#include <memory>
 #include <string_view>
 
-#include "AbstractBrowserWindow.h"
-
-/**
- * Event types used in the original browsercontrol.dll
- */
-enum class EventType {
-    RESIZE = 0x8001,
-    DESTROY = 0x8002,
-    NAVIGATE = 0x8003,
-};
+#include "AbstractBrowserWindow.hpp"
 
 class BrowserContext {
 public:
-    BrowserContext(AbstractBrowserWindow&& window);
-
-    static BrowserContext& the();
-    static void initialize();
-    static bool isInitialized();
-
-    void resize(int32_t width, int32_t height)
+    /**
+     * @brief In order to support the original browsercontrol interface we must
+     * store a singleton reference to the browser context.
+     *
+     * It is unsupported to attempt to initialize more than 1 browser context,
+     * and we will fail if attempted.
+     *
+     * The reason for only supporting a single browsercontext is that the
+     * following methods are not sent any reference to the underlying browser
+     * window:
+     * - destroy
+     * - navigate
+     * - resize
+     *
+     * @return Returns singleton reference to BrowserContext
+     */
+    static BrowserContext& the()
     {
-        assert(BrowserContext::isInitialized());
+        static BrowserContext instance;
 
-        m_window->resize(width, height);
+        return instance;
     }
 
-    void navigate(std::string_view toURL)
-    {
-        assert(BrowserContext::isInitialized());
+    BrowserContext(const BrowserContext&) = delete;
+    void operator=(const BrowserContext&) = delete;
 
-        m_window->navigate(std::move(toURL));
+    /**
+     * @brief Register the browser window with the browser context.
+     *
+     * Until we have a valid browser window all other calls to the browser
+     * context will fail.
+     *
+     * It is the job of the shared library initialization code to call this
+     * this method.
+     *
+     * @return Returns truthy if we were able to successfully register the
+     * browser window
+     */
+    bool RegisterBrowserWindow(std::unique_ptr<AbstractBrowserWindow>);
+
+    bool InitializeBrowserWindow()
+    {
+        return m_window->Initialize();
+    }
+
+    void DestroyBrowserWindow()
+    {
+        m_window->Destroy();
+    }
+
+    void ResizeBrowserWindow(int32_t width, int32_t height)
+    {
+        m_window->HandleResize(width, height);
+    }
+
+    void NavigateToURL(std::string_view toURL)
+    {
+        m_window->HandleNavigate(std::move(toURL));
     }
 
 private:
-    AbstractBrowserWindow* m_window;
+    BrowserContext() = default;
+
+    std::unique_ptr<AbstractBrowserWindow> m_window = nullptr;
 };
+
+#endif /* BROWSERCONTEXT_H */

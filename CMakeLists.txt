@@ -20,6 +20,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(browsercontrol
     SHARED
     src/browsercontrol.cpp
+    src/BrowserContext.cpp
 )
 
 set_target_properties(browsercontrol
@@ -33,6 +34,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         PRIVATE
         src/platform/windows/init.cpp
         src/platform/windows/browserwindow.cpp
+        src/platform/windows/WebView2BrowserWindow.cpp
     )
 endif()
 

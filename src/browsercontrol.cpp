@@ -7,25 +7,28 @@
 
 #include "BrowserContext.hpp"
 
-static std::shared_ptr<BrowserContext> g_browserContext;
-
 jboolean Java_nativeadvert_browsercontrol_browsercontrol0(JNIEnv* env, jclass thisObj, jobject advertCanvas, jstring url)
 {
-    return JNI_TRUE;
+    if (BrowserContext::the().InitializeBrowserWindow()) {
+        return JNI_TRUE;
+    }
+
+    return JNI_FALSE;
 }
 
 void Java_nativeadvert_browsercontrol_destroy0(JNIEnv* env, jclass thisObj)
 {
+    BrowserContext::the().DestroyBrowserWindow();
 }
 
 void Java_nativeadvert_browsercontrol_navigate0(JNIEnv* env, jclass thisObj, jstring URL)
 {
     std::string_view toURL = env->GetStringUTFChars(URL, nullptr);
 
-    g_browserContext->navigate(toURL);
+    BrowserContext::the().NavigateToURL(toURL);
 }
 
 void Java_nativeadvert_browsercontrol_resize0(JNIEnv* env, jclass thisObj, jint width, jint height)
 {
-    g_browserContext->resize(width, height);
+    BrowserContext::the().ResizeBrowserWindow(width, height);
 }
