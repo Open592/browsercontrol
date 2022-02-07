@@ -3,17 +3,26 @@
 #include "WebView2BrowserWindow.hpp"
 
 #define WINDOW_CLASS_NAME "Jb"
-
-WebView2BrowserWindow::WebView2BrowserWindow() { Register(); }
+#define WINDOW_NAME "jbw"
 
 LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
-    case WM_CREATE:
-        break;
+    case WM_CREATE: {
+        auto* instance = new WebView2BrowserWindow();
+
+        SetWindowLongPtr(hwnd, 0, (LONG_PTR)instance);
+
+    } break;
     case WM_NCDESTROY:
+        delete Get(hwnd);
+
+        SetWindowLongPtr(hwnd, 0, 0);
+
         break;
     case EventType::BROWSER_WINDOW_DESTROY:
+        Get(hwnd)->Destroy();
+
         break;
     case EventType::BROWSER_WINDOW_RESIZE:
         break;
@@ -51,10 +60,18 @@ HINSTANCE WebView2BrowserWindow::Register()
     return module;
 }
 
-bool WebView2BrowserWindow::Initialize() { return true; }
+HWND WebView2BrowserWindow::Create(HWND parentWindow)
+{
+    HINSTANCE instance = WebView2BrowserWindow::Register();
+
+    if (instance == nullptr) {
+        return nullptr;
+    }
+
+    return CreateWindowEx(WMSZ_LEFT, WINDOW_CLASS_NAME, WINDOW_NAME, WS_CHILDWINDOW | WS_HSCROLL, 0, 0, CW_USEDEFAULT,
+        CW_USEDEFAULT, parentWindow, nullptr, instance, nullptr);
+}
 
 void WebView2BrowserWindow::Destroy() { }
-
 void WebView2BrowserWindow::Resize(int32_t width, int32_t height) { }
-
 void WebView2BrowserWindow::Navigate(std::string_view destination) { }

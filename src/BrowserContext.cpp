@@ -2,15 +2,15 @@
 
 #include "BrowserContext.hpp"
 
-bool BrowserContext::RegisterBrowserWindow(std::unique_ptr<AbstractBrowserWindow> window)
+bool BrowserContext::RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&& control)
 {
-    if (m_window || !window) {
-        // If we attempt to register multiple browser windows with the browser
+    if (m_control || !control) {
+        // If we attempt to register multiple browser controls with the browser
         // context this is invalid behavior.
         return false;
     }
 
-    m_window = std::move(window);
+    m_control = std::move(control);
 
     return true;
 }

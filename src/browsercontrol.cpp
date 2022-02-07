@@ -7,9 +7,10 @@
 
 #include "BrowserContext.hpp"
 
-jboolean Java_nativeadvert_browsercontrol_browsercontrol0(JNIEnv* env, jclass thisObj, jobject advertCanvas, jstring url)
+jboolean Java_nativeadvert_browsercontrol_browsercontrol0(
+    JNIEnv* env, jclass thisObj, jobject advertCanvas, jstring url)
 {
-    if (BrowserContext::the().InitializeBrowserWindow()) {
+    if (BrowserContext::the().InitializeBrowserWindow(env, advertCanvas)) {
         return JNI_TRUE;
     }
 

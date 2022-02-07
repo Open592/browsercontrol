@@ -6,14 +6,14 @@
 #include "windows.h"
 
 #include "../../BrowserContext.hpp"
-#include "WebView2BrowserWindow.hpp"
+#include "Win32BrowserControl.hpp"
 
 extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
     if (dwReason == DLL_PROCESS_ATTACH) {
-        std::unique_ptr<WebView2BrowserWindow> window = std::make_unique<WebView2BrowserWindow>();
+        auto control = std::make_unique<Win32BrowserControl>();
 
-        if (!BrowserContext::the().RegisterBrowserWindow(std::move(window))) {
+        if (!BrowserContext::the().RegisterBrowserControl(std::move(control))) {
             return FALSE;
         }
     }

@@ -1,22 +1,25 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef ABSTRACTBROWSERWINDOW_H
-#define ABSTRACTBROWSERWINDOW_H
+#ifndef ABSTRACTBROWSERCONTROL_H
+#define ABSTRACTBROWSERCONTROL_H
 
 #include <string_view>
 
-class AbstractBrowserWindow {
+class AbstractBrowserControl {
 public:
-    AbstractBrowserWindow() = default;
+    AbstractBrowserControl() = default;
 
-    virtual ~AbstractBrowserWindow() {};
+    virtual ~AbstractBrowserControl() = default;
 
     /**
      * @brief Initialize the browser window
      *
+     * @param env
+     * @param parent
+     *
      * @return Returns truthy on success.
      */
-    virtual bool Initialize() = 0;
+    virtual bool Initialize(JNIEnv*, jobject) = 0;
 
     /**
      * @brief Destroy the browser window
@@ -29,7 +32,7 @@ public:
      * @param width
      * @param height
      */
-    virtual void Resize(int32_t width, int32_t height) = 0;
+    virtual void Resize(int32_t, int32_t) = 0;
 
     /**
      * @brief Signal the browser window that we must navigate to a new URL
@@ -39,4 +42,4 @@ public:
     virtual void Navigate(std::string_view toURL) = 0;
 };
 
-#endif /* ABSTRACTBROWSERWINDOW_H */
+#endif /* ABSTRACTBROWSERCONTROL_H */

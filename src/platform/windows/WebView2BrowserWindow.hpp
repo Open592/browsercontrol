@@ -3,11 +3,8 @@
 #ifndef WEBVIEW2BROWSERWINDOW_H
 #define WEBVIEW2BROWSERWINDOW_H
 
-#include <jawt.h>
 #include <jawt_md.h>
-#include <jni.h>
-
-#include "../../AbstractBrowserWindow.hpp"
+#include <string_view>
 
 /**
  * Window message event types
@@ -22,24 +19,24 @@ enum EventType {
  * @brief Implementation of a WebView2 browser window for displaying
  * advertisements within the AppletViewer.
  */
-class WebView2BrowserWindow : public AbstractBrowserWindow {
+class WebView2BrowserWindow {
 public:
-    static JAWT_Win32DrawingSurfaceInfo* ResolveDrawingSurfaceInfo(JNIEnv*, jobject);
+    static WebView2BrowserWindow* Get(HWND hwnd)
+    {
+        return reinterpret_cast<WebView2BrowserWindow*>(GetWindowLongPtr(hwnd, 0));
+    }
+    static HINSTANCE Register();
+    static HWND Create(HWND);
 
-    WebView2BrowserWindow();
+    WebView2BrowserWindow() = default;
     ~WebView2BrowserWindow() = default;
-
-    virtual bool Initialize() override;
-    virtual void Destroy() override;
-    virtual void Resize(int32_t, int32_t) override;
-    virtual void Navigate(std::string_view) override;
 
 private:
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-    static HINSTANCE Register();
 
-    void ResizeHandler(int32_t, int32_t);
-    void NavigateHandler(std::string_view);
+    void Destroy();
+    void Navigate(std::string_view);
+    void Resize(int32_t, int32_t);
 
     JAWT_Win32DrawingSurfaceInfo* m_drawingSurfaceInfo;
 };

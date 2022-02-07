@@ -8,7 +8,7 @@
 #include <memory>
 #include <string_view>
 
-#include "AbstractBrowserWindow.hpp"
+#include "AbstractBrowserControl.hpp"
 
 class BrowserContext {
 public:
@@ -39,59 +39,59 @@ public:
     void operator=(const BrowserContext&) = delete;
 
     /**
-     * @brief Register the browser window with the browser context.
+     * @brief Register the browser control with the browser context.
      *
-     * Until we have a valid browser window all other calls to the browser
+     * Until we have a valid browser control all other calls to the browser
      * context will fail.
      *
      * It is the job of the shared library initialization code to call this
      * this method.
      *
      * @return Returns truthy if we were able to successfully register the
-     * browser window
+     * browser control
      */
-    bool RegisterBrowserWindow(std::unique_ptr<AbstractBrowserWindow>);
+    bool RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&&);
 
-    bool InitializeBrowserWindow()
+    bool InitializeBrowserWindow(JNIEnv* env, jobject parentWindow)
     {
-        if (!m_window) {
+        if (!m_control) {
             return false;
         }
 
-        return m_window->Initialize();
+        return m_control->Initialize(env, parentWindow);
     }
 
     void DestroyBrowserWindow()
     {
-        if (!m_window) {
+        if (!m_control) {
             return;
         }
 
-        m_window->Destroy();
+        m_control->Destroy();
     }
 
     void ResizeBrowserWindow(int32_t width, int32_t height)
     {
-        if (!m_window) {
+        if (!m_control) {
             return;
         }
 
-        m_window->Resize(width, height);
+        m_control->Resize(width, height);
     }
 
     void NavigateToURL(std::string_view destination)
     {
-        if (!m_window || destination.size() == 0) {
+        if (!m_control || destination.size() == 0) {
             return;
         }
 
-        m_window->Navigate(std::move(destination));
+        m_control->Navigate(std::move(destination));
     }
 
 private:
     BrowserContext() = default;
 
-    std::unique_ptr<AbstractBrowserWindow> m_window = nullptr;
+    std::unique_ptr<AbstractBrowserControl> m_control = nullptr;
 };
 
 #endif /* BROWSERCONTEXT_H */
