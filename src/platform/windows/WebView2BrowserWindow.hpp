@@ -12,10 +12,10 @@
 /**
  * Window message event types
  */
-enum class EventType : UINT {
-    RESIZE = 0x8001,
-    DESTROY = 0x8002,
-    NAVIGATE = 0x8003,
+enum EventType {
+    BROWSER_WINDOW_RESIZE = 0x8001,
+    BROWSER_WINDOW_DESTROY = 0x8002,
+    BROWSER_WINDOW_NAVIGATE = 0x8003,
 };
 
 /**
@@ -31,13 +31,16 @@ public:
 
     virtual bool Initialize() override;
     virtual void Destroy() override;
-    virtual void HandleResize(int32_t, int32_t) override;
-    virtual void HandleNavigate(std::string_view) override;
+    virtual void Resize(int32_t, int32_t) override;
+    virtual void Navigate(std::string_view) override;
 
 private:
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+    static HINSTANCE Register();
 
-    WNDCLASS m_windowClass;
+    void ResizeHandler(int32_t, int32_t);
+    void NavigateHandler(std::string_view);
+
     JAWT_Win32DrawingSurfaceInfo* m_drawingSurfaceInfo;
 };
 

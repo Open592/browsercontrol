@@ -54,22 +54,38 @@ public:
 
     bool InitializeBrowserWindow()
     {
+        if (!m_window) {
+            return false;
+        }
+
         return m_window->Initialize();
     }
 
     void DestroyBrowserWindow()
     {
+        if (!m_window) {
+            return;
+        }
+
         m_window->Destroy();
     }
 
     void ResizeBrowserWindow(int32_t width, int32_t height)
     {
-        m_window->HandleResize(width, height);
+        if (!m_window) {
+            return;
+        }
+
+        m_window->Resize(width, height);
     }
 
-    void NavigateToURL(std::string_view toURL)
+    void NavigateToURL(std::string_view destination)
     {
-        m_window->HandleNavigate(std::move(toURL));
+        if (!m_window || destination.size() == 0) {
+            return;
+        }
+
+        m_window->Navigate(std::move(destination));
     }
 
 private:

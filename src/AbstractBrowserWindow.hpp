@@ -29,14 +29,14 @@ public:
      * @param width
      * @param height
      */
-    virtual void HandleResize(int32_t width, int32_t height) = 0;
+    virtual void Resize(int32_t width, int32_t height) = 0;
 
     /**
      * @brief Signal the browser window that we must navigate to a new URL
      *
      * @param toURL
      */
-    virtual void HandleNavigate(std::string_view toURL) = 0;
+    virtual void Navigate(std::string_view toURL) = 0;
 };
 
 #endif /* ABSTRACTBROWSERWINDOW_H */
