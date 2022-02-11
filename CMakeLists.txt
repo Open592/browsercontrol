@@ -13,6 +13,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+get_property(generatorIsMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
 include(GNUInstallDirs)
 include(FindJNI)
 
@@ -60,4 +62,15 @@ install(FILES ${CMAKE_BINARY_DIR}/browsercontrol.pc
 
 if (INCLUDE_EXAMPLES)
     add_subdirectory(examples)
+
+    get_target_property(EXAMPLE_JAR_LOCATION examplejar JAR_FILE)
+
+    message(STATUS ${EXAMPLE_JAR_LOCATION})
+
+    if (generatorIsMultiConfig)
+        add_custom_command(TARGET browsercontrol POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy ${EXAMPLE_JAR_LOCATION} $<TARGET_FILE_DIR:browsercontrol>
+            COMMENT "Copy JAR file to resulting build directory for multi config generators"
+        )
+    endif()
 endif()
