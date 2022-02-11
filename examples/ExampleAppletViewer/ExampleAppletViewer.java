@@ -9,7 +9,7 @@ import nativeadvert.browsercontrol;
 
 public class ExampleAppletViewer {
     public static void main(String[] args) {
-        System.load("./browsercontrol.dll");
+        System.loadLibrary("browsercontrol");
 
         browsercontrol.Test();
     }
