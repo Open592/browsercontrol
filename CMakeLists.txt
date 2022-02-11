@@ -56,3 +56,7 @@ install(TARGETS browsercontrol
 install(FILES ${CMAKE_BINARY_DIR}/browsercontrol.pc
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig
 )
+
+if (INCLUDE_EXAMPLES)
+    add_subdirectory(examples)
+endif()
