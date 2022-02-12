@@ -3,6 +3,8 @@
 find_package(Java REQUIRED)
 include(UseJava)
 
+get_property(generatorIsMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
 add_jar(examplejar
     OUTPUT_NAME example
     SOURCES ExampleAppletViewer/ExampleAppletViewer.java
@@ -10,3 +12,13 @@ add_jar(examplejar
     ENTRY_POINT ExampleAppletViewer/ExampleAppletViewer
     OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
+
+if (generatorIsMultiConfig)
+    get_target_property(EXAMPLE_JAR_LOCATION examplejar JAR_FILE)
+
+    add_custom_command(TARGET examplejar POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${EXAMPLE_JAR_LOCATION} $<TARGET_FILE_DIR:browsercontrol>
+        DEPENDS $<TARGET_FILE_DIR:browsercontrol>
+        COMMENT "Copy JAR file to resulting build directory for multi config generators"
+    )
+endif()
