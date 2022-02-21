@@ -20,5 +20,6 @@ if (generatorIsMultiConfig)
         COMMAND ${CMAKE_COMMAND} -E copy ${EXAMPLE_JAR_LOCATION} $<TARGET_FILE_DIR:browsercontrol>
         DEPENDS $<TARGET_FILE_DIR:browsercontrol>
         COMMENT "Copy JAR file to resulting build directory for multi config generators"
+        VERBATIM
     )
 endif()

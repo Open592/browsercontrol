@@ -15,6 +15,10 @@ public class browsercontrol {
         System.out.println("Test");
     }
 
+    public static boolean isCreated() {
+        return isCreated;
+    }
+
     public static boolean create(Canvas parentWindow, String initialDestination) throws IllegalStateException {
         if (isCreated) {
             throw new IllegalStateException();

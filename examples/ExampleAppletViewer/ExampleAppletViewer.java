@@ -11,6 +11,6 @@ public class ExampleAppletViewer {
     public static void main(String[] args) {
         System.loadLibrary("browsercontrol");
 
-        browsercontrol.Test();
+        AdvertFrame advertFrame = new AdvertFrame();
     }
 }
