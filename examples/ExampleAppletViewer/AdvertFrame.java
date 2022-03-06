@@ -49,6 +49,23 @@ public final class AdvertFrame {
 
         this.frame.doLayout();
         this.setBounds();
+
+        while (!advertContainer.isDisplayable() || !advertContainer.isShowing()) {
+            try {
+                Thread.sleep(100L);
+            } catch (Exception ignored) {
+
+            }
+        }
+
+        try {
+            browsercontrol.create(advertContainer, "https://example.com");
+            browsercontrol.resize(advertContainer.getSize().width, advertContainer.getSize().height);
+        } catch (Throwable err) {
+            err.printStackTrace();
+
+            return;
+        }
     }
 
     private void setBounds() {
