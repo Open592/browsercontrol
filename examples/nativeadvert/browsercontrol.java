@@ -11,10 +11,6 @@ public class browsercontrol {
     private static native boolean browsercontrol0(Canvas parentWindow, String initialDestination);
     private static native void destroy0();
 
-    public static void Test() {
-        System.out.println("Test");
-    }
-
     public static boolean isCreated() {
         return isCreated;
     }
