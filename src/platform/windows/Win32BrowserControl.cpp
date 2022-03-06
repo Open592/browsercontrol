@@ -12,8 +12,6 @@ Win32BrowserControl::Win32BrowserControl()
 HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
 {
     JAWT awt;
-    JAWT_DrawingSurface* drawingSurface = nullptr;
-    JAWT_DrawingSurfaceInfo* drawingSurfaceInfo = nullptr;
 
     // In the original browsercontrol.dll this was set as JAWT_VERSION_1_4
     awt.version = JAWT_VERSION_9;
@@ -22,7 +20,7 @@ HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
         return nullptr;
     }
 
-    drawingSurface = awt.GetDrawingSurface(env, canvas);
+    JAWT_DrawingSurface *drawingSurface = awt.GetDrawingSurface(env, canvas);
 
     if (drawingSurface == nullptr) {
         return nullptr;
@@ -31,43 +29,37 @@ HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
     jint lock = drawingSurface->Lock(drawingSurface);
 
     if ((lock & JAWT_LOCK_ERROR) != 0) {
-        goto handle_error_and_return;
+        awt.FreeDrawingSurface(drawingSurface);
+
+        return nullptr;
     }
 
-    drawingSurfaceInfo = drawingSurface->GetDrawingSurfaceInfo(drawingSurface);
+    JAWT_DrawingSurfaceInfo *drawingSurfaceInfo = drawingSurface->GetDrawingSurfaceInfo(drawingSurface);
 
     if (drawingSurfaceInfo == nullptr) {
-        goto handle_error_and_return;
+        awt.FreeDrawingSurface(drawingSurface);
+
+        return nullptr;
     }
 
     auto winDrawingSurfaceInfo = static_cast<JAWT_Win32DrawingSurfaceInfo*>(drawingSurfaceInfo->platformInfo);
 
     if (winDrawingSurfaceInfo == nullptr) {
-        goto handle_error_and_return;
+        drawingSurface->FreeDrawingSurfaceInfo(drawingSurfaceInfo);
+        drawingSurface->Unlock(drawingSurface);
+        awt.FreeDrawingSurface(drawingSurface);
+
+        return nullptr;
     }
 
     HWND result = winDrawingSurfaceInfo->hwnd;
-
-    if (result == nullptr) {
-        goto handle_error_and_return;
-    }
 
     drawingSurface->FreeDrawingSurfaceInfo(drawingSurfaceInfo);
     drawingSurface->Unlock(drawingSurface);
     awt.FreeDrawingSurface(drawingSurface);
 
-    return result;
-
-handle_error_and_return:
-
-    if (drawingSurfaceInfo != nullptr) {
-        drawingSurface->FreeDrawingSurfaceInfo(drawingSurfaceInfo);
-
-        drawingSurface->Unlock(drawingSurface);
-    }
-
-    if (drawingSurface != nullptr) {
-        awt.FreeDrawingSurface(drawingSurface);
+    if (result != nullptr) {
+        return result;
     }
 
     return nullptr;
@@ -98,6 +90,9 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas) noexcept
 
 void Win32BrowserControl::Destroy() noexcept { }
 
-void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept { }
+void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept {
+    SendMessageA(m_browserWindow, EventType::BROWSER_WINDOW_RESIZE, width, height);
+}
 
-void Win32BrowserControl::Navigate(std::string_view destination) noexcept { }
+void Win32BrowserControl::Navigate(std::string_view destination) noexcept {
+}

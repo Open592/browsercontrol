@@ -81,11 +81,11 @@ public:
 
     void NavigateToURL(std::string_view destination)
     {
-        if (!m_control || destination.size() == 0) {
+        if (!m_control || destination.empty()) {
             return;
         }
 
-        m_control->Navigate(std::move(destination));
+        m_control->Navigate(destination);
     }
 
 private:

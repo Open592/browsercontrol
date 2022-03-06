@@ -15,16 +15,16 @@ class Win32BrowserControl : public AbstractBrowserControl {
 public:
     Win32BrowserControl();
 
-    virtual ~Win32BrowserControl() = default;
-    virtual bool Initialize(JNIEnv*, jobject) noexcept override;
-    virtual void Destroy() noexcept override;
-    virtual void Resize(int32_t, int32_t) noexcept override;
-    virtual void Navigate(std::string_view) noexcept override;
+    ~Win32BrowserControl() override = default;
+    bool Initialize(JNIEnv*, jobject) noexcept override;
+    void Destroy() noexcept override;
+    void Resize(int32_t, int32_t) noexcept override;
+    void Navigate(std::string_view) noexcept override;
 
 private:
     static HWND ResolveParentWindow(JNIEnv*, jobject);
 
-    HWND m_browserWindow;
+    HWND m_browserWindow = nullptr;
 };
 
 #endif /* WIN32BROWSERCONTROL_H */

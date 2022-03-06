@@ -28,9 +28,9 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
         break;
     case EventType::BROWSER_WINDOW_NAVIGATE:
         break;
+    default:
+        return DefWindowProc(hwnd, message, wParam, lParam);
     }
-
-    return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
 HINSTANCE WebView2BrowserWindow::Register()
