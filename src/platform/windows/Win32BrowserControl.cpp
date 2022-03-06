@@ -12,6 +12,8 @@ Win32BrowserControl::Win32BrowserControl()
 HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
 {
     JAWT awt;
+    JAWT_DrawingSurface* drawingSurface = nullptr;
+    JAWT_DrawingSurfaceInfo* drawingSurfaceInfo = nullptr;
 
     // In the original browsercontrol.dll this was set as JAWT_VERSION_1_4
     awt.version = JAWT_VERSION_9;
@@ -20,7 +22,7 @@ HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
         return nullptr;
     }
 
-    JAWT_DrawingSurface* drawingSurface = awt.GetDrawingSurface(env, canvas);
+    drawingSurface = awt.GetDrawingSurface(env, canvas);
 
     if (drawingSurface == nullptr) {
         return nullptr;
@@ -28,11 +30,11 @@ HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
 
     jint lock = drawingSurface->Lock(drawingSurface);
 
-    if ((lock & JAWT_LOCK_ERROR) == 0) {
+    if ((lock & JAWT_LOCK_ERROR) != 0) {
         goto handle_error_and_return;
     }
 
-    JAWT_DrawingSurfaceInfo* drawingSurfaceInfo = drawingSurface->GetDrawingSurfaceInfo(drawingSurface);
+    drawingSurfaceInfo = drawingSurface->GetDrawingSurfaceInfo(drawingSurface);
 
     if (drawingSurfaceInfo == nullptr) {
         goto handle_error_and_return;
