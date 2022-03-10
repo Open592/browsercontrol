@@ -3,7 +3,7 @@
 #include "WebView2BrowserWindow.hpp"
 
 #define WINDOW_CLASS_NAME "Jb"
-#define WINDOW_NAME "jbw"
+#define WINDOW_NAME       "jbw"
 
 LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -28,9 +28,9 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
         break;
     case EventType::BROWSER_WINDOW_NAVIGATE:
         break;
-    default:
-        return DefWindowProc(hwnd, message, wParam, lParam);
     }
+
+    return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
 HINSTANCE WebView2BrowserWindow::Register()
@@ -74,4 +74,4 @@ HWND WebView2BrowserWindow::Create(HWND parentWindow)
 
 void WebView2BrowserWindow::Destroy() { }
 void WebView2BrowserWindow::Resize(int32_t width, int32_t height) { }
-void WebView2BrowserWindow::Navigate(std::string_view destination) { }
+void WebView2BrowserWindow::Navigate(const std::string& destination) { }

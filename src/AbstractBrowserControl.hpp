@@ -3,7 +3,7 @@
 #ifndef ABSTRACTBROWSERCONTROL_H
 #define ABSTRACTBROWSERCONTROL_H
 
-#include <string_view>
+#include <string>
 
 class AbstractBrowserControl {
 public:
@@ -19,7 +19,7 @@ public:
      *
      * @return Returns truthy on success.
      */
-    virtual bool Initialize(JNIEnv*, jobject) = 0;
+    virtual bool Initialize(JNIEnv*, jobject, const std::string&) = 0;
 
     /**
      * @brief Destroy the browser window
@@ -37,9 +37,9 @@ public:
     /**
      * @brief Signal the browser window that we must navigate to a new URL
      *
-     * @param toURL
+     * @param destination
      */
-    virtual void Navigate(std::string_view toURL) = 0;
+    virtual void Navigate(const std::string& destination) = 0;
 };
 
 #endif /* ABSTRACTBROWSERCONTROL_H */

@@ -4,7 +4,7 @@
 #define WEBVIEW2BROWSERWINDOW_H
 
 #include <jawt_md.h>
-#include <string_view>
+#include <string>
 
 /**
  * Window message event types
@@ -35,7 +35,7 @@ private:
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
     void Destroy();
-    void Navigate(std::string_view);
+    void Navigate(const std::string&);
     void Resize(int32_t, int32_t);
 
     JAWT_Win32DrawingSurfaceInfo* m_drawingSurfaceInfo;

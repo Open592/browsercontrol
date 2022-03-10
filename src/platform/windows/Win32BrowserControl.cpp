@@ -9,7 +9,7 @@ Win32BrowserControl::Win32BrowserControl()
     WebView2BrowserWindow::Register();
 }
 
-HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
+[[nodiscard]] HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
 {
     JAWT awt;
 
@@ -20,7 +20,7 @@ HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
         return nullptr;
     }
 
-    JAWT_DrawingSurface *drawingSurface = awt.GetDrawingSurface(env, canvas);
+    JAWT_DrawingSurface* drawingSurface = awt.GetDrawingSurface(env, canvas);
 
     if (drawingSurface == nullptr) {
         return nullptr;
@@ -34,7 +34,7 @@ HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
         return nullptr;
     }
 
-    JAWT_DrawingSurfaceInfo *drawingSurfaceInfo = drawingSurface->GetDrawingSurfaceInfo(drawingSurface);
+    JAWT_DrawingSurfaceInfo* drawingSurfaceInfo = drawingSurface->GetDrawingSurfaceInfo(drawingSurface);
 
     if (drawingSurfaceInfo == nullptr) {
         awt.FreeDrawingSurface(drawingSurface);
@@ -65,7 +65,7 @@ HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
     return nullptr;
 }
 
-bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas) noexcept
+bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const std::string& initialDestination) noexcept
 {
     if (canvas == nullptr) {
         return false;
@@ -90,9 +90,13 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas) noexcept
 
 void Win32BrowserControl::Destroy() noexcept { }
 
-void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept {
-    SendMessageA(m_browserWindow, EventType::BROWSER_WINDOW_RESIZE, width, height);
+void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept
+{
+    SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_RESIZE, width, height);
 }
 
-void Win32BrowserControl::Navigate(std::string_view destination) noexcept {
+void Win32BrowserControl::Navigate(const std::string& destination) noexcept
+{
+    SendMessage(
+        m_browserWindow, EventType::BROWSER_WINDOW_NAVIGATE, NULL, reinterpret_cast<LPARAM>(destination.c_str()));
 }

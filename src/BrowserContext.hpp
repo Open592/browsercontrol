@@ -6,7 +6,7 @@
 #include <cassert>
 #include <jawt.h>
 #include <memory>
-#include <string_view>
+#include <string>
 
 #include "AbstractBrowserControl.hpp"
 
@@ -52,16 +52,29 @@ public:
      */
     bool RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&&);
 
-    bool InitializeBrowserWindow(JNIEnv* env, jobject parentWindow)
+    /**
+     * @brief Initialize the browser window by passing both the parent container and initial destination.
+     *
+     * It is the job of the browsercontrol library to fill the parent container with a web view
+     *
+     * @param parentContainer It is required to pass the raw jobject since obtaining the native window is platform
+     * dependent
+     * @param initialDestination The browser window will point to this address on initial load. It can be modified
+     * using the Navigate method
+     *
+     * @return Returns truthy if we were able to successfully initialize the browser control
+     */
+    bool InitializeBrowserWindow(
+        JNIEnv* env, jobject parentContainer, const std::string& initialDestination) const noexcept
     {
         if (!m_control) {
             return false;
         }
 
-        return m_control->Initialize(env, parentWindow);
+        return m_control->Initialize(env, parentContainer, initialDestination);
     }
 
-    void DestroyBrowserWindow()
+    void DestroyBrowserWindow() const noexcept
     {
         if (!m_control) {
             return;
@@ -70,7 +83,7 @@ public:
         m_control->Destroy();
     }
 
-    void ResizeBrowserWindow(int32_t width, int32_t height)
+    void ResizeBrowserWindow(int32_t width, int32_t height) const noexcept
     {
         if (!m_control) {
             return;
@@ -79,7 +92,7 @@ public:
         m_control->Resize(width, height);
     }
 
-    void NavigateToURL(std::string_view destination)
+    void Navigate(const std::string& destination) const noexcept
     {
         if (!m_control || destination.empty()) {
             return;

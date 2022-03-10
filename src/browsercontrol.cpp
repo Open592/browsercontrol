@@ -1,16 +1,25 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <jawt.h>
-#include <memory>
 
 #include "include/browsercontrol.h"
 
 #include "BrowserContext.hpp"
 
 jboolean Java_nativeadvert_browsercontrol_browsercontrol0(
-    JNIEnv* env, jclass thisObj, jobject advertCanvas, jstring url)
+    JNIEnv* env, jclass thisObj, jobject advertCanvas, jstring URL)
 {
-    if (BrowserContext::the().InitializeBrowserWindow(env, advertCanvas)) {
+    const char* initialDestination = env->GetStringUTFChars(URL, nullptr);
+
+    if (initialDestination == nullptr) {
+        return JNI_FALSE;
+    }
+
+    bool result = BrowserContext::the().InitializeBrowserWindow(env, advertCanvas, initialDestination);
+
+    env->ReleaseStringUTFChars(URL, initialDestination);
+
+    if (result) {
         return JNI_TRUE;
     }
 
@@ -24,9 +33,11 @@ void Java_nativeadvert_browsercontrol_destroy0(JNIEnv* env, jclass thisObj)
 
 void Java_nativeadvert_browsercontrol_navigate0(JNIEnv* env, jclass thisObj, jstring URL)
 {
-    std::string_view toURL = env->GetStringUTFChars(URL, nullptr);
+    std::string destination = env->GetStringUTFChars(URL, nullptr);
 
-    BrowserContext::the().NavigateToURL(toURL);
+    BrowserContext::the().Navigate(destination);
+
+    env->ReleaseStringUTFChars(URL, destination.c_str());
 }
 
 void Java_nativeadvert_browsercontrol_resize0(JNIEnv* env, jclass thisObj, jint width, jint height)
