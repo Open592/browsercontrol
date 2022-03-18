@@ -7,7 +7,6 @@
 #include <jawt_md.h>
 #include <jni.h>
 #include <memory>
-#include <string>
 
 #include "../../AbstractBrowserControl.hpp"
 
@@ -16,10 +15,10 @@ public:
     Win32BrowserControl();
 
     ~Win32BrowserControl() override = default;
-    bool Initialize(JNIEnv*, jobject, const std::string&) noexcept override;
+    bool Initialize(JNIEnv*, jobject, const char*) noexcept override;
     void Destroy() noexcept override;
     void Resize(int32_t, int32_t) noexcept override;
-    void Navigate(const std::string&) noexcept override;
+    void Navigate(const char*) noexcept override;
 
 private:
     static HWND ResolveParentWindow(JNIEnv*, jobject);

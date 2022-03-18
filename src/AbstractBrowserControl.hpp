@@ -19,7 +19,7 @@ public:
      *
      * @return Returns truthy on success.
      */
-    virtual bool Initialize(JNIEnv*, jobject, const std::string&) = 0;
+    virtual bool Initialize(JNIEnv*, jobject, const char*) = 0;
 
     /**
      * @brief Destroy the browser window
@@ -39,7 +39,7 @@ public:
      *
      * @param destination
      */
-    virtual void Navigate(const std::string& destination) = 0;
+    virtual void Navigate(const char* destination) = 0;
 };
 
 #endif /* ABSTRACTBROWSERCONTROL_H */

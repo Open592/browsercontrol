@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <iostream>
-
-#include "process.h"
-#include "windows.h"
+#include "Windows.h"
 
 #include "../../BrowserContext.hpp"
 #include "Win32BrowserControl.hpp"

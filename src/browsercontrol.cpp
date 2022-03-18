@@ -33,11 +33,11 @@ void Java_nativeadvert_browsercontrol_destroy0(JNIEnv* env, jclass thisObj)
 
 void Java_nativeadvert_browsercontrol_navigate0(JNIEnv* env, jclass thisObj, jstring URL)
 {
-    std::string destination = env->GetStringUTFChars(URL, nullptr);
+    const char* destination = env->GetStringUTFChars(URL, nullptr);
 
     BrowserContext::the().Navigate(destination);
 
-    env->ReleaseStringUTFChars(URL, destination.c_str());
+    env->ReleaseStringUTFChars(URL, destination);
 }
 
 void Java_nativeadvert_browsercontrol_resize0(JNIEnv* env, jclass thisObj, jint width, jint height)

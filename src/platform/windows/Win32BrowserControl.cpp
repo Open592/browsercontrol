@@ -65,7 +65,7 @@ Win32BrowserControl::Win32BrowserControl()
     return nullptr;
 }
 
-bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const std::string& initialDestination) noexcept
+bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* initialDestination) noexcept
 {
     if (canvas == nullptr) {
         return false;
@@ -77,7 +77,7 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const std::str
         return false;
     }
 
-    HWND browserWindow = WebView2BrowserWindow::Create(parent);
+    HWND browserWindow = WebView2BrowserWindow::Create(parent, initialDestination);
 
     if (browserWindow == nullptr) {
         return false;
@@ -95,8 +95,7 @@ void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept
     SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_RESIZE, width, height);
 }
 
-void Win32BrowserControl::Navigate(const std::string& destination) noexcept
+void Win32BrowserControl::Navigate(const char* destination) noexcept
 {
-    SendMessage(
-        m_browserWindow, EventType::BROWSER_WINDOW_NAVIGATE, NULL, reinterpret_cast<LPARAM>(destination.c_str()));
+    SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_NAVIGATE, NULL, reinterpret_cast<LPARAM>(destination));
 }

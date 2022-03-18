@@ -26,19 +26,19 @@ public:
         return reinterpret_cast<WebView2BrowserWindow*>(GetWindowLongPtr(hwnd, 0));
     }
     static HINSTANCE Register();
-    static HWND Create(HWND);
+    static HWND Create(HWND, const char*);
 
-    WebView2BrowserWindow() = default;
+    explicit WebView2BrowserWindow(std::string&&);
     ~WebView2BrowserWindow() = default;
 
 private:
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
     void Destroy();
-    void Navigate(const std::string&);
+    void Navigate(std::string&&);
     void Resize(int32_t, int32_t);
 
-    JAWT_Win32DrawingSurfaceInfo* m_drawingSurfaceInfo;
+    std::string m_destination;
 };
 
 #endif /* WEBVIEW2BROWSERWINDOW_H */

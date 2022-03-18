@@ -9,10 +9,11 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
 {
     switch (message) {
     case WM_CREATE: {
-        auto* instance = new WebView2BrowserWindow();
+        auto*& createStruct = reinterpret_cast<const CREATESTRUCT*&>(lParam);
+        std::string destination(static_cast<const char*>(createStruct->lpCreateParams));
+        auto* instance = new WebView2BrowserWindow(std::move(destination));
 
         SetWindowLongPtr(hwnd, 0, (LONG_PTR)instance);
-
     } break;
     case WM_NCDESTROY:
         delete Get(hwnd);
@@ -25,8 +26,14 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
 
         break;
     case EventType::BROWSER_WINDOW_RESIZE:
+        Get(hwnd)->Resize(static_cast<int32_t>(wParam), static_cast<int32_t>(lParam));
         break;
-    case EventType::BROWSER_WINDOW_NAVIGATE:
+    case EventType::BROWSER_WINDOW_NAVIGATE: {
+        std::string destination(reinterpret_cast<const char*>(lParam));
+
+        Get(hwnd)->Navigate(std::move(destination));
+    } break;
+    default:
         break;
     }
 
@@ -60,7 +67,7 @@ HINSTANCE WebView2BrowserWindow::Register()
     return module;
 }
 
-HWND WebView2BrowserWindow::Create(HWND parentWindow)
+HWND WebView2BrowserWindow::Create(HWND parentWindow, const char* initialDestination)
 {
     HINSTANCE instance = WebView2BrowserWindow::Register();
 
@@ -69,9 +76,14 @@ HWND WebView2BrowserWindow::Create(HWND parentWindow)
     }
 
     return CreateWindowEx(WMSZ_LEFT, WINDOW_CLASS_NAME, WINDOW_NAME, WS_CHILDWINDOW | WS_HSCROLL, 0, 0, CW_USEDEFAULT,
-        CW_USEDEFAULT, parentWindow, nullptr, instance, nullptr);
+        CW_USEDEFAULT, parentWindow, nullptr, instance, (LPVOID)initialDestination);
+}
+
+WebView2BrowserWindow::WebView2BrowserWindow(std::string&& destination)
+    : m_destination(std::move(destination))
+{
 }
 
 void WebView2BrowserWindow::Destroy() { }
 void WebView2BrowserWindow::Resize(int32_t width, int32_t height) { }
-void WebView2BrowserWindow::Navigate(const std::string& destination) { }
+void WebView2BrowserWindow::Navigate(std::string&& destination) { m_destination = std::move(destination); }

@@ -6,7 +6,6 @@
 #include <cassert>
 #include <jawt.h>
 #include <memory>
-#include <string>
 
 #include "AbstractBrowserControl.hpp"
 
@@ -64,8 +63,7 @@ public:
      *
      * @return Returns truthy if we were able to successfully initialize the browser control
      */
-    bool InitializeBrowserWindow(
-        JNIEnv* env, jobject parentContainer, const std::string& initialDestination) const noexcept
+    bool InitializeBrowserWindow(JNIEnv* env, jobject parentContainer, const char* initialDestination) const noexcept
     {
         if (!m_control) {
             return false;
@@ -92,9 +90,9 @@ public:
         m_control->Resize(width, height);
     }
 
-    void Navigate(const std::string& destination) const noexcept
+    void Navigate(const char* destination) const noexcept
     {
-        if (!m_control || destination.empty()) {
+        if (!m_control || destination == nullptr) {
             return;
         }
 
