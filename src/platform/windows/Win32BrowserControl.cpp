@@ -3,12 +3,6 @@
 #include "Win32BrowserControl.hpp"
 #include "WebView2BrowserWindow.hpp"
 
-Win32BrowserControl::Win32BrowserControl()
-{
-    // Initialize the browser window
-    WebView2BrowserWindow::Register();
-}
-
 [[nodiscard]] HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
 {
     JAWT awt;
@@ -65,27 +59,89 @@ Win32BrowserControl::Win32BrowserControl()
     return nullptr;
 }
 
+DWORD Win32BrowserControl::ThreadProc(LPVOID lpParam)
+{
+    auto* instance = static_cast<Win32BrowserControl*>(lpParam);
+
+    UINT ret = instance->StartMessagePump();
+
+    return ret;
+}
+
+Win32BrowserControl::Win32BrowserControl()
+{
+    // Initialize the browser window module
+    WebView2BrowserWindow::Register();
+}
+
 bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* initialDestination) noexcept
 {
     if (canvas == nullptr) {
         return false;
     }
 
-    HWND parent = ResolveParentWindow(env, canvas);
+    m_parentWindow = ResolveParentWindow(env, canvas);
 
-    if (parent == nullptr) {
+    if (m_parentWindow == nullptr) {
         return false;
     }
 
-    HWND browserWindow = WebView2BrowserWindow::Create(parent, initialDestination);
+    // Create a manual reset event which will allow the browser window thread to signal when the window was successfully
+    // created and will begin accepting messages.
+    m_browserWindowCreateEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
 
-    if (browserWindow == nullptr) {
+    if (m_browserWindowCreateEvent == nullptr) {
         return false;
     }
 
-    m_browserWindow = browserWindow;
+    m_browserWindowThread = CreateThread(nullptr, 0, Win32BrowserControl::ThreadProc, this, 0, nullptr);
 
-    return true;
+    if (m_browserWindowThread == nullptr) {
+        return false;
+    }
+
+    WaitForSingleObject(m_browserWindowCreateEvent, 1000);
+
+    DWORD exitCode;
+
+    if (GetExitCodeThread(m_browserWindowThread, &exitCode)) {
+        return false;
+    }
+
+    // At this stage we should have initialized the browser window and are beginning to accept window messages. In the
+    // case that our window thread is not running we have encountered an error.
+    if (exitCode == STILL_ACTIVE) {
+        return true;
+    }
+
+    // Failed to initialize the browser window
+    return false;
+}
+
+DWORD Win32BrowserControl::StartMessagePump()
+{
+    m_browserWindow = WebView2BrowserWindow::Create(m_parentWindow, "");
+
+    if (m_browserWindow == nullptr) {
+        SetEvent(m_browserWindowCreateEvent);
+
+        return 1;
+    }
+
+    MSG msg;
+    BOOL ret;
+
+    while ((ret = GetMessage(&msg, nullptr, 0, 0)) != 0) {
+        if (ret == -1) {
+            // Our window quit receiving messages without receiving WM_QUIT. This is an error
+            return -1;
+        } else {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+
+    return 0;
 }
 
 void Win32BrowserControl::Destroy() noexcept { }

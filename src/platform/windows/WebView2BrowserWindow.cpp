@@ -20,7 +20,7 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
 
         SetWindowLongPtr(hwnd, 0, 0);
 
-        break;
+        return 0;
     case EventType::BROWSER_WINDOW_DESTROY:
         Get(hwnd)->Destroy();
 

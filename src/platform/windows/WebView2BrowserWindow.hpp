@@ -29,7 +29,6 @@ public:
     static HWND Create(HWND, const char*);
 
     explicit WebView2BrowserWindow(std::string&&);
-    ~WebView2BrowserWindow() = default;
 
 private:
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

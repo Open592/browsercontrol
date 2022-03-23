@@ -22,8 +22,14 @@ public:
 
 private:
     static HWND ResolveParentWindow(JNIEnv*, jobject);
+    static DWORD WINAPI ThreadProc(LPVOID);
+
+    DWORD StartMessagePump();
 
     HWND m_browserWindow = nullptr;
+    HWND m_parentWindow = nullptr;
+    HANDLE m_browserWindowCreateEvent = nullptr;
+    HANDLE m_browserWindowThread = nullptr;
 };
 
 #endif /* WIN32BROWSERCONTROL_H */
