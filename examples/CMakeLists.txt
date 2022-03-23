@@ -7,6 +7,7 @@ get_property(generatorIsMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 add_jar(examplejar
     OUTPUT_NAME example
+    SOURCES ExampleAppletViewer/AdvertFrame.java
     SOURCES ExampleAppletViewer/ExampleAppletViewer.java
     SOURCES nativeadvert/browsercontrol.java
     ENTRY_POINT ExampleAppletViewer/ExampleAppletViewer

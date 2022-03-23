@@ -4,25 +4,27 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Panel;
 
 import nativeadvert.browsercontrol;
 
-public final class AdvertFrame {
-    private Frame frame;
-    private Panel innerContainer;
-    private Panel fakeApplet;
-    private Canvas advertContainer;
+public final class AdvertFrame implements ComponentListener {
+    private static Frame frame;
+    private static Panel innerContainer;
+    private static Panel fakeApplet;
+    private static Canvas advertContainer;
 
     private static final int FRAME_WIDTH = 1024;
     private static final int FRAME_HEIGHT = 768;
     private static final int ADVERT_HEIGHT = 96;
 
-    public AdvertFrame() {
-        this.frame = new Frame();
-        this.frame.setLayout(new BorderLayout());
+    public static void initialize() {
+        frame = new Frame();
+        frame.setLayout(new BorderLayout());
 
         Insets frameInsets = frame.getInsets();
         frame.setTitle("Example Applet Viewer");
@@ -33,25 +35,26 @@ public final class AdvertFrame {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        this.innerContainer = new Panel();
-        this.innerContainer.setBackground(Color.black);
-        this.innerContainer.setLayout(null);
+        innerContainer = new Panel();
+        innerContainer.setBackground(Color.black);
+        innerContainer.setLayout(null);
 
-        this.fakeApplet = new Panel();
-        this.fakeApplet.setBackground(Color.green);
-        this.fakeApplet.setLayout(null);
+        fakeApplet = new Panel();
+        fakeApplet.setBackground(Color.green);
+        fakeApplet.setLayout(null);
 
-        this.frame.add(this.innerContainer, "Center");
+        frame.add(innerContainer, "Center");
 
-        this.advertContainer = new Canvas();
-        this.innerContainer.add(this.advertContainer);
-        this.innerContainer.add(fakeApplet);
+        advertContainer = new Canvas();
+        innerContainer.add(advertContainer);
+        innerContainer.add(fakeApplet);
 
-        this.frame.doLayout();
-        this.setBounds();
+        frame.doLayout();
+        setBounds();
 
         while (!advertContainer.isDisplayable() || !advertContainer.isShowing()) {
             try {
+                System.out.println("Hello world");
                 Thread.sleep(100L);
             } catch (Exception ignored) {
 
@@ -60,18 +63,18 @@ public final class AdvertFrame {
 
         try {
             browsercontrol.create(advertContainer, "https://example.com");
-            browsercontrol.resize(advertContainer.getSize().width, advertContainer.getSize().height);
-            browsercontrol.navigate("https://google.com");
         } catch (Throwable err) {
             err.printStackTrace();
 
             return;
         }
+
+        innerContainer.addComponentListener(new AdvertFrame());
     }
 
-    private void setBounds() {
-        Dimension containerSize = this.innerContainer.getSize();
-        Insets containerInsets = this.innerContainer.getInsets();
+    private static void setBounds() {
+        Dimension containerSize = innerContainer.getSize();
+        Insets containerInsets = innerContainer.getInsets();
         int containerWidth = containerSize.width - (containerInsets.right + containerInsets.left);
         int containerHeight = containerSize.height - (containerInsets.top + containerInsets.bottom);
         int appletWidth = containerWidth;
@@ -84,21 +87,32 @@ public final class AdvertFrame {
             ADVERT_HEIGHT
         );
 
-        this.fakeApplet.setBounds(
+        fakeApplet.setBounds(
             (containerWidth - appletWidth) / 2,
             ADVERT_HEIGHT,
             appletWidth,
             appletHeight
         );
 
-        if (this.advertContainer != null && browsercontrol.isCreated()) {
-            Dimension advertSize = this.advertContainer.getSize();
+        if (advertContainer != null && browsercontrol.isCreated()) {
+            Dimension advertSize = advertContainer.getSize();
 
             browsercontrol.resize(advertSize.width, advertSize.height);
         }
 
-        this.frame.repaint();
+        frame.repaint();
     }
 
+    public void componentMoved(ComponentEvent event) {
+    }
 
+    public void componentHidden(ComponentEvent event) {
+    }
+
+    public void componentResized(ComponentEvent event) {
+        setBounds();
+    }
+
+    public void componentShown(ComponentEvent event) {
+    }
 }
