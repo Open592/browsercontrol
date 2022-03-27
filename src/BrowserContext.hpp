@@ -52,6 +52,17 @@ public:
     bool RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&&);
 
     /**
+     * @brief Unregister the browser control
+     *
+     * This will handle all teardown logic when we are unloading.
+     *
+     * It is the job of the shared library deinitialization logic to call this method.
+     *
+     * @return Returns thruthy if we were able to successfully unregister the browser control
+     */
+    bool UnregisterBrowserControl();
+
+    /**
      * @brief Initialize the browser window by passing both the parent container and initial destination.
      *
      * It is the job of the browsercontrol library to fill the parent container with a web view
@@ -63,41 +74,13 @@ public:
      *
      * @return Returns truthy if we were able to successfully initialize the browser control
      */
-    bool InitializeBrowserWindow(JNIEnv* env, jobject parentContainer, const char* initialDestination) const noexcept
-    {
-        if (!m_control) {
-            return false;
-        }
+    bool InitializeBrowserWindow(JNIEnv*, jobject, const char*) const noexcept;
 
-        return m_control->Initialize(env, parentContainer, initialDestination);
-    }
+    void DestroyBrowserWindow() const noexcept;
 
-    void DestroyBrowserWindow() const noexcept
-    {
-        if (!m_control) {
-            return;
-        }
+    void ResizeBrowserWindow(int32_t, int32_t) const noexcept;
 
-        m_control->Destroy();
-    }
-
-    void ResizeBrowserWindow(int32_t width, int32_t height) const noexcept
-    {
-        if (!m_control) {
-            return;
-        }
-
-        m_control->Resize(width, height);
-    }
-
-    void Navigate(const char* destination) const noexcept
-    {
-        if (!m_control || destination == nullptr) {
-            return;
-        }
-
-        m_control->Navigate(destination);
-    }
+    void Navigate(const char*) const noexcept;
 
 private:
     BrowserContext() = default;
