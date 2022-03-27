@@ -104,7 +104,7 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
 
     DWORD exitCode;
 
-    if (GetExitCodeThread(m_browserWindowThread, &exitCode)) {
+    if (GetExitCodeThread(m_browserWindowThread, &exitCode) == 0) {
         return false;
     }
 
@@ -118,33 +118,43 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
     return false;
 }
 
+bool Win32BrowserControl::DeInitialize() noexcept
+{
+    CloseHandle(m_browserWindowCreateEvent);
+
+    return WebView2BrowserWindow::Unregister();
+}
+
 DWORD Win32BrowserControl::StartMessagePump()
 {
     m_browserWindow = WebView2BrowserWindow::Create(m_parentWindow, "");
 
-    if (m_browserWindow == nullptr) {
-        SetEvent(m_browserWindowCreateEvent);
+    SetEvent(m_browserWindowCreateEvent);
 
-        return 1;
+    if (m_browserWindow == nullptr) {
+        return EXIT_FAILURE;
     }
 
     MSG msg;
     BOOL ret;
 
-    while ((ret = GetMessage(&msg, nullptr, 0, 0)) != 0) {
+    while ((ret = GetMessage(&msg, m_browserWindow, 0, 0)) != 0) {
         if (ret == -1) {
             // Our window quit receiving messages without receiving WM_QUIT. This is an error
-            return -1;
+            return EXIT_FAILURE;
         } else {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
-void Win32BrowserControl::Destroy() noexcept { }
+void Win32BrowserControl::Destroy() noexcept
+{
+    SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_DESTROY, NULL, NULL);
+}
 
 void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept
 {

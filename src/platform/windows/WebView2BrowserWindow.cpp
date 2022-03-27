@@ -3,7 +3,7 @@
 #include "WebView2BrowserWindow.hpp"
 
 #define WINDOW_CLASS_NAME "Jb"
-#define WINDOW_NAME       "jbw"
+#define WINDOW_NAME "jbw"
 
 LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -15,14 +15,19 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
 
         SetWindowLongPtr(hwnd, 0, (LONG_PTR)instance);
     } break;
-    case WM_NCDESTROY:
+    case WM_DESTROY:
         delete Get(hwnd);
 
         SetWindowLongPtr(hwnd, 0, 0);
 
+        PostQuitMessage(EXIT_SUCCESS);
+
         return 0;
     case EventType::BROWSER_WINDOW_DESTROY:
         Get(hwnd)->Destroy();
+
+        SetParent(hwnd, nullptr);
+        DestroyWindow(hwnd);
 
         break;
     case EventType::BROWSER_WINDOW_RESIZE:
@@ -65,6 +70,17 @@ HINSTANCE WebView2BrowserWindow::Register()
     }
 
     return module;
+}
+
+bool WebView2BrowserWindow::Unregister()
+{
+    HINSTANCE instance = WebView2BrowserWindow::Register();
+
+    if (instance == nullptr) {
+        return false;
+    }
+
+    return UnregisterClass(WINDOW_CLASS_NAME, instance);
 }
 
 HWND WebView2BrowserWindow::Create(HWND parentWindow, const char* initialDestination)

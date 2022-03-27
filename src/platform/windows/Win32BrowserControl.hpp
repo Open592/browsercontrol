@@ -16,6 +16,7 @@ public:
 
     ~Win32BrowserControl() override = default;
     bool Initialize(JNIEnv*, jobject, const char*) noexcept override;
+    bool DeInitialize() noexcept override;
     void Destroy() noexcept override;
     void Resize(int32_t, int32_t) noexcept override;
     void Navigate(const char*) noexcept override;
@@ -26,9 +27,11 @@ private:
 
     DWORD StartMessagePump();
 
+    // Manual reset events
+    HANDLE m_browserWindowCreateEvent = nullptr;
+
     HWND m_browserWindow = nullptr;
     HWND m_parentWindow = nullptr;
-    HANDLE m_browserWindowCreateEvent = nullptr;
     HANDLE m_browserWindowThread = nullptr;
 };
 

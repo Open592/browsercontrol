@@ -26,6 +26,7 @@ public:
         return reinterpret_cast<WebView2BrowserWindow*>(GetWindowLongPtr(hwnd, 0));
     }
     static HINSTANCE Register();
+    static bool Unregister();
     static HWND Create(HWND, const char*);
 
     explicit WebView2BrowserWindow(std::string&&);
