@@ -74,6 +74,13 @@ Win32BrowserControl::Win32BrowserControl()
     WebView2BrowserWindow::Register();
 }
 
+Win32BrowserControl::~Win32BrowserControl()
+{
+    CloseHandle(m_browserWindowCreateEvent);
+
+    WebView2BrowserWindow::Unregister();
+}
+
 bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* initialDestination) noexcept
 {
     if (canvas == nullptr) {
@@ -116,13 +123,6 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
 
     // Failed to initialize the browser window
     return false;
-}
-
-bool Win32BrowserControl::DeInitialize() noexcept
-{
-    CloseHandle(m_browserWindowCreateEvent);
-
-    return WebView2BrowserWindow::Unregister();
 }
 
 DWORD Win32BrowserControl::StartMessagePump()

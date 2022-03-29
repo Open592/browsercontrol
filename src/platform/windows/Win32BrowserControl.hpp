@@ -14,9 +14,8 @@ class Win32BrowserControl : public AbstractBrowserControl {
 public:
     Win32BrowserControl();
 
-    ~Win32BrowserControl() override = default;
+    ~Win32BrowserControl() override;
     bool Initialize(JNIEnv*, jobject, const char*) noexcept override;
-    bool DeInitialize() noexcept override;
     void Destroy() noexcept override;
     void Resize(int32_t, int32_t) noexcept override;
     void Navigate(const char*) noexcept override;

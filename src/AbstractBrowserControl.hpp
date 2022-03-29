@@ -22,13 +22,6 @@ public:
     virtual bool Initialize(JNIEnv*, jobject, const char*) = 0;
 
     /**
-     * @brief Deinitialize the browser window
-     *
-     * @return Returns truthy on success.
-     */
-    virtual bool DeInitialize() = 0;
-
-    /**
      * @brief Destroy the browser window
      */
     virtual void Destroy() = 0;

@@ -21,7 +21,9 @@ bool BrowserContext::UnregisterBrowserControl()
         return false;
     }
 
-    m_control->DeInitialize();
+    m_control.reset();
+
+    return true;
 }
 
 bool BrowserContext::InitializeBrowserWindow(
