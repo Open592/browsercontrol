@@ -4,15 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Panel;
 
 import nativeadvert.browsercontrol;
 
-public final class AdvertFrame implements ComponentListener {
+public final class AdvertFrame {
     private static Frame frame;
     private static Panel innerContainer;
     private static Panel fakeApplet;
@@ -22,16 +20,23 @@ public final class AdvertFrame implements ComponentListener {
     private static final int FRAME_HEIGHT = 768;
     private static final int ADVERT_HEIGHT = 96;
 
-    public static void initialize() {
+    public static void quit() {
+        if (browsercontrol.isCreated()) {
+            System.out.println("Attempting to destroy browsercontrol");
+
+            browsercontrol.destroy();
+        }
+
+        System.exit(0);
+    }
+
+    public static void start() {
         frame = new Frame();
         frame.setLayout(new BorderLayout());
 
         Insets frameInsets = frame.getInsets();
         frame.setTitle("Example Applet Viewer");
-        frame.setSize(
-            frameInsets.right + FRAME_WIDTH + frameInsets.left,
-            frameInsets.bottom + FRAME_HEIGHT + (ADVERT_HEIGHT + frameInsets.top)
-        );
+        frame.setSize(FRAME_WIDTH, FRAME_HEIGHT + ADVERT_HEIGHT);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
@@ -57,7 +62,6 @@ public final class AdvertFrame implements ComponentListener {
                 System.out.println("Hello world");
                 Thread.sleep(100L);
             } catch (Exception ignored) {
-
             }
         }
 
@@ -69,10 +73,11 @@ public final class AdvertFrame implements ComponentListener {
             return;
         }
 
-        innerContainer.addComponentListener(new AdvertFrame());
+        frame.addWindowListener(TerminateHandler.initialize());
+        innerContainer.addComponentListener(AdvertComponentListener.initialize());
     }
 
-    private static void setBounds() {
+    public static void setBounds() {
         Dimension containerSize = innerContainer.getSize();
         Insets containerInsets = innerContainer.getInsets();
         int containerWidth = containerSize.width - (containerInsets.right + containerInsets.left);
@@ -81,14 +86,14 @@ public final class AdvertFrame implements ComponentListener {
         int appletHeight = containerHeight - ADVERT_HEIGHT;
 
         advertContainer.setBounds(
-            (containerWidth - appletWidth) / 2,
+            0,
             0,
             appletWidth,
             ADVERT_HEIGHT
         );
 
         fakeApplet.setBounds(
-            (containerWidth - appletWidth) / 2,
+            0,
             ADVERT_HEIGHT,
             appletWidth,
             appletHeight
@@ -101,18 +106,5 @@ public final class AdvertFrame implements ComponentListener {
         }
 
         frame.repaint();
-    }
-
-    public void componentMoved(ComponentEvent event) {
-    }
-
-    public void componentHidden(ComponentEvent event) {
-    }
-
-    public void componentResized(ComponentEvent event) {
-        setBounds();
-    }
-
-    public void componentShown(ComponentEvent event) {
     }
 }

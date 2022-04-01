@@ -27,6 +27,6 @@ public class ExampleAppletViewer {
 
         System.loadLibrary("browsercontrol");
 
-        AdvertFrame.initialize();
+        AdvertFrame.start();
     }
 }
