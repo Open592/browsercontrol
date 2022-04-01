@@ -31,7 +31,6 @@ private:
 
     HWND m_browserWindow = nullptr;
     HWND m_parentWindow = nullptr;
-    HANDLE m_browserWindowThread = nullptr;
 };
 
 #endif /* WIN32BROWSERCONTROL_H */

@@ -63,9 +63,7 @@ DWORD Win32BrowserControl::ThreadProc(LPVOID lpParam)
 {
     auto* instance = static_cast<Win32BrowserControl*>(lpParam);
 
-    UINT ret = instance->StartMessagePump();
-
-    return ret;
+    return instance->StartMessagePump();
 }
 
 Win32BrowserControl::Win32BrowserControl()
@@ -101,9 +99,9 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
         return false;
     }
 
-    m_browserWindowThread = CreateThread(nullptr, 0, Win32BrowserControl::ThreadProc, this, 0, nullptr);
+    HANDLE browserWindowThread = CreateThread(nullptr, 0, Win32BrowserControl::ThreadProc, this, 0, nullptr);
 
-    if (m_browserWindowThread == nullptr) {
+    if (browserWindowThread == nullptr) {
         return false;
     }
 
@@ -111,18 +109,19 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
 
     DWORD exitCode;
 
-    if (GetExitCodeThread(m_browserWindowThread, &exitCode) == 0) {
+    if (GetExitCodeThread(browserWindowThread, &exitCode) == 0) {
         return false;
     }
 
     // At this stage we should have initialized the browser window and are beginning to accept window messages. In the
     // case that our window thread is not running we have encountered an error.
-    if (exitCode == STILL_ACTIVE) {
-        return true;
+    if (exitCode != STILL_ACTIVE) {
+        return false;
     }
 
-    // Failed to initialize the browser window
-    return false;
+    Navigate(initialDestination);
+
+    return true;
 }
 
 DWORD Win32BrowserControl::StartMessagePump()
