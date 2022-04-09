@@ -13,7 +13,7 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
         std::string destination(static_cast<const char*>(createStruct->lpCreateParams));
         auto* instance = new WebView2BrowserWindow(std::move(destination));
 
-        SetWindowLongPtr(hwnd, 0, (LONG_PTR)instance);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)instance);
     } break;
     case WM_DESTROY:
         delete Get(hwnd);
@@ -62,7 +62,7 @@ HINSTANCE WebView2BrowserWindow::Register()
             WNDCLASSEX wc = { sizeof(WNDCLASSEX) };
             wc.lpfnWndProc = &WndProc;
             wc.lpszClassName = WINDOW_CLASS_NAME;
-            wc.cbWndExtra = sizeof(WebView2BrowserWindow*);
+            wc.cbWndExtra = 0;
             wc.hInstance = module;
 
             RegisterClassEx(&wc);

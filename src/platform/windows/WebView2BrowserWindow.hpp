@@ -23,7 +23,7 @@ class WebView2BrowserWindow {
 public:
     static WebView2BrowserWindow* Get(HWND hwnd)
     {
-        return reinterpret_cast<WebView2BrowserWindow*>(GetWindowLongPtr(hwnd, 0));
+        return reinterpret_cast<WebView2BrowserWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     }
     static HINSTANCE Register();
     static bool Unregister();
