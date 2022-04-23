@@ -18,7 +18,7 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
     case WM_DESTROY:
         delete Get(hwnd);
 
-        SetWindowLongPtr(hwnd, 0, 0);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
 
         PostQuitMessage(EXIT_SUCCESS);
 
