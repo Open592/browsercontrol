@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef WEBVIEW2BROWSERWINDOW_H
-#define WEBVIEW2BROWSERWINDOW_H
+#ifndef WEBVIEW2BROWSERWINDOW_HPP
+#define WEBVIEW2BROWSERWINDOW_HPP
 
 #include <jawt_md.h>
+#include <memory>
 #include <string>
+
+#include "BrowserData.hpp"
 
 /**
  * Window message event types
@@ -27,18 +30,18 @@ public:
     }
     static HINSTANCE Register();
     static bool Unregister();
-    static HWND Create(HWND, const char*);
+    static HWND Create(HWND, std::shared_ptr<BrowserData>);
 
-    explicit WebView2BrowserWindow(std::string&&);
+    explicit WebView2BrowserWindow(const std::shared_ptr<BrowserData>*);
 
 private:
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
     void Destroy();
-    void Navigate(std::string&&);
-    void Resize(int32_t, int32_t);
+    void Navigate();
+    void Resize();
 
-    std::string m_destination;
+    const std::shared_ptr<BrowserData> m_data;
 };
 
-#endif /* WEBVIEW2BROWSERWINDOW_H */
+#endif // WEBVIEW2BROWSERWINDOW_HPP

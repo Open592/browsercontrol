@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <iostream>
+
 #include "WebView2BrowserWindow.hpp"
 
 #define WINDOW_CLASS_NAME "Jb"
@@ -10,8 +12,8 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
     switch (message) {
     case WM_CREATE: {
         auto*& createStruct = reinterpret_cast<const CREATESTRUCT*&>(lParam);
-        std::string destination(static_cast<const char*>(createStruct->lpCreateParams));
-        auto* instance = new WebView2BrowserWindow(std::move(destination));
+        auto* data = static_cast<std::shared_ptr<BrowserData>*>(createStruct->lpCreateParams);
+        auto* instance = new WebView2BrowserWindow(data);
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)instance);
     } break;
@@ -31,12 +33,10 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
 
         break;
     case EventType::BROWSER_WINDOW_RESIZE:
-        Get(hwnd)->Resize(static_cast<int32_t>(wParam), static_cast<int32_t>(lParam));
+        Get(hwnd)->Resize();
         break;
     case EventType::BROWSER_WINDOW_NAVIGATE: {
-        std::string destination(reinterpret_cast<const char*>(lParam));
-
-        Get(hwnd)->Navigate(std::move(destination));
+        Get(hwnd)->Navigate();
     } break;
     default:
         break;
@@ -83,7 +83,7 @@ bool WebView2BrowserWindow::Unregister()
     return UnregisterClass(WINDOW_CLASS_NAME, instance);
 }
 
-HWND WebView2BrowserWindow::Create(HWND parentWindow, const char* initialDestination)
+HWND WebView2BrowserWindow::Create(HWND parentWindow, std::shared_ptr<BrowserData> data)
 {
     HINSTANCE instance = WebView2BrowserWindow::Register();
 
@@ -92,14 +92,24 @@ HWND WebView2BrowserWindow::Create(HWND parentWindow, const char* initialDestina
     }
 
     return CreateWindowEx(WMSZ_LEFT, WINDOW_CLASS_NAME, WINDOW_NAME, WS_CHILDWINDOW | WS_HSCROLL, 0, 0, CW_USEDEFAULT,
-        CW_USEDEFAULT, parentWindow, nullptr, instance, (LPVOID)initialDestination);
+        CW_USEDEFAULT, parentWindow, nullptr, instance, &data);
 }
 
-WebView2BrowserWindow::WebView2BrowserWindow(std::string&& destination)
-    : m_destination(std::move(destination))
+WebView2BrowserWindow::WebView2BrowserWindow(const std::shared_ptr<BrowserData>* data)
+    : m_data(*data)
 {
+    std::cout << m_data->GetDestination() << '\n';
 }
 
-void WebView2BrowserWindow::Destroy() { }
-void WebView2BrowserWindow::Resize(int32_t width, int32_t height) { }
-void WebView2BrowserWindow::Navigate(std::string&& destination) { m_destination = std::move(destination); }
+void WebView2BrowserWindow::Destroy() { std::cout << "Attempting to destroy browser window"; }
+
+void WebView2BrowserWindow::Resize()
+{
+    std::cout << m_data->GetWidth() << '\n';
+    std::cout << m_data->GetHeight() << '\n';
+}
+void WebView2BrowserWindow::Navigate()
+{
+    std::cout << "Attempting to navigate to: ";
+    std::cout << m_data->GetDestination() << '\n';
+}

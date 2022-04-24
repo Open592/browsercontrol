@@ -44,6 +44,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_sources(browsercontrol
             PRIVATE
             src/platform/windows/init.cpp
+            src/platform/windows/BrowserData.cpp
             src/platform/windows/Win32BrowserControl.cpp
             src/platform/windows/WebView2BrowserWindow.cpp
             )

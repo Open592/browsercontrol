@@ -3,7 +3,7 @@
 #include "Win32BrowserControl.hpp"
 #include "WebView2BrowserWindow.hpp"
 
-[[nodiscard]] HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
+HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
 {
     JAWT awt;
 
@@ -66,7 +66,8 @@ DWORD Win32BrowserControl::ThreadProc(LPVOID lpParam)
     return instance->StartMessagePump();
 }
 
-Win32BrowserControl::Win32BrowserControl()
+Win32BrowserControl::Win32BrowserControl(std::shared_ptr<BrowserData>&& browserData)
+    : m_browserData(std::move(browserData))
 {
     // Initialize the browser window module
     WebView2BrowserWindow::Register();
@@ -90,6 +91,10 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
     if (m_parentWindow == nullptr) {
         return false;
     }
+
+    // On initialization of the browser context a default value is set for the destination.
+    // We must update this with the initial destination sent during browsercontrol0()
+    m_browserData->SetDestination(initialDestination);
 
     // Create a manual reset event which will allow the browser window thread to signal when the window was successfully
     // created and will begin accepting messages.
@@ -119,14 +124,12 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
         return false;
     }
 
-    Navigate(initialDestination);
-
     return true;
 }
 
 DWORD Win32BrowserControl::StartMessagePump()
 {
-    m_browserWindow = WebView2BrowserWindow::Create(m_parentWindow, "");
+    m_browserWindow = WebView2BrowserWindow::Create(m_parentWindow, m_browserData);
 
     SetEvent(m_browserWindowCreateEvent);
 
@@ -157,10 +160,15 @@ void Win32BrowserControl::Destroy() noexcept
 
 void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept
 {
-    SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_RESIZE, width, height);
+    m_browserData->SetWidth(width);
+    m_browserData->SetHeight(height);
+
+    SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_RESIZE, NULL, NULL);
 }
 
 void Win32BrowserControl::Navigate(const char* destination) noexcept
 {
-    SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_NAVIGATE, NULL, reinterpret_cast<LPARAM>(destination));
+    m_browserData->SetDestination(destination);
+
+    SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_NAVIGATE, NULL, NULL);
 }
