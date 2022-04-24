@@ -67,6 +67,7 @@ public final class AdvertFrame {
 
         try {
             browsercontrol.create(advertContainer, "https://example.com");
+            browsercontrol.resize(advertContainer.getSize().width, advertContainer.getSize().height);
         } catch (Throwable err) {
             err.printStackTrace();
 
