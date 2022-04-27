@@ -10,20 +10,18 @@
 #include "BrowserData.hpp"
 
 /**
- * Window message event types
- */
-enum EventType {
-    BROWSER_WINDOW_RESIZE = 0x8001,
-    BROWSER_WINDOW_DESTROY = 0x8002,
-    BROWSER_WINDOW_NAVIGATE = 0x8003,
-};
-
-/**
  * @brief Implementation of a WebView2 browser window for displaying
  * advertisements within the AppletViewer.
  */
 class WebView2BrowserWindow {
 public:
+    // Window message event types
+    enum class EventType : unsigned int {
+        RESIZE = 0x8001,
+        DESTROY = 0x8002,
+        NAVIGATE = 0x8003,
+    };
+
     static WebView2BrowserWindow* Get(HWND hwnd)
     {
         return reinterpret_cast<WebView2BrowserWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));

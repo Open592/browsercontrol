@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "Windows.h"
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 
 #include "../../BrowserContext.hpp"
 #include "BrowserData.hpp"

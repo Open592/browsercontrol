@@ -59,26 +59,15 @@ HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
     return nullptr;
 }
 
-DWORD Win32BrowserControl::ThreadProc(LPVOID lpParam)
-{
-    auto* instance = static_cast<Win32BrowserControl*>(lpParam);
-
-    return instance->StartMessagePump();
-}
-
 Win32BrowserControl::Win32BrowserControl(std::shared_ptr<BrowserData>&& browserData)
     : m_browserData(std::move(browserData))
+    , m_browserWindowCreatedFlag(BrowserWindowCreateStatus::STARTING)
 {
     // Initialize the browser window module
     WebView2BrowserWindow::Register();
 }
 
-Win32BrowserControl::~Win32BrowserControl()
-{
-    CloseHandle(m_browserWindowCreateEvent);
-
-    WebView2BrowserWindow::Unregister();
-}
+Win32BrowserControl::~Win32BrowserControl() { WebView2BrowserWindow::Unregister(); }
 
 bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* initialDestination) noexcept
 {
@@ -96,46 +85,35 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
     // We must update this with the initial destination sent during browsercontrol0()
     m_browserData->SetDestination(initialDestination);
 
-    // Create a manual reset event which will allow the browser window thread to signal when the window was successfully
-    // created and will begin accepting messages.
-    m_browserWindowCreateEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+    m_browserWindowThread = std::jthread([&] { this->StartMessagePump(); });
 
-    if (m_browserWindowCreateEvent == nullptr) {
-        return false;
-    }
+    // Block until we have received the status of the browser window creation
+    m_browserWindowCreatedFlag.wait(BrowserWindowCreateStatus::STARTING);
 
-    HANDLE browserWindowThread = CreateThread(nullptr, 0, Win32BrowserControl::ThreadProc, this, 0, nullptr);
-
-    if (browserWindowThread == nullptr) {
-        return false;
-    }
-
-    WaitForSingleObject(m_browserWindowCreateEvent, 1000);
-
-    DWORD exitCode;
-
-    if (GetExitCodeThread(browserWindowThread, &exitCode) == 0) {
-        return false;
-    }
-
-    // At this stage we should have initialized the browser window and are beginning to accept window messages. In the
-    // case that our window thread is not running we have encountered an error.
-    if (exitCode != STILL_ACTIVE) {
+    if (m_browserWindowCreatedFlag == BrowserWindowCreateStatus::FAILED) {
+        // We have failed to create our browser window
         return false;
     }
 
     return true;
 }
 
-DWORD Win32BrowserControl::StartMessagePump()
+void Win32BrowserControl::StartMessagePump()
 {
     m_browserWindow = WebView2BrowserWindow::Create(m_parentWindow, m_browserData);
 
-    SetEvent(m_browserWindowCreateEvent);
-
     if (m_browserWindow == nullptr) {
-        return EXIT_FAILURE;
+        // Notify the caller that we have failed
+        m_browserWindowCreatedFlag = BrowserWindowCreateStatus::FAILED;
+        m_browserWindowCreatedFlag.notify_all();
+
+        return;
     }
+
+    // We have successfully created our browser window and are prepared to start accepting messages.
+    // At this point browsercontrol0() has fulfilled its duty, and we can signal success back to the caller
+    m_browserWindowCreatedFlag = BrowserWindowCreateStatus::SUCCESSFUL;
+    m_browserWindowCreatedFlag.notify_all();
 
     MSG msg;
     BOOL ret;
@@ -143,19 +121,17 @@ DWORD Win32BrowserControl::StartMessagePump()
     while ((ret = GetMessage(&msg, m_browserWindow, 0, 0)) != 0) {
         if (ret == -1) {
             // Our window quit receiving messages without receiving WM_QUIT. This is an error
-            return EXIT_FAILURE;
+            return;
         } else {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
     }
-
-    return EXIT_SUCCESS;
 }
 
 void Win32BrowserControl::Destroy() noexcept
 {
-    SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_DESTROY, NULL, NULL);
+    SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::DESTROY), NULL, NULL);
 }
 
 void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept
@@ -163,12 +139,12 @@ void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept
     m_browserData->SetWidth(width);
     m_browserData->SetHeight(height);
 
-    SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_RESIZE, NULL, NULL);
+    SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::RESIZE), NULL, NULL);
 }
 
 void Win32BrowserControl::Navigate(const char* destination) noexcept
 {
     m_browserData->SetDestination(destination);
 
-    SendMessage(m_browserWindow, EventType::BROWSER_WINDOW_NAVIGATE, NULL, NULL);
+    SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::NAVIGATE), NULL, NULL);
 }

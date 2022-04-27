@@ -25,17 +25,17 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
         PostQuitMessage(EXIT_SUCCESS);
 
         return 0;
-    case EventType::BROWSER_WINDOW_DESTROY:
+    case static_cast<UINT>(EventType::DESTROY):
         Get(hwnd)->Destroy();
 
         SetParent(hwnd, nullptr);
         DestroyWindow(hwnd);
 
         break;
-    case EventType::BROWSER_WINDOW_RESIZE:
+    case static_cast<UINT>(EventType::RESIZE):
         Get(hwnd)->Resize();
         break;
-    case EventType::BROWSER_WINDOW_NAVIGATE: {
+    case static_cast<UINT>(EventType::NAVIGATE): {
         Get(hwnd)->Navigate();
     } break;
     default:
