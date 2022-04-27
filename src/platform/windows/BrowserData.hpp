@@ -3,8 +3,6 @@
 #ifndef BROWSERDATA_HPP
 #define BROWSERDATA_HPP
 
-#define WIN32_LEAN_AND_MEAN
-
 #include <string>
 
 class BrowserData {
