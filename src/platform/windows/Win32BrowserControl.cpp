@@ -36,7 +36,7 @@ HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
         return nullptr;
     }
 
-    auto winDrawingSurfaceInfo = static_cast<JAWT_Win32DrawingSurfaceInfo*>(drawingSurfaceInfo->platformInfo);
+    auto* winDrawingSurfaceInfo = static_cast<JAWT_Win32DrawingSurfaceInfo*>(drawingSurfaceInfo->platformInfo);
 
     if (winDrawingSurfaceInfo == nullptr) {
         drawingSurface->FreeDrawingSurfaceInfo(drawingSurfaceInfo);
