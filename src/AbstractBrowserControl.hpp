@@ -22,6 +22,13 @@ public:
     virtual bool Initialize(JNIEnv*, jobject, const char*) = 0;
 
     /**
+     * @brief Checks if the browser window is running
+     *
+     * @return Returns truthy when the browser window is successfully running
+     */
+    virtual bool IsRunning() const noexcept = 0;
+
+    /**
      * @brief Destroy the browser window
      */
     virtual void Destroy() = 0;

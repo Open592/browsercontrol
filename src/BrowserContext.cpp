@@ -21,6 +21,10 @@ bool BrowserContext::UnregisterBrowserControl()
         return false;
     }
 
+    if (m_control->IsRunning()) {
+        m_control->Destroy();
+    }
+
     m_control.reset();
 
     return true;
@@ -29,7 +33,7 @@ bool BrowserContext::UnregisterBrowserControl()
 bool BrowserContext::InitializeBrowserWindow(
     JNIEnv* env, jobject parentContainer, const char* initialDestination) const noexcept
 {
-    if (!m_control) {
+    if (!m_control || m_control->IsRunning()) {
         return false;
     }
 
@@ -38,7 +42,7 @@ bool BrowserContext::InitializeBrowserWindow(
 
 void BrowserContext::DestroyBrowserWindow() const noexcept
 {
-    if (!m_control) {
+    if (!m_control || !m_control->IsRunning()) {
         return;
     }
 
@@ -47,7 +51,7 @@ void BrowserContext::DestroyBrowserWindow() const noexcept
 
 void BrowserContext::ResizeBrowserWindow(int32_t width, int32_t height) const noexcept
 {
-    if (!m_control) {
+    if (!m_control || !m_control->IsRunning()) {
         return;
     }
 
@@ -56,7 +60,7 @@ void BrowserContext::ResizeBrowserWindow(int32_t width, int32_t height) const no
 
 void BrowserContext::Navigate(const char* destination) const noexcept
 {
-    if (!m_control || destination == nullptr) {
+    if (!m_control || !m_control->IsRunning() || destination == nullptr) {
         return;
     }
 
