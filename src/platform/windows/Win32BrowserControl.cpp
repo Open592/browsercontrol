@@ -85,7 +85,12 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
     // We must update this with the initial destination sent during browsercontrol0()
     m_browserData->SetDestination(initialDestination);
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedValue"
+    // Storing thread on class to allow for separating execution from the invocation of browsercontrol()
+    // Will be auto joined either when browsercontrol::destroy0() is called or when the dll is unloaded
     m_browserWindowThread = std::jthread([&] { this->StartMessagePump(); });
+#pragma clang diagnostic pop
 
     // Block until we have received the status of the browser window creation
     m_browserWindowCreatedFlag.wait(BrowserWindowCreateStatus::STARTING);
