@@ -24,7 +24,7 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
 
         PostQuitMessage(EXIT_SUCCESS);
 
-        return 0;
+        return EXIT_SUCCESS;
     case static_cast<UINT>(EventType::DESTROY):
         Get(hwnd)->Destroy();
 

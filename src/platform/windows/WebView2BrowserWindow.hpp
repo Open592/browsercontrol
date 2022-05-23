@@ -3,10 +3,6 @@
 #ifndef WEBVIEW2BROWSERWINDOW_HPP
 #define WEBVIEW2BROWSERWINDOW_HPP
 
-#include <jawt_md.h>
-#include <memory>
-#include <string>
-
 #include "BrowserData.hpp"
 
 /**

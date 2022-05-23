@@ -50,6 +50,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
             src/platform/windows/Win32BrowserControl.cpp
             src/platform/windows/WebView2BrowserWindow.cpp
             )
+
+    target_precompile_headers(browsercontrol PRIVATE src/platform/windows/pch.hpp)
 endif ()
 
 configure_file(browsercontrol.pc.in browsercontrol.pc @ONLY)
@@ -67,6 +69,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     include(NuGetFetch)
 
     NuGetFetch(WebView2 "Microsoft.Web.WebView2" "1.0.1222-prerelease")
+
+    if (NOT EXISTS ${WebView2-PATH})
+        message(FATAL_ERROR "Failed to retrieve WebView2 - Unable to proceed!")
+    endif ()
 
     target_include_directories(browsercontrol PRIVATE ${WebView2-PATH}/build/native/include)
 

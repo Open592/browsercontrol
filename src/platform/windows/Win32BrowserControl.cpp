@@ -102,6 +102,7 @@ bool Win32BrowserControl::IsRunning() const noexcept { return m_browserWindowSta
 
 void Win32BrowserControl::StartMessagePump()
 {
+
     m_browserWindow = WebView2BrowserWindow::Create(m_parentWindow, m_browserData);
 
     if (m_browserWindow == nullptr) {
@@ -122,12 +123,13 @@ void Win32BrowserControl::StartMessagePump()
 
     while ((ret = GetMessage(&msg, m_browserWindow, 0, 0)) != 0) {
         if (ret == -1) {
-            // Our window quit receiving messages without receiving WM_QUIT. This is an error
+            // Our window quit receiving messages without receiving WM_QUIT. This is an error but at this
+            // point we detached from the original caller, so there is no one to signal this error to.
             return;
-        } else {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
         }
+
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
 }
 

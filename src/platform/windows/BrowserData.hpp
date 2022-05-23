@@ -3,8 +3,6 @@
 #ifndef BROWSERDATA_HPP
 #define BROWSERDATA_HPP
 
-#include <string>
-
 class BrowserData {
 public:
     /**

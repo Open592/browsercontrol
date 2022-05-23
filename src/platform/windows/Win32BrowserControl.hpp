@@ -3,14 +3,6 @@
 #ifndef WIN32BROWSERCONTROL_HPP
 #define WIN32BROWSERCONTROL_HPP
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <atomic>
-#include <jawt_md.h>
-#include <jni.h>
-#include <memory>
-#include <thread>
-
 #include "../../AbstractBrowserControl.hpp"
 #include "BrowserData.hpp"
 
