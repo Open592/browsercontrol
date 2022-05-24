@@ -13,7 +13,7 @@ public:
      */
     BrowserData();
 
-    [[nodiscard]] const std::string& GetDestination() const noexcept;
+    [[nodiscard]] const std::wstring& GetDestination() const noexcept;
     [[nodiscard]] int GetWidth() const noexcept;
     [[nodiscard]] int GetHeight() const noexcept;
 
@@ -22,11 +22,11 @@ public:
      * validity or security of a particular URL. This is left up to the
      * dll caller as well as the web view.
      */
-    void SetDestination(const char*) noexcept;
+    void SetDestination(std::string_view) noexcept;
     void SetSize(int, int) noexcept;
 
 private:
-    std::string m_destination;
+    std::wstring m_destination;
 
     /**
      * We only need to hold width and height as x,y is always 0.

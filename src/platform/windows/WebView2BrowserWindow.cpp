@@ -4,8 +4,7 @@
 
 #include "WebView2BrowserWindow.hpp"
 
-#define WINDOW_CLASS_NAME "Jb"
-#define WINDOW_NAME "jbw"
+using namespace Microsoft::WRL;
 
 LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -13,7 +12,7 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
     case WM_CREATE: {
         auto*& createStruct = reinterpret_cast<const CREATESTRUCT*&>(lParam);
         auto* data = static_cast<std::shared_ptr<BrowserData>*>(createStruct->lpCreateParams);
-        auto* instance = new WebView2BrowserWindow(data);
+        auto* instance = new WebView2BrowserWindow(createStruct->hwndParent, data);
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)instance);
     } break;
@@ -61,7 +60,7 @@ HINSTANCE WebView2BrowserWindow::Register()
                 reinterpret_cast<LPCSTR>(&Register), &module)) {
             WNDCLASSEX wc = { sizeof(WNDCLASSEX) };
             wc.lpfnWndProc = &WndProc;
-            wc.lpszClassName = WINDOW_CLASS_NAME;
+            wc.lpszClassName = WindowClassName;
             wc.cbWndExtra = 0;
             wc.hInstance = module;
 
@@ -80,10 +79,10 @@ bool WebView2BrowserWindow::Unregister()
         return false;
     }
 
-    return UnregisterClass(WINDOW_CLASS_NAME, instance);
+    return UnregisterClass(WindowClassName, instance);
 }
 
-HWND WebView2BrowserWindow::Create(HWND parentWindow, std::shared_ptr<BrowserData> data)
+HWND WebView2BrowserWindow::Create(HWND hostWindow, std::shared_ptr<BrowserData> data)
 {
     HINSTANCE instance = WebView2BrowserWindow::Register();
 
@@ -91,14 +90,50 @@ HWND WebView2BrowserWindow::Create(HWND parentWindow, std::shared_ptr<BrowserDat
         return nullptr;
     }
 
-    return CreateWindowEx(WMSZ_LEFT, WINDOW_CLASS_NAME, WINDOW_NAME, WS_CHILDWINDOW | WS_HSCROLL, 0, 0, CW_USEDEFAULT,
-        CW_USEDEFAULT, parentWindow, nullptr, instance, &data);
+    return CreateWindowEx(WMSZ_LEFT, WindowClassName, WindowName, WS_CHILDWINDOW | WS_HSCROLL, 0, 0, CW_USEDEFAULT,
+        CW_USEDEFAULT, hostWindow, nullptr, instance, &data);
 }
 
-WebView2BrowserWindow::WebView2BrowserWindow(const std::shared_ptr<BrowserData>* data)
+WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, const std::shared_ptr<BrowserData>* data)
     : m_data(*data)
+    , m_parentWindow(parentWindow)
 {
-    std::cout << m_data->GetDestination() << '\n';
+    InitializeWebView();
+}
+
+void WebView2BrowserWindow::InitializeWebView() noexcept
+{
+    CreateCoreWebView2Environment(Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
+        [&](HRESULT result, ICoreWebView2Environment* env) mutable noexcept -> HRESULT {
+            if (FAILED(result)) {
+                std::cout << "Failed to init env" << '\n';
+                return result;
+            }
+
+            return env->CreateCoreWebView2Controller(m_parentWindow,
+                Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
+                    [&](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+                        if (FAILED(result)) {
+                            std::cout << "Failed to init controller" << '\n';
+                            return result;
+                        }
+
+                        if (controller != nullptr) {
+                            m_controller = controller;
+                            m_controller->get_CoreWebView2(&m_webView);
+                        }
+
+                        RECT bounds;
+                        GetClientRect(m_parentWindow, &bounds);
+                        m_controller->put_Bounds(bounds);
+
+                        std::wcout << "Attempting to navigate to " << m_data->GetDestination() << '\n';
+                        m_webView->Navigate(m_data->GetDestination().c_str());
+
+                        return S_OK;
+                    })
+                    .Get());
+        }).Get());
 }
 
 void WebView2BrowserWindow::Destroy() { std::cout << "Attempting to destroy browser window"; }
@@ -111,5 +146,5 @@ void WebView2BrowserWindow::Resize()
 void WebView2BrowserWindow::Navigate()
 {
     std::cout << "Attempting to navigate to: ";
-    std::cout << m_data->GetDestination() << '\n';
+    std::wcout << m_data->GetDestination() << '\n';
 }

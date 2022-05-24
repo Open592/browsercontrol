@@ -3,7 +3,9 @@
 #include "Win32BrowserControl.hpp"
 #include "WebView2BrowserWindow.hpp"
 
-HWND Win32BrowserControl::ResolveParentWindow(JNIEnv* env, jobject canvas)
+using namespace Microsoft::WRL;
+
+HWND Win32BrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas)
 {
     JAWT awt;
 
@@ -75,9 +77,9 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
         return false;
     }
 
-    m_parentWindow = ResolveParentWindow(env, canvas);
+    m_hostWindow = ResolveHostWindow(env, canvas);
 
-    if (m_parentWindow == nullptr) {
+    if (m_hostWindow == nullptr) {
         return false;
     }
 
@@ -103,7 +105,7 @@ bool Win32BrowserControl::IsRunning() const noexcept { return m_browserWindowSta
 void Win32BrowserControl::StartMessagePump()
 {
 
-    m_browserWindow = WebView2BrowserWindow::Create(m_parentWindow, m_browserData);
+    m_browserWindow = WebView2BrowserWindow::Create(m_hostWindow, m_browserData);
 
     if (m_browserWindow == nullptr) {
         // Notify the caller that we have failed

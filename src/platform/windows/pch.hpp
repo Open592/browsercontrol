@@ -6,6 +6,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include <wil/com.h>
+#include <wrl.h>
+
+#include "WebView2.h"
+
 #include <jawt_md.h>
 #include <jni.h>
 
@@ -13,5 +18,6 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <utility>
 
 #endif // BROWSERCONTROL_PCH_HPP

@@ -10,22 +10,27 @@ BrowserData::BrowserData()
      * Difference:
      * - In the original code this was "www.jagex.com"
      */
-    : m_destination("https://www.jagex.com")
+    : m_destination(L"https://www.jagex.com")
     , m_size(std::make_pair(CW_USEDEFAULT, CW_USEDEFAULT))
 {
 }
 
-const std::string& BrowserData::GetDestination() const noexcept { return m_destination; }
+const std::wstring& BrowserData::GetDestination() const noexcept { return m_destination; }
 int BrowserData::GetWidth() const noexcept { return m_size.first; }
 int BrowserData::GetHeight() const noexcept { return m_size.second; }
 
-void BrowserData::SetDestination(const char* destination) noexcept
+void BrowserData::SetDestination(std::string_view destination) noexcept
 {
-    if (destination == nullptr) {
+    if (destination.empty()) {
         return;
     }
 
-    m_destination = destination;
+    size_t size
+        = MultiByteToWideChar(CP_UTF8, 0, destination.data(), static_cast<int>(destination.length()), nullptr, 0);
+    std::wstring result(size, 0);
+    MultiByteToWideChar(CP_UTF8, 0, destination.data(), static_cast<int>(destination.length()), result.data(), size);
+
+    m_destination = result;
 }
 
 void BrowserData::SetSize(int width, int height) noexcept { m_size = std::make_pair(width, height); }

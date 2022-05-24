@@ -25,12 +25,12 @@ private:
         TERMINATED,
     };
 
-    [[nodiscard]] static HWND ResolveParentWindow(JNIEnv*, jobject);
+    [[nodiscard]] static HWND ResolveHostWindow(JNIEnv*, jobject);
 
     void StartMessagePump();
 
     HWND m_browserWindow = nullptr;
-    HWND m_parentWindow = nullptr;
+    HWND m_hostWindow = nullptr;
 
     std::shared_ptr<BrowserData> m_browserData;
     std::atomic<BrowserWindowStatus> m_browserWindowStatus;
