@@ -23,9 +23,7 @@ public:
      * dll caller as well as the web view.
      */
     void SetDestination(const char*) noexcept;
-
-    void SetWidth(int) noexcept;
-    void SetHeight(int) noexcept;
+    void SetSize(int, int) noexcept;
 
 private:
     std::string m_destination;
@@ -36,8 +34,7 @@ private:
      * Decompiled example of resize event handler:
      * `SetWindowPos(HWND_18000e1a0,(HWND)0x0,0,0,(int)width,(int)height,0x16);`
      */
-    int m_width;
-    int m_height;
+    std::pair<int, int> m_size;
 };
 
 #endif // BROWSERDATA_HPP

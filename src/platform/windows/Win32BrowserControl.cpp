@@ -108,7 +108,7 @@ void Win32BrowserControl::StartMessagePump()
     if (m_browserWindow == nullptr) {
         // Notify the caller that we have failed
         m_browserWindowStatus = BrowserWindowStatus::FAILED_TO_START;
-        m_browserWindowStatus.notify_all();
+        m_browserWindowStatus.notify_one();
 
         return;
     }
@@ -116,7 +116,7 @@ void Win32BrowserControl::StartMessagePump()
     // We have successfully created our browser window and are prepared to start accepting messages.
     // At this point browsercontrol0() has fulfilled its duty, and we can signal success back to the caller
     m_browserWindowStatus = BrowserWindowStatus::RUNNING;
-    m_browserWindowStatus.notify_all();
+    m_browserWindowStatus.notify_one();
 
     MSG msg;
     BOOL ret;
@@ -142,8 +142,7 @@ void Win32BrowserControl::Destroy() noexcept
 
 void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept
 {
-    m_browserData->SetWidth(width);
-    m_browserData->SetHeight(height);
+    m_browserData->SetSize(width, height);
 
     SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::RESIZE), NULL, NULL);
 }
