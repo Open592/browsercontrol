@@ -74,7 +74,14 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         message(FATAL_ERROR "Failed to retrieve WebView2 - Unable to proceed!")
     endif ()
 
+    NuGetFetch(WindowsImplementationLibrary Microsoft.Windows.ImplementationLibrary "1.0.220201.1")
+
+    if (NOT EXISTS ${WindowsImplementationLibrary-PATH})
+        message(FATAL_ERROR "Failed to retrieve Windows Implementation Library - Unable to proceed!")
+    endif ()
+
     target_include_directories(browsercontrol PRIVATE ${WebView2-PATH}/build/native/include)
+    target_include_directories(browsercontrol PRIVATE ${WindowsImplementationLibrary-PATH}/include)
 
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         target_link_libraries(browsercontrol PRIVATE ${WebView2-PATH}/build/native/x64/WebView2LoaderStatic.lib)
