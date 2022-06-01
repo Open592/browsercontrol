@@ -33,7 +33,7 @@ private:
     static constexpr auto WindowName = "jbw";
 
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-
+    static std::optional<std::wstring> GetUserDataDirectory() noexcept;
     void InitializeWebView() noexcept;
 
     void Destroy();

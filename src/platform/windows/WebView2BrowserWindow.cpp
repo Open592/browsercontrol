@@ -12,7 +12,7 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
     case WM_CREATE: {
         auto*& createStruct = reinterpret_cast<const CREATESTRUCT*&>(lParam);
         auto* data = static_cast<std::shared_ptr<BrowserData>*>(createStruct->lpCreateParams);
-        auto* instance = new WebView2BrowserWindow(createStruct->hwndParent, data);
+        auto* instance = new WebView2BrowserWindow(hwnd, data);
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)instance);
     } break;
@@ -20,28 +20,32 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
         delete Get(hwnd);
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
-
         PostQuitMessage(EXIT_SUCCESS);
 
         return EXIT_SUCCESS;
     case static_cast<UINT>(EventType::DESTROY):
         Get(hwnd)->Destroy();
-
-        SetParent(hwnd, nullptr);
-        DestroyWindow(hwnd);
-
         break;
     case static_cast<UINT>(EventType::RESIZE):
         Get(hwnd)->Resize();
         break;
-    case static_cast<UINT>(EventType::NAVIGATE): {
+    case static_cast<UINT>(EventType::NAVIGATE):
         Get(hwnd)->Navigate();
-    } break;
-    default:
         break;
+    default:
+        return DefWindowProc(hwnd, message, wParam, lParam);
     }
 
-    return DefWindowProc(hwnd, message, wParam, lParam);
+    return 0;
+}
+
+std::optional<std::wstring> WebView2BrowserWindow::GetUserDataDirectory() noexcept
+{
+    try {
+        return std::filesystem::temp_directory_path().wstring();
+    } catch (std::filesystem::filesystem_error& e) {
+        return std::nullopt;
+    }
 }
 
 HINSTANCE WebView2BrowserWindow::Register()
@@ -90,8 +94,8 @@ HWND WebView2BrowserWindow::Create(HWND hostWindow, std::shared_ptr<BrowserData>
         return nullptr;
     }
 
-    return CreateWindowEx(WMSZ_LEFT, WindowClassName, WindowName, WS_CHILDWINDOW | WS_HSCROLL, 0, 0, CW_USEDEFAULT,
-        CW_USEDEFAULT, hostWindow, nullptr, instance, &data);
+    return CreateWindowEx(WS_EX_LEFT, WindowClassName, WindowName, WS_CHILDWINDOW | WS_VISIBLE, 0, 0, data->GetWidth(),
+        data->GetHeight(), hostWindow, nullptr, instance, &data);
 }
 
 WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, const std::shared_ptr<BrowserData>* data)
@@ -103,48 +107,74 @@ WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, const std::share
 
 void WebView2BrowserWindow::InitializeWebView() noexcept
 {
-    CreateCoreWebView2Environment(Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-        [&](HRESULT result, ICoreWebView2Environment* env) mutable noexcept -> HRESULT {
-            if (FAILED(result)) {
-                std::cout << "Failed to init env" << '\n';
-                return result;
-            }
+    auto userDataDirectory = GetUserDataDirectory();
 
-            return env->CreateCoreWebView2Controller(m_parentWindow,
-                Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                    [&](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
-                        if (FAILED(result)) {
-                            std::cout << "Failed to init controller" << '\n';
-                            return result;
-                        }
+    if (!userDataDirectory.has_value()) {
+        return;
+    }
 
-                        if (controller != nullptr) {
+    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataDirectory->c_str(), nullptr,
+        Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
+            [&](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
+                if (FAILED(result) || !env) {
+                    return E_FAIL;
+                }
+
+                env->CreateCoreWebView2Controller(m_parentWindow,
+                    Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
+                        [&](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+                            if (FAILED(result) || !controller) {
+                                return E_FAIL;
+                            }
+
                             m_controller = controller;
                             m_controller->get_CoreWebView2(&m_webView);
-                        }
 
-                        RECT bounds;
-                        GetClientRect(m_parentWindow, &bounds);
-                        m_controller->put_Bounds(bounds);
+                            ICoreWebView2Settings* settings;
+                            m_webView->get_Settings(&settings);
 
-                        std::wcout << "Attempting to navigate to " << m_data->GetDestination() << '\n';
-                        m_webView->Navigate(m_data->GetDestination().c_str());
+                            settings->put_AreDefaultContextMenusEnabled(false);
+                            settings->put_AreDefaultScriptDialogsEnabled(false);
+                            settings->put_IsBuiltInErrorPageEnabled(false);
+                            settings->put_AreDevToolsEnabled(false);
+                            settings->put_IsStatusBarEnabled(false);
+                            settings->put_IsZoomControlEnabled(false);
 
-                        return S_OK;
-                    })
-                    .Get());
-        }).Get());
+                            Resize();
+                            Navigate();
+
+                            return S_OK;
+                        })
+                        .Get());
+                return S_OK;
+            })
+            .Get());
 }
 
-void WebView2BrowserWindow::Destroy() { std::cout << "Attempting to destroy browser window"; }
+void WebView2BrowserWindow::Destroy()
+{
+    SetParent(m_parentWindow, nullptr);
+    DestroyWindow(m_parentWindow);
+
+    std::cout << "Attempting to destroy browser window" << '\n';
+}
 
 void WebView2BrowserWindow::Resize()
 {
-    std::cout << m_data->GetWidth() << '\n';
-    std::cout << m_data->GetHeight() << '\n';
+    SetWindowPos(m_parentWindow, nullptr, 0, 0, m_data->GetWidth(), m_data->GetHeight(),
+        SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_FRAMECHANGED);
+
+    if (m_controller != nullptr) {
+        RECT bounds;
+        GetClientRect(m_parentWindow, &bounds);
+
+        m_controller->put_Bounds(bounds);
+    }
 }
+
 void WebView2BrowserWindow::Navigate()
 {
-    std::cout << "Attempting to navigate to: ";
-    std::wcout << m_data->GetDestination() << '\n';
+    if (m_webView != nullptr) {
+        m_webView->Navigate(m_data->GetDestination().c_str());
+    }
 }

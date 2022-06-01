@@ -8,7 +8,7 @@ BrowserData::BrowserData()
      * value within the thread proc which initializes the window/browser view
      *
      * Difference:
-     * - In the original code this was "www.jagex.com"
+     * - In the original code this was just "www.jagex.com" (no https)
      */
     : m_destination(L"https://www.jagex.com")
     , m_size(std::make_pair(CW_USEDEFAULT, CW_USEDEFAULT))

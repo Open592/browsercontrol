@@ -104,15 +104,14 @@ bool Win32BrowserControl::IsRunning() const noexcept { return m_browserWindowSta
 
 void Win32BrowserControl::StartMessagePump()
 {
+    if (!SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED))) {
+        goto handle_error;
+    }
 
     m_browserWindow = WebView2BrowserWindow::Create(m_hostWindow, m_browserData);
 
     if (m_browserWindow == nullptr) {
-        // Notify the caller that we have failed
-        m_browserWindowStatus = BrowserWindowStatus::FAILED_TO_START;
-        m_browserWindowStatus.notify_one();
-
-        return;
+        goto handle_error;
     }
 
     // We have successfully created our browser window and are prepared to start accepting messages.
@@ -123,16 +122,23 @@ void Win32BrowserControl::StartMessagePump()
     MSG msg;
     BOOL ret;
 
-    while ((ret = GetMessage(&msg, m_browserWindow, 0, 0)) != 0) {
+    while ((ret = GetMessage(&msg, nullptr, 0, 0)) != 0) {
         if (ret == -1) {
             // Our window quit receiving messages without receiving WM_QUIT. This is an error but at this
-            // point we detached from the original caller, so there is no one to signal this error to.
+            // point we are detached from the original caller, so there is no one to signal this error to.
             return;
         }
 
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
+    return;
+
+handle_error:
+    // Notify caller that we failed
+    m_browserWindowStatus = BrowserWindowStatus::FAILED_TO_START;
+    m_browserWindowStatus.notify_one();
 }
 
 void Win32BrowserControl::Destroy() noexcept
