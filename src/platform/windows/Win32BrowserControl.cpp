@@ -63,7 +63,6 @@ HWND Win32BrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas)
 
 Win32BrowserControl::Win32BrowserControl(std::shared_ptr<BrowserData>&& browserData)
     : m_browserData(std::move(browserData))
-    , m_browserWindowStatus(BrowserWindowStatus::NOT_STARTED)
 {
     // Initialize the browser window module
     WebView2BrowserWindow::Register();
@@ -94,13 +93,12 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
     m_browserWindowThread = std::jthread([&] { StartMessagePump(); });
 #pragma clang diagnostic pop
 
-    // Block until we have received the status of the browser window creation
-    m_browserWindowStatus.wait(BrowserWindowStatus::NOT_STARTED);
+    m_browserData->WaitForInitializationResult();
 
     return IsRunning();
 }
 
-bool Win32BrowserControl::IsRunning() const noexcept { return m_browserWindowStatus == BrowserWindowStatus::RUNNING; }
+bool Win32BrowserControl::IsRunning() const noexcept { return m_browserData->IsRunning(); }
 
 void Win32BrowserControl::StartMessagePump()
 {
@@ -113,11 +111,6 @@ void Win32BrowserControl::StartMessagePump()
     if (m_browserWindow == nullptr) {
         goto handle_error;
     }
-
-    // We have successfully created our browser window and are prepared to start accepting messages.
-    // At this point browsercontrol0() has fulfilled its duty, and we can signal success back to the caller
-    m_browserWindowStatus = BrowserWindowStatus::RUNNING;
-    m_browserWindowStatus.notify_one();
 
     MSG msg;
     BOOL ret;
@@ -137,15 +130,12 @@ void Win32BrowserControl::StartMessagePump()
 
 handle_error:
     // Notify caller that we failed
-    m_browserWindowStatus = BrowserWindowStatus::FAILED_TO_START;
-    m_browserWindowStatus.notify_one();
+    m_browserData->SetStatus(BrowserData::Status::FAILED_TO_START);
 }
 
 void Win32BrowserControl::Destroy() noexcept
 {
     SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::DESTROY), NULL, NULL);
-
-    m_browserWindowStatus = BrowserWindowStatus::TERMINATED;
 }
 
 void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept

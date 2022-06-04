@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <iostream>
-
 #include "WebView2BrowserWindow.hpp"
 
 using namespace Microsoft::WRL;
@@ -143,6 +141,11 @@ void WebView2BrowserWindow::InitializeWebView() noexcept
                             Resize();
                             Navigate();
 
+                            // We have successfully created our browser window and are prepared to start accepting
+                            // messages. At this point initialization has finished, and we can signal success back to
+                            // the caller
+                            m_data->SetStatus(BrowserData::Status::RUNNING);
+
                             return S_OK;
                         })
                         .Get());
@@ -153,10 +156,12 @@ void WebView2BrowserWindow::InitializeWebView() noexcept
 
 void WebView2BrowserWindow::Destroy()
 {
+    // At this point we are about to destroy the backing windows of the browser control. Any further calls to
+    // exported functions will result in failures, so we must mark the browser control as terminated.
+    m_data->SetStatus(BrowserData::Status::TERMINATED);
+
     SetParent(m_parentWindow, nullptr);
     DestroyWindow(m_parentWindow);
-
-    std::cout << "Attempting to destroy browser window" << '\n';
 }
 
 void WebView2BrowserWindow::Resize()

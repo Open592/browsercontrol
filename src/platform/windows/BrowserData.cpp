@@ -12,12 +12,17 @@ BrowserData::BrowserData()
      */
     : m_destination(L"https://www.jagex.com")
     , m_size(std::make_pair(CW_USEDEFAULT, CW_USEDEFAULT))
+    , m_status(Status::NOT_STARTED)
 {
 }
 
 const std::wstring& BrowserData::GetDestination() const noexcept { return m_destination; }
+
 int BrowserData::GetWidth() const noexcept { return m_size.first; }
+
 int BrowserData::GetHeight() const noexcept { return m_size.second; }
+
+bool BrowserData::IsRunning() const noexcept { return m_status == Status::RUNNING; }
 
 void BrowserData::SetDestination(std::string_view destination) noexcept
 {
@@ -34,3 +39,17 @@ void BrowserData::SetDestination(std::string_view destination) noexcept
 }
 
 void BrowserData::SetSize(int width, int height) noexcept { m_size = std::make_pair(width, height); }
+
+void BrowserData::SetStatus(Status status) noexcept
+{
+    m_status = status;
+    m_status.notify_all();
+}
+
+/**
+ * Allow for waiting until the browser status has transitioned from a value other than NOT_STARTED.
+ *
+ * TODO: I don't know how I feel about this function. It's only user will be Win32BrowserControl::Initialize and part
+ * of me feels we should just expose the underlying m_status for direct calling of ::wait
+ */
+void BrowserData::WaitForInitializationResult() noexcept { m_status.wait(Status::NOT_STARTED); }

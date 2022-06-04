@@ -26,7 +26,7 @@ public:
      *
      * @return Returns truthy when the browser window is successfully running
      */
-    virtual bool IsRunning() const noexcept = 0;
+    [[nodiscard]] virtual bool IsRunning() const noexcept = 0;
 
     /**
      * @brief Destroy the browser window
