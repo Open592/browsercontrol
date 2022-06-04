@@ -32,7 +32,7 @@ public:
     void SetDestination(std::string_view) noexcept;
     void SetSize(int, int) noexcept;
     void SetStatus(Status) noexcept;
-    void WaitForInitializationResult() noexcept;
+    [[nodiscard]] bool WaitForInitializationResult() noexcept;
 
 private:
     std::wstring m_destination;

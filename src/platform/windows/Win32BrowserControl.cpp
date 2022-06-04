@@ -93,9 +93,7 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
     m_browserWindowThread = std::jthread([&] { StartMessagePump(); });
 #pragma clang diagnostic pop
 
-    m_browserData->WaitForInitializationResult();
-
-    return IsRunning();
+    return m_browserData->WaitForInitializationResult();
 }
 
 bool Win32BrowserControl::IsRunning() const noexcept { return m_browserData->IsRunning(); }

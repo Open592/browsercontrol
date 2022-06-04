@@ -47,9 +47,11 @@ void BrowserData::SetStatus(Status status) noexcept
 }
 
 /**
- * Allow for waiting until the browser status has transitioned from a value other than NOT_STARTED.
- *
- * TODO: I don't know how I feel about this function. It's only user will be Win32BrowserControl::Initialize and part
- * of me feels we should just expose the underlying m_status for direct calling of ::wait
+ * Report the initialization result after the browser status has transitioned to something other than NOT_STARTED
  */
-void BrowserData::WaitForInitializationResult() noexcept { m_status.wait(Status::NOT_STARTED); }
+bool BrowserData::WaitForInitializationResult() noexcept
+{
+    m_status.wait(Status::NOT_STARTED);
+
+    return IsRunning();
+}
