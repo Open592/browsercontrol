@@ -39,9 +39,18 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
 
 std::optional<std::wstring> WebView2BrowserWindow::GetUserDataDirectory() noexcept
 {
+    PWSTR path = nullptr;
+    auto hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &path);
+
+    if (!SUCCEEDED(hr)) {
+        return std::nullopt;
+    }
+
     try {
-        return std::filesystem::temp_directory_path().wstring();
-    } catch (std::filesystem::filesystem_error& e) {
+        auto p = std::filesystem::path(path);
+
+        return std::filesystem::canonical(p).wstring();
+    } catch (std::filesystem::filesystem_error&) {
         return std::nullopt;
     }
 }
