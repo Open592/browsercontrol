@@ -8,9 +8,9 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
 {
     switch (message) {
     case WM_CREATE: {
-        auto*& createStruct = reinterpret_cast<const CREATESTRUCT*&>(lParam);
+        auto* createStruct = std::bit_cast<CREATESTRUCT*>(lParam);
         auto* data = static_cast<std::shared_ptr<BrowserData>*>(createStruct->lpCreateParams);
-        auto* instance = new WebView2BrowserWindow(hwnd, data);
+        auto* instance = new WebView2BrowserWindow(hwnd, *data);
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)instance);
     } break;
@@ -39,17 +39,17 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
 
 std::optional<std::wstring> WebView2BrowserWindow::GetUserDataDirectory() noexcept
 {
-    PWSTR path = nullptr;
-    auto hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &path);
+    PWSTR localAppDataPath = nullptr;
+    auto hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &localAppDataPath);
 
     if (!SUCCEEDED(hr)) {
         return std::nullopt;
     }
 
     try {
-        auto p = std::filesystem::path(path);
+        auto path = std::filesystem::path(localAppDataPath);
 
-        return std::filesystem::canonical(p).wstring();
+        return std::filesystem::canonical(path).wstring();
     } catch (std::filesystem::filesystem_error&) {
         return std::nullopt;
     }
@@ -105,8 +105,8 @@ HWND WebView2BrowserWindow::Create(HWND hostWindow, std::shared_ptr<BrowserData>
         data->GetHeight(), hostWindow, nullptr, instance, &data);
 }
 
-WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, const std::shared_ptr<BrowserData>* data)
-    : m_data(*data)
+WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, std::shared_ptr<BrowserData> data)
+    : m_data(data)
     , m_parentWindow(parentWindow)
 {
     InitializeWebView();

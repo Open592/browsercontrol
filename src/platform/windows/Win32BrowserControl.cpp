@@ -61,8 +61,8 @@ HWND Win32BrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas)
     return nullptr;
 }
 
-Win32BrowserControl::Win32BrowserControl(std::shared_ptr<BrowserData>&& browserData)
-    : m_browserData(std::move(browserData))
+Win32BrowserControl::Win32BrowserControl()
+    : m_browserData(std::make_shared<BrowserData>())
 {
     // Initialize the browser window module
     WebView2BrowserWindow::Register();

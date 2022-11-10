@@ -8,7 +8,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
 {
     try {
         if (dwReason == DLL_PROCESS_ATTACH) {
-            auto control = std::make_unique<Win32BrowserControl>(std::make_shared<BrowserData>());
+            auto control = std::make_unique<Win32BrowserControl>();
 
             return BrowserContext::the().RegisterBrowserControl(std::move(control));
         } else if (dwReason == DLL_PROCESS_DETACH) {

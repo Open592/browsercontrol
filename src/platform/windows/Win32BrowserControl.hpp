@@ -8,7 +8,7 @@
 
 class Win32BrowserControl : public AbstractBrowserControl {
 public:
-    explicit Win32BrowserControl(std::shared_ptr<BrowserData>&&);
+    Win32BrowserControl();
 
     ~Win32BrowserControl() override;
     bool Initialize(JNIEnv*, jobject, const char*) noexcept override;

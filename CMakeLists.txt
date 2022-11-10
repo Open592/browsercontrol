@@ -21,7 +21,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
             "$<$<CONFIG:DEBUG>:/Od>"
             "$<$<CONFIG:DEBUG>:/Z7>"
             "$<$<CONFIG:DEBUG>:/DEBUG>"
-            "$<$<CONFIG:RELEASE>:/Ox>"
+            "$<$<CONFIG:RELEASE>:/O2>"
     )
 endif ()
 

@@ -26,7 +26,7 @@ public:
     static bool Unregister();
     static HWND Create(HWND, std::shared_ptr<BrowserData>);
 
-    explicit WebView2BrowserWindow(HWND, const std::shared_ptr<BrowserData>*);
+    explicit WebView2BrowserWindow(HWND, std::shared_ptr<BrowserData>);
 
 private:
     static constexpr auto WindowClassName = "Jb";
@@ -40,7 +40,7 @@ private:
     void Navigate();
     void Resize();
 
-    const std::shared_ptr<BrowserData> m_data;
+    std::shared_ptr<BrowserData> m_data;
     HWND m_parentWindow;
     wil::com_ptr<ICoreWebView2Controller> m_controller;
     wil::com_ptr<ICoreWebView2> m_webView;

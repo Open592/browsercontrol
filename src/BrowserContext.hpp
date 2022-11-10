@@ -49,7 +49,7 @@ public:
      * @return Returns truthy if we were able to successfully register the
      * browser control
      */
-    bool RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&&);
+    bool RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>);
 
     /**
      * @brief Unregister the browser control
@@ -85,7 +85,7 @@ public:
 private:
     BrowserContext() = default;
 
-    std::unique_ptr<AbstractBrowserControl> m_control = nullptr;
+    std::unique_ptr<AbstractBrowserControl> m_control;
 };
 
 #endif // BROWSERCONTEXT_HPP
