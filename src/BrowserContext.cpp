@@ -2,7 +2,7 @@
 
 #include "BrowserContext.hpp"
 
-bool BrowserContext::RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl> control)
+bool BrowserContext::RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&& control)
 {
     if (m_control) {
         // If we attempt to register multiple browser controls with the browser

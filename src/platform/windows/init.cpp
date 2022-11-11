@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "../../BrowserContext.hpp"
-#include "BrowserData.hpp"
 #include "Win32BrowserControl.hpp"
 
-extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
+extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpReserved)
 {
     try {
-        if (dwReason == DLL_PROCESS_ATTACH) {
-            auto control = std::make_unique<Win32BrowserControl>();
-
-            return BrowserContext::the().RegisterBrowserControl(std::move(control));
-        } else if (dwReason == DLL_PROCESS_DETACH) {
+        if (fdwReason == DLL_PROCESS_ATTACH) {
+            return BrowserContext::the().RegisterBrowserControl(std::make_unique<Win32BrowserControl>());
+        } else if (fdwReason == DLL_PROCESS_DETACH) {
             return BrowserContext::the().UnregisterBrowserControl();
         }
 
