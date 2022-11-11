@@ -91,14 +91,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         set(WEBVIEW2_ARCH_DIRECTORY ${WebView2-PATH}/build/native/x86)
     endif()
 
-    target_link_libraries(browsercontrol PRIVATE ${WEBVIEW2_ARCH_DIRECTORY}/WebView2Loader.dll.lib)
-
-    # We need to copy WebView2Loader.dll to the output directory
-    add_custom_command(TARGET browsercontrol POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${WEBVIEW2_ARCH_DIRECTORY}/WebView2Loader.dll $<TARGET_FILE_DIR:browsercontrol>
-            COMMENT "Copy WebView2Loader.dll to runtime output directory"
-            VERBATIM
-            )
+    target_link_libraries(browsercontrol PRIVATE ${WEBVIEW2_ARCH_DIRECTORY}/WebView2LoaderStatic.lib)
 endif ()
 
 install(TARGETS browsercontrol
