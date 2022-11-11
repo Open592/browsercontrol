@@ -68,7 +68,7 @@ target_link_libraries(browsercontrol PRIVATE ${JNI_LIBRARIES})
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     include(NuGetFetch)
 
-    NuGetFetch(WebView2 "Microsoft.Web.WebView2" "1.0.1222-prerelease")
+    NuGetFetch(WebView2 "Microsoft.Web.WebView2" "1.0.1418.22")
 
     if (NOT EXISTS ${WebView2-PATH})
         message(FATAL_ERROR "Failed to retrieve WebView2 - Unable to proceed!")
@@ -83,11 +83,22 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_include_directories(browsercontrol PRIVATE ${WebView2-PATH}/build/native/include)
     target_include_directories(browsercontrol PRIVATE ${WindowsImplementationLibrary-PATH}/include)
 
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        target_link_libraries(browsercontrol PRIVATE ${WebView2-PATH}/build/native/x64/WebView2LoaderStatic.lib)
-    else ()
-        target_link_libraries(browsercontrol PRIVATE ${WebView2-PATH}/build/native/x86/WebView2LoaderStatic.lib)
-    endif ()
+    if (CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64")
+        set(WEBVIEW2_ARCH_DIRECTORY ${WebView2-PATH}/build/native/arm64)
+    elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(WEBVIEW2_ARCH_DIRECTORY ${WebView2-PATH}/build/native/x64)
+    else()
+        set(WEBVIEW2_ARCH_DIRECTORY ${WebView2-PATH}/build/native/x86)
+    endif()
+
+    target_link_libraries(browsercontrol PRIVATE ${WEBVIEW2_ARCH_DIRECTORY}/WebView2Loader.dll.lib)
+
+    # We need to copy WebView2Loader.dll to the output directory
+    add_custom_command(TARGET browsercontrol POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy ${WEBVIEW2_ARCH_DIRECTORY}/WebView2Loader.dll $<TARGET_FILE_DIR:browsercontrol>
+            COMMENT "Copy WebView2Loader.dll to runtime output directory"
+            VERBATIM
+            )
 endif ()
 
 install(TARGETS browsercontrol
