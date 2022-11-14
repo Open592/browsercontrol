@@ -29,7 +29,7 @@ public:
      * validity or security of a particular URL. This is left up to the
      * dll caller as well as the web view.
      */
-    void SetDestination(std::string_view) noexcept;
+    void SetDestination(std::wstring&&) noexcept;
     void SetSize(int, int) noexcept;
     void SetStatus(Status) noexcept;
     [[nodiscard]] bool WaitForInitializationResult() noexcept;

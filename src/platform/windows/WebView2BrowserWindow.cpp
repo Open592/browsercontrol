@@ -106,7 +106,7 @@ HWND WebView2BrowserWindow::Create(HWND hostWindow, std::shared_ptr<BrowserData>
 }
 
 WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, std::shared_ptr<BrowserData> data)
-    : m_data(data)
+    : m_data(std::move(data))
     , m_parentWindow(parentWindow)
 {
     InitializeWebView();

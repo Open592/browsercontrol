@@ -19,7 +19,7 @@ public:
      *
      * @return Returns truthy on success.
      */
-    virtual bool Initialize(JNIEnv*, jobject, const char*) = 0;
+    virtual bool Initialize(JNIEnv*, jobject, const jchar*) = 0;
 
     /**
      * @brief Checks if the browser window is running
@@ -44,9 +44,10 @@ public:
     /**
      * @brief Signal the browser window that we must navigate to a new URL
      *
-     * @param destination
+     * @param destination Unicode encoded string respresenting the location
+     * we wish to navigate to
      */
-    virtual void Navigate(const char* destination) = 0;
+    virtual void Navigate(const jchar* destination) = 0;
 };
 
 #endif /* ABSTRACTBROWSERCONTROL_H */

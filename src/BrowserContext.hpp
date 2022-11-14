@@ -74,13 +74,13 @@ public:
      *
      * @return Returns truthy if we were able to successfully initialize the browser control
      */
-    bool InitializeBrowserWindow(JNIEnv*, jobject, const char*) const noexcept;
+    bool InitializeBrowserWindow(JNIEnv*, jobject, const jchar*) const noexcept;
 
     void DestroyBrowserWindow() const noexcept;
 
     void ResizeBrowserWindow(int32_t, int32_t) const noexcept;
 
-    void Navigate(const char*) const noexcept;
+    void Navigate(const jchar*) const noexcept;
 
 private:
     BrowserContext() = default;

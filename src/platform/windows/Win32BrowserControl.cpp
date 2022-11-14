@@ -5,6 +5,11 @@
 
 using namespace Microsoft::WRL;
 
+// Ensure we can safely cast (const) jchar* to (const) WCHAR*
+// This is true with MSVC which is the only environment this code
+// should be running within.
+static_assert(sizeof(jchar) == sizeof(WCHAR), "jchar and WCHAR *SHOULD* be the same size!");
+
 HWND Win32BrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas)
 {
     JAWT awt;
@@ -61,6 +66,18 @@ HWND Win32BrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas)
     return nullptr;
 }
 
+std::wstring Win32BrowserControl::GetJavaWString(const jchar* str)
+{
+    std::wstring result;
+
+    if (str != nullptr) {
+        // We can safely reinterpret_cast since we verified that jchar and WCHAR are the same size
+        result.assign(reinterpret_cast<const WCHAR*>(str));
+    }
+
+    return result;
+}
+
 Win32BrowserControl::Win32BrowserControl()
     : m_browserData(std::make_shared<BrowserData>())
 {
@@ -70,7 +87,7 @@ Win32BrowserControl::Win32BrowserControl()
 
 Win32BrowserControl::~Win32BrowserControl() { WebView2BrowserWindow::Unregister(); }
 
-bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* initialDestination) noexcept
+bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const jchar* initialDestination) noexcept
 {
     if (canvas == nullptr) {
         return false;
@@ -82,9 +99,10 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const char* in
         return false;
     }
 
+    std::wstring destination = GetJavaWString(initialDestination);
     // On initialization of the browser context a default value is set for the destination.
     // We must update this with the initial destination sent during browsercontrol0()
-    m_browserData->SetDestination(initialDestination);
+    m_browserData->SetDestination(std::move(destination));
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnusedValue"
@@ -143,9 +161,10 @@ void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept
     SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::RESIZE), NULL, NULL);
 }
 
-void Win32BrowserControl::Navigate(const char* destination) noexcept
+void Win32BrowserControl::Navigate(const jchar* destination) noexcept
 {
-    m_browserData->SetDestination(destination);
+    std::wstring dest = GetJavaWString(destination);
+    m_browserData->SetDestination(std::move(dest));
 
     SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::NAVIGATE), NULL, NULL);
 }

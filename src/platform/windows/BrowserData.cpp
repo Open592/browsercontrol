@@ -24,18 +24,13 @@ int BrowserData::GetHeight() const noexcept { return m_size.second; }
 
 bool BrowserData::IsRunning() const noexcept { return m_status == Status::RUNNING; }
 
-void BrowserData::SetDestination(std::string_view destination) noexcept
+void BrowserData::SetDestination(std::wstring&& destination) noexcept
 {
     if (destination.empty()) {
         return;
     }
 
-    size_t size
-        = MultiByteToWideChar(CP_UTF8, 0, destination.data(), static_cast<int>(destination.length()), nullptr, 0);
-    std::wstring result(size, 0);
-    MultiByteToWideChar(CP_UTF8, 0, destination.data(), static_cast<int>(destination.length()), result.data(), size);
-
-    m_destination = result;
+    m_destination = std::move(destination);
 }
 
 void BrowserData::SetSize(int width, int height) noexcept { m_size = std::make_pair(width, height); }
