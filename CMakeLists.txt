@@ -62,7 +62,7 @@ target_include_directories(browsercontrol
         .
         )
 
-target_link_libraries(browsercontrol PRIVATE ${JNI_LIBRARIES})
+target_link_libraries(browsercontrol PRIVATE ${JNI_LIBRARIES} urlmon.lib)
 
 # For Windows we need to include the WebView2 SDK
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")

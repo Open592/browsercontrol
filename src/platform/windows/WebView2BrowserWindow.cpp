@@ -37,6 +37,75 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
     return 0;
 }
 
+bool WebView2BrowserWindow::EnsureWebViewIsAvailable() noexcept
+{
+    wchar_t* version;
+    HRESULT hr = GetAvailableCoreWebView2BrowserVersionString(nullptr, &version);
+
+    if (FAILED(hr) || version == nullptr) {
+        return InstallWebView();
+    }
+
+    // TODO: Log version found
+    CoTaskMemFree(version);
+
+    return true;
+}
+
+bool WebView2BrowserWindow::InstallWebView() noexcept
+{
+    // Provides a download link for the evergreen installer. This will install the WebView2 runtime
+    // on the user's computer. After installation Microsoft will keep the runtime updated automatically.
+    const wchar_t* evergreenInstallerURL = L"https://go.microsoft.com/fwlink/p/?LinkId=2124703";
+    const wchar_t* installerFilename = L"MicrosoftEdgeWebview2Setup.exe";
+    std::wstring installerPath = (std::filesystem::temp_directory_path() / installerFilename).wstring();
+
+    HRESULT hr = URLDownloadToFile(nullptr, evergreenInstallerURL, installerPath.c_str(), 0, nullptr);
+
+    if (hr != S_OK) {
+        return false;
+    }
+
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+
+    bool success
+        = CreateProcess(installerPath.c_str(), nullptr, nullptr, nullptr, false, 0, nullptr, nullptr, &si, &pi);
+
+    if (!success) {
+        return false;
+    }
+
+    // Wait until installation is complete
+    if (WaitForSingleObject(pi.hProcess, INFINITE) == WAIT_FAILED) {
+        goto handle_error_and_close;
+    }
+
+    DWORD exit_code;
+    if (!SUCCEEDED(GetExitCodeProcess(pi.hProcess, &exit_code))) {
+        goto handle_error_and_close;
+    }
+
+    if (exit_code != EXIT_SUCCESS) {
+        goto handle_error_and_close;
+    }
+
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    return true;
+
+handle_error_and_close:
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    return false;
+}
+
 std::optional<std::wstring> WebView2BrowserWindow::GetUserDataDirectory() noexcept
 {
     PWSTR localAppDataPath = nullptr;
@@ -68,7 +137,7 @@ HINSTANCE WebView2BrowserWindow::Register()
 
     if (!module) {
         if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                reinterpret_cast<LPCSTR>(&Register), &module)) {
+                reinterpret_cast<LPCWSTR>(&Register), &module)) {
             WNDCLASSEX wc = { sizeof(WNDCLASSEX) };
             wc.lpfnWndProc = &WndProc;
             wc.lpszClassName = WindowClassName;
@@ -109,18 +178,31 @@ WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, std::shared_ptr<
     : m_data(std::move(data))
     , m_parentWindow(parentWindow)
 {
-    InitializeWebView();
+    if (!EnsureWebViewIsAvailable()) {
+        m_data->SetStatus(BrowserData::Status::FAILED_TO_START);
+
+        return;
+    }
+
+    if (!InitializeWebView()) {
+        m_data->SetStatus(BrowserData::Status::FAILED_TO_START);
+    } else {
+        // We have successfully created our browser window and are prepared to start accepting
+        // messages. At this point initialization has finished, and we can signal success back to
+        // the caller
+        m_data->SetStatus(BrowserData::Status::RUNNING);
+    }
 }
 
-void WebView2BrowserWindow::InitializeWebView() noexcept
+bool WebView2BrowserWindow::InitializeWebView() noexcept
 {
     auto userDataDirectory = GetUserDataDirectory();
 
     if (!userDataDirectory.has_value()) {
-        return;
+        return false;
     }
 
-    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataDirectory->c_str(), nullptr,
+    HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataDirectory->c_str(), nullptr,
         Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
             [&](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
                 if (FAILED(result) || !env) {
@@ -150,17 +232,18 @@ void WebView2BrowserWindow::InitializeWebView() noexcept
                             Resize();
                             Navigate();
 
-                            // We have successfully created our browser window and are prepared to start accepting
-                            // messages. At this point initialization has finished, and we can signal success back to
-                            // the caller
-                            m_data->SetStatus(BrowserData::Status::RUNNING);
-
                             return S_OK;
                         })
                         .Get());
                 return S_OK;
             })
             .Get());
+
+    if (SUCCEEDED(hr)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void WebView2BrowserWindow::Destroy()

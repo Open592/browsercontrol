@@ -23,6 +23,26 @@ public:
     [[nodiscard]] const std::wstring& GetDestination() const noexcept;
     [[nodiscard]] int GetWidth() const noexcept;
     [[nodiscard]] int GetHeight() const noexcept;
+
+    /**
+     * Returns whether or not the browser window is running.
+     *
+     * This does not mean that the browser window is displaying anything,
+     * but is more of a status indicating we have made a request to the
+     * underlying WebView2 instance that we would like to be running.
+     *
+     * In the case that the WebView2 runtime is not available on the user's
+     * machine we must first bootstrap it. During this process we will not
+     * report truthy from this method. We only begin to return truthy once
+     * we have successfully bootstrapped the WebView2 process.
+     *
+     * Due to this there may be a small delay on the AppletViewer side the
+     * first time users attempt to load the game if they do *not* have
+     * WebView2 installed from previous applications.
+     *
+     * @return Truthy if we have received signs of life from the WebView2
+     * process.
+     */
     [[nodiscard]] bool IsRunning() const noexcept;
     /**
      * Setting the destination does not perform any validation about the

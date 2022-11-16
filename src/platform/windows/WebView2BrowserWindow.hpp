@@ -29,13 +29,30 @@ public:
     explicit WebView2BrowserWindow(HWND, std::shared_ptr<BrowserData>);
 
 private:
-    static constexpr auto WindowClassName = "Jb";
-    static constexpr auto WindowName = "jbw";
+    static constexpr auto WindowClassName = L"Jb";
+    static constexpr auto WindowName = L"jbw";
 
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-    static std::optional<std::wstring> GetUserDataDirectory() noexcept;
-    void InitializeWebView() noexcept;
+    [[nodiscard]] static std::optional<std::wstring> GetUserDataDirectory() noexcept;
 
+    /**
+     * Ensure that the user's machine has a WebView2 runtime installed. In the case
+     * that the user does not have one, we attempt to install using the Evergreen
+     * Bootstrapper.
+     *
+     * @return Truthy if the WebView2 runtime is installed or if we successfully
+     * installed it.
+     */
+    [[nodiscard]] static bool EnsureWebViewIsAvailable() noexcept;
+
+    /**
+     * Attempt to install the WebView2 runtime using the Evergreen Bootstrapper.
+     *
+     * @return Truthy if we successfully install the WebView2 runtime.
+     */
+    [[nodiscard]] static bool InstallWebView() noexcept;
+
+    [[nodiscard]] bool InitializeWebView() noexcept;
     void Destroy();
     void Navigate();
     void Resize();
