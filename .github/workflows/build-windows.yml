@@ -16,7 +16,6 @@ jobs:
       fail-fast: true
       matrix:
         arch:
-          - amd64
           - amd64_x86
     steps:
       - uses: actions/checkout@v3
