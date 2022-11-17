@@ -11,10 +11,10 @@ on:
 
 jobs:
   build-windows:
+    runs-on: windows-latest
     strategy:
       fail-fast: true
       matrix:
-        os: windows-latest
         arch:
           - amd64
           - amd64_x86
