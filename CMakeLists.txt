@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.13.0)
 
-project(browsercontrol
-        VERSION 0.0.1
-        DESCRIPTION "Cross platform browsercontrol library"
-        HOMEPAGE_URL "https://github.com/Open592/browsercontrol"
-        LANGUAGES C CXX
-        )
+project(
+  browsercontrol
+  VERSION 0.0.1
+  DESCRIPTION "Cross platform browsercontrol library"
+  HOMEPAGE_URL "https://github.com/Open592/browsercontrol"
+  LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,94 +15,37 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    add_compile_options(
-            "/permissive"
-            "$<$<CONFIG:DEBUG>:/Od>"
-            "$<$<CONFIG:DEBUG>:/Z7>"
-            "$<$<CONFIG:DEBUG>:/DEBUG>"
-            "$<$<CONFIG:RELEASE>:/O2>"
-    )
-endif ()
-
 include(GNUInstallDirs)
 include(FindJNI)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(browsercontrol
-        SHARED
-        src/browsercontrol.cpp
-        src/BrowserContext.cpp
-        )
+add_library(browsercontrol SHARED src/browsercontrol.cpp src/BrowserContext.cpp)
 
-set_target_properties(browsercontrol
-        PROPERTIES
-        VERSION ${PROJECT_VERSION}
-        PUBLIC_HEADER include/browsercontrol.h
-        )
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_sources(browsercontrol
-            PRIVATE
-            src/platform/windows/init.cpp
-            src/platform/windows/BrowserData.cpp
-            src/platform/windows/Win32BrowserControl.cpp
-            src/platform/windows/WebView2BrowserWindow.cpp
-            )
-
-    target_precompile_headers(browsercontrol PRIVATE src/platform/windows/pch.hpp)
-endif ()
+set_target_properties(
+  browsercontrol PROPERTIES VERSION ${PROJECT_VERSION} PUBLIC_HEADER
+                                                       include/browsercontrol.h)
 
 configure_file(browsercontrol.pc.in browsercontrol.pc @ONLY)
 
-target_include_directories(browsercontrol
-        PRIVATE
-        ${JNI_INCLUDE_DIRS}
-        .
-        )
+target_include_directories(browsercontrol PRIVATE ${JNI_INCLUDE_DIRS} .)
 
-target_link_libraries(browsercontrol PRIVATE ${JNI_LIBRARIES} urlmon.lib)
+target_link_libraries(browsercontrol PRIVATE ${JNI_LIBRARIES})
 
-# For Windows we need to include the WebView2 SDK
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    include(NuGetFetch)
-
-    NuGetFetch(WebView2 "Microsoft.Web.WebView2" "1.0.1418.22")
-
-    if (NOT EXISTS ${WebView2-PATH})
-        message(FATAL_ERROR "Failed to retrieve WebView2 - Unable to proceed!")
-    endif ()
-
-    NuGetFetch(WindowsImplementationLibrary Microsoft.Windows.ImplementationLibrary "1.0.220201.1")
-
-    if (NOT EXISTS ${WindowsImplementationLibrary-PATH})
-        message(FATAL_ERROR "Failed to retrieve Windows Implementation Library - Unable to proceed!")
-    endif ()
-
-    target_include_directories(browsercontrol PRIVATE ${WebView2-PATH}/build/native/include)
-    target_include_directories(browsercontrol PRIVATE ${WindowsImplementationLibrary-PATH}/include)
-
-    if (CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64")
-        set(WEBVIEW2_ARCH_DIRECTORY ${WebView2-PATH}/build/native/arm64)
-    elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(WEBVIEW2_ARCH_DIRECTORY ${WebView2-PATH}/build/native/x64)
-    else()
-        set(WEBVIEW2_ARCH_DIRECTORY ${WebView2-PATH}/build/native/x86)
-    endif()
-
-    target_link_libraries(browsercontrol PRIVATE ${WEBVIEW2_ARCH_DIRECTORY}/WebView2LoaderStatic.lib)
-endif ()
-
-install(TARGETS browsercontrol
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-        )
+install(
+  TARGETS browsercontrol
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(FILES ${CMAKE_BINARY_DIR}/browsercontrol.pc
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig
-        )
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
 
-if (INCLUDE_EXAMPLES)
-    add_subdirectory(examples)
-endif ()
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  add_subdirectory(src/platform/windows)
+else()
+  message(FATAL_ERROR "This platform is not currently supported!")
+endif()
+
+if(INCLUDE_EXAMPLES)
+  add_subdirectory(examples)
+endif()
