@@ -21,12 +21,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: lukka/get-cmake@latest
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.arch }}
           vsversion: 2022
       - uses: nuget/setup-nuget@v1
-      - name: "Build browsercontrol.dll"
+      - name: 'Build browsercontrol.dll'
         run: |
           mkdir .\build
           cd .\build\
