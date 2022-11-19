@@ -7,7 +7,8 @@ project(
   VERSION 0.0.1
   DESCRIPTION "Cross platform browsercontrol library"
   HOMEPAGE_URL "https://github.com/Open592/browsercontrol"
-  LANGUAGES C CXX)
+  LANGUAGES C CXX
+)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,9 +23,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(browsercontrol SHARED src/browsercontrol.cpp src/BrowserContext.cpp)
 
-set_target_properties(
-  browsercontrol PROPERTIES VERSION ${PROJECT_VERSION} PUBLIC_HEADER
-                                                       include/browsercontrol.h)
+set_target_properties(browsercontrol PROPERTIES VERSION ${PROJECT_VERSION} PUBLIC_HEADER include/browsercontrol.h)
 
 configure_file(browsercontrol.pc.in browsercontrol.pc @ONLY)
 
@@ -35,10 +34,10 @@ target_link_libraries(browsercontrol PRIVATE ${JNI_LIBRARIES})
 install(
   TARGETS browsercontrol
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
 
-install(FILES ${CMAKE_BINARY_DIR}/browsercontrol.pc
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
+install(FILES ${CMAKE_BINARY_DIR}/browsercontrol.pc DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   add_subdirectory(src/platform/windows)
