@@ -23,7 +23,8 @@ jobs:
       - uses: lukka/get-cmake@latest
       - uses: actions/setup-java@v3
         with:
-          architecture: ${{ matrix.arch }}
+          # Rewrite 'win32' as 'x86'
+          architecture: ${{ matrix.arch == 'win32' && 'x86' || matrix.arch }}
           distribution: 'temurin'
           java-version: '17'
       - uses: ilammy/msvc-dev-cmd@v1
