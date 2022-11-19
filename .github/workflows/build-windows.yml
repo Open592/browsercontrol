@@ -17,7 +17,7 @@ jobs:
       matrix:
         arch:
           - x64
-          - x86
+          - win32
     steps:
       - uses: actions/checkout@v3
       - uses: lukka/get-cmake@latest
@@ -34,7 +34,7 @@ jobs:
         run: |
           mkdir .\build
           cd .\build\
-          cmake.exe ..\
+          cmake.exe -A "${{ matrix.arch }}" ..\
           type .\browsercontrol.sln
           MSBuild.exe /m /p:Configuration=${{ inputs.build-type }} /p:Platform=${{ matrix.arch }} .\browsercontrol.sln
 
