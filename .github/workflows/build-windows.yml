@@ -24,6 +24,7 @@ jobs:
         with:
           arch: ${{ matrix.arch }}
           vsversion: 2022
+      - uses: nuget/setup-nuget@v1
       - name: "Build browsercontrol.dll"
         run: |
           mkdir .\build
