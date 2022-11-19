@@ -23,6 +23,7 @@ jobs:
       - uses: lukka/get-cmake@latest
       - uses: actions/setup-java@v3
         with:
+          architecture: ${{ matrix.arch }}
           distribution: 'temurin'
           java-version: '17'
       - uses: ilammy/msvc-dev-cmd@v1
