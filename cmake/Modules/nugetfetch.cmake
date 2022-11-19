@@ -14,8 +14,6 @@ function(nugetfetch OUTPUT_NAME PACKAGE_NAME PACKAGE_VERSION)
 
   if(NOT NUGET_EXE)
     message(FATAL_ERROR "Failed to find nuget.exe! Please install, and run cmake again")
-  else()
-    message(${CMAKE_BINARY_DIR})
   endif()
 
   execute_process(

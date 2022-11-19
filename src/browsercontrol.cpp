@@ -4,7 +4,7 @@
 
 #include "BrowserContext.hpp"
 
-jboolean Java_nativeadvert_browsercontrol_browsercontrol0(
+JNIEXPORT jboolean JNICALL Java_nativeadvert_browsercontrol_browsercontrol0(
     JNIEnv* env, jclass thisObj, jobject advertCanvas, jstring URL)
 {
     const jchar* initialDestination = env->GetStringChars(URL, nullptr);
@@ -24,12 +24,12 @@ jboolean Java_nativeadvert_browsercontrol_browsercontrol0(
     return JNI_FALSE;
 }
 
-void Java_nativeadvert_browsercontrol_destroy0(JNIEnv* env, jclass thisObj)
+JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_destroy0(JNIEnv* env, jclass thisObj)
 {
     BrowserContext::the().DestroyBrowserWindow();
 }
 
-void Java_nativeadvert_browsercontrol_navigate0(JNIEnv* env, jclass thisObj, jstring URL)
+JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_navigate0(JNIEnv* env, jclass thisObj, jstring URL)
 {
     const jchar* destination = env->GetStringChars(URL, nullptr);
 
@@ -38,7 +38,7 @@ void Java_nativeadvert_browsercontrol_navigate0(JNIEnv* env, jclass thisObj, jst
     env->ReleaseStringChars(URL, destination);
 }
 
-void Java_nativeadvert_browsercontrol_resize0(JNIEnv* env, jclass thisObj, jint width, jint height)
+JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_resize0(JNIEnv* env, jclass thisObj, jint width, jint height)
 {
     BrowserContext::the().ResizeBrowserWindow(width, height);
 }

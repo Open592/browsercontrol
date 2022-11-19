@@ -1,0 +1,41 @@
+name: Build on Windows
+
+on:
+  workflow_call:
+    inputs:
+      build-type:
+        description: 'The build type. Can be one of "Debug" or "Release". Defaults to "Release"'
+        type: string
+        required: false
+        default: 'Release'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        arch:
+          - x64
+          - win32
+    steps:
+      - uses: actions/checkout@v3
+      - uses: lukka/get-cmake@latest
+      - uses: actions/setup-java@v3
+        with:
+          # Rewrite 'win32' as 'x86'
+          architecture: ${{ matrix.arch == 'win32' && 'x86' || matrix.arch }}
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
+          vsversion: 2022
+      - uses: nuget/setup-nuget@v1
+      - name: 'Build browsercontrol.dll'
+        run: |
+          mkdir .\build
+          cd .\build\
+          cmake.exe -A "${{ matrix.arch }}" ..\
+          MSBuild.exe /m /p:Configuration=${{ inputs.build-type }} /p:Platform=${{ matrix.arch }} .\browsercontrol.sln
+
