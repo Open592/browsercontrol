@@ -34,7 +34,7 @@ jobs:
         run: |
           mkdir .\build
           cd .\build\
-          cmake.exe -A "${{ matrix.arch }}" ..\
+          cmake.exe ..\
           type .\browsercontrol.sln
           MSBuild.exe /m /p:Configuration=${{ inputs.build-type }} /p:Platform=${{ matrix.arch }} .\browsercontrol.sln
 
