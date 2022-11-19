@@ -3,10 +3,15 @@
 cmake_policy(SET CMP0079 NEW)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # cmake-format: off
   add_compile_options(
-    "/permissive" "$<$<CONFIG:DEBUG>:/Od>" "$<$<CONFIG:DEBUG>:/Z7>" "$<$<CONFIG:DEBUG>:/DEBUG>"
+    "/permissive"
+    "$<$<CONFIG:DEBUG>:/Od>"
+    "$<$<CONFIG:DEBUG>:/Z7>"
+    "$<$<CONFIG:DEBUG>:/DEBUG>"
     "$<$<CONFIG:RELEASE>:/O2>"
   )
+  # cmake-format: on
 else()
   message(FATAL_ERROR "MSVC is the only compiler currently supported on Windows!")
 endif()
@@ -24,6 +29,9 @@ nugetfetch(WindowsImplementationLibrary Microsoft.Windows.ImplementationLibrary 
 if(NOT EXISTS ${WindowsImplementationLibrary-PATH})
   message(FATAL_ERROR "Failed to retrieve Windows Implementation Library - Unable to proceed!")
 endif()
+
+# Let MSBuild know we want to statically link WebView2
+set_target_properties(browsercontrol PROPERTIES VS_GLOBAL_WebView2LoaderPreference Static)
 
 target_link_libraries(browsercontrol PRIVATE ${WebView2-PATH}/build/native/Microsoft.Web.WebView2.targets)
 target_link_libraries(
