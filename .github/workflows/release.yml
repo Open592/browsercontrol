@@ -5,9 +5,7 @@ name: Create a release upon push to master.
 # file.
 on:
   push:
-    # TODO: Update to only fire on release and master branches
-    paths:
-      - 'META'
+    # TODO: Update to only fire on release and master branches with modified 'META' file
 
 jobs:
   build-windows:
