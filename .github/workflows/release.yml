@@ -8,8 +8,20 @@ on:
     # TODO: Update to only fire on release and master branches with modified 'META' file
 
 jobs:
-  build-windows:
+  - get-version:
+      id: meta
+      run: echo ::set-output name=version::$(cat META)
+  - build-windows:
     uses: ./.github/workflows/build-windows.yml
     with:
       build-type: 'Release'
       store-output: true
+  - uses: ncipollo/release-action@v1
+    with:
+      artifacts:
+        - ${{ github.workspace }}/windows-*
+      artifactErrorsFailBuild: true
+      draft: true
+      generateReleaseNotes: true
+      tag: v${{ steps.export.outputs.meta.version }}
+
