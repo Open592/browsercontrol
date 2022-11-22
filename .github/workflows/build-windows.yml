@@ -4,10 +4,18 @@ on:
   workflow_call:
     inputs:
       build-type:
-        description: 'The build type. Can be one of "Debug" or "Release". Defaults to "Release"'
-        type: string
-        required: false
+        description: 'The build type. Can be one of "Debug" or "Release". Defaults to "Release".'
+        type: choice
+        required: true
         default: 'Release'
+        options:
+          - 'Debug'
+          - 'Release'
+      store-output:
+        description: 'Whether the build should be stored. (Useful for release builds). Defaults to false.'
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   build-windows:
@@ -38,4 +46,9 @@ jobs:
           cd .\build\
           cmake.exe -A "${{ matrix.arch }}" ..\
           MSBuild.exe /m /p:Configuration=${{ inputs.build-type }} /p:Platform=${{ matrix.arch }} .\browsercontrol.sln
-
+      - uses: actions/upload-artifact@v3
+        if: ${{ inputs.store-output }}
+        with:
+          name: windows-${{ matrix.arch }}
+          path: build/${{ inputs.build-type }}/
+          if-no-files-found: error

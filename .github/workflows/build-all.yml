@@ -1,8 +1,22 @@
 name: Build all supported platforms
 
-on: [push]
+on:
+  workflow_call:
+    inputs:
+      build-type:
+        description: 'The build type. Can be one of "Debug" or "Release". Defaults to "Release".'
+        type: choice
+        required: true
+        default: 'Release'
+        options:
+          - 'Debug'
+          - 'Release'
+      store-output:
+        description: 'Whether the build should be stored. (Useful for release builds). Defaults to false.'
+        type: boolean
+        required: true
+        default: false
+
 jobs:
   build-windows:
     uses: ./.github/workflows/build-windows.yml
-    with:
-      build-type: Release

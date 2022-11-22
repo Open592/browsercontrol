@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_TEMPLATES_DIRECTORY ${PROJECT_SOURCE_DIR}/cmake/templates)
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
 include(GNUInstallDirs)
@@ -25,7 +26,7 @@ add_library(browsercontrol SHARED src/browsercontrol.cpp src/BrowserContext.cpp)
 
 set_target_properties(browsercontrol PROPERTIES VERSION ${PROJECT_VERSION} PUBLIC_HEADER include/browsercontrol.h)
 
-configure_file(browsercontrol.pc.in browsercontrol.pc @ONLY)
+configure_file(${CMAKE_TEMPLATES_DIRECTORY}/META.in ${CMAKE_SOURCE_DIR}/META @ONLY)
 
 target_include_directories(browsercontrol PRIVATE ${JNI_INCLUDE_DIRS} .)
 
