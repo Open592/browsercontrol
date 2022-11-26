@@ -29,7 +29,8 @@ jobs:
         with:
           build-type: 'Release'
           store-output: true
-      - uses: ncipollo/release-action@v1
+      - name: Create release
+        uses: ncipollo/release-action@v1
         with:
           artifacts:
             - ${{ github.workspace }}/windows-*
