@@ -26,8 +26,8 @@ jobs:
           ===============================================================
           Invalid version detected!
           ===============================================================
-          ./META is \"${{ needs.store-versions.outputs.META_VERSION }}\"
-          Git tag is \"${{ needs.store-versions.outputs.GIT_TAG }}\"
+          ./META is \"${{ needs.version.outputs.META_VERSION }}\"
+          Git tag is \"${{ needs.version.outputs.GIT_TAG }}\"
           ===============================================================
           "
           exit 1
@@ -43,4 +43,4 @@ jobs:
           artifactErrorsFailBuild: true
           draft: true
           generateReleaseNotes: true
-          tag: v${{ needs.store-versions.outputs.GIT_TAG }}
+          tag: v${{ needs.version.outputs.GIT_TAG }}
