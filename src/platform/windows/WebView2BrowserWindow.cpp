@@ -73,8 +73,8 @@ bool WebView2BrowserWindow::InstallWebView() noexcept
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
-    bool success
-        = CreateProcess(installerPath.c_str(), nullptr, nullptr, nullptr, false, 0, nullptr, nullptr, &si, &pi);
+    std::wstring command = std::format(L"{} /silent /install", installerPath);
+    bool success = CreateProcess(nullptr, command.data(), nullptr, nullptr, false, 0, nullptr, nullptr, &si, &pi);
 
     if (!success) {
         return false;

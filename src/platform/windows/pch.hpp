@@ -6,8 +6,8 @@
 #define WIN32_LEAN_AND_MEAN
 #define UNICODE
 #include <Windows.h>
-#include <urlmon.h> // For URLDownloadToFile
 #include <processthreadsapi.h> // For CreateProcess
+#include <urlmon.h> // For URLDownloadToFile
 
 #include <ShlObj.h>
 #include <wil/com.h>
@@ -20,6 +20,7 @@
 
 #include <atomic>
 #include <filesystem>
+#include <format>
 #include <memory>
 #include <optional>
 #include <string>

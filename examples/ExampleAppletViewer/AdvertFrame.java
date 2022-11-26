@@ -45,7 +45,7 @@ public final class AdvertFrame {
         innerContainer.setLayout(null);
 
         fakeApplet = new Panel();
-        fakeApplet.setBackground(Color.green);
+        fakeApplet.setBackground(Color.red);
         fakeApplet.setLayout(null);
 
         frame.add(innerContainer, "Center");
@@ -74,6 +74,7 @@ public final class AdvertFrame {
             return;
         }
 
+        fakeApplet.setBackground(Color.green);
         frame.addWindowListener(TerminateHandler.initialize());
         innerContainer.addComponentListener(AdvertComponentListener.initialize());
     }
