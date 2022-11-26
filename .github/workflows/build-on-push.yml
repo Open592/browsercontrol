@@ -3,11 +3,7 @@ name: Build on push
 # Simply build the library on all supported platforms
 # when pushing to non-release branches
 
-on:
-  push:
-    branches-ignore:
-      - 'release/**'
-      - 'master'
+on: [push]
 
 jobs:
   build-windows:

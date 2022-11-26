@@ -8,20 +8,32 @@ on:
     # TODO: Update to only fire on release and master branches with modified 'META' file
 
 jobs:
-  - get-version:
-      id: meta
-      run: echo ::set-output name=version::$(cat META)
-  - build-windows:
-    uses: ./.github/workflows/build-windows.yml
-    with:
-      build-type: 'Release'
-      store-output: true
-  - uses: ncipollo/release-action@v1
-    with:
-      artifacts:
-        - ${{ github.workspace }}/windows-*
-      artifactErrorsFailBuild: true
-      draft: true
-      generateReleaseNotes: true
-      tag: v${{ steps.export.outputs.meta.version }}
-
+  release-browsercontrol:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+      - name: Store versions
+        id: store-versions
+        run: |
+          echo ::set-output name=GIT_TAG::${GITHUB_REF/refs\/tags\//}
+          echo ::set-output name=META_VERSION::$(cat META)
+      - name: Validate version
+        id: validate-version
+        if: ${{ steps.store-versions.outputs.GIT_TAG }} != ${{ steps.store-versions.outputs.META_VERSION }}
+        run: |
+          echo "Invalid version detected! META contains ${{ steps.store-versions.outputs.META_VERSION }} while Git tag is ${{ steps.store-versions.outputs.GIT_TAG }}"
+          exit 1
+      - name: Build on Windows
+        uses: ./.github/workflows/build-windows.yml
+        with:
+          build-type: 'Release'
+          store-output: true
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts:
+            - ${{ github.workspace }}/windows-*
+          artifactErrorsFailBuild: true
+          draft: true
+          generateReleaseNotes: true
+          tag: v${{ steps.export.outputs.meta.version }}
