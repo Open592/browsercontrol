@@ -17,7 +17,7 @@ jobs:
         id: store-versions
         run: |
           echo "{GIT_TAG}={${GITHUB_REF/refs\/tags\//}}" >> $GITHUB_OUTPUT
-          echo "{META_VERSION}{$(cat ./META)}" >> $GITHUB_OUTPUT
+          echo "{META_VERSION}={$(cat META)}" >> $GITHUB_OUTPUT
       - name: Validate version
         id: validate-version
         if: ${{ steps.store-versions.outputs.GIT_TAG }} != ${{ steps.store-versions.outputs.META_VERSION }}
