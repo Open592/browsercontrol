@@ -22,14 +22,14 @@ jobs:
           echo "META_VERSION=$(cat META)" >> $GITHUB_OUTPUT
       - name: Validate version
         id: validate-version
-        if: ${{ needs.version.outputs.GIT_TAG }} != ${{ needs.version.outputs.META_VERSION }}
+        if: ${{ jobs.version.outputs.GIT_TAG }} != ${{ jobs.version.outputs.META_VERSION }}
         run: |
           echo "
           ===============================================================
           Invalid version detected!
           ===============================================================
-          ./META is \"${{ needs.version.outputs.META_VERSION }}\"
-          Git tag is \"${{ needs.version.outputs.GIT_TAG }}\"
+          ./META is \"${{ jobs.version.outputs.META_VERSION }}\"
+          Git tag is \"${{ jobs.version.outputs.GIT_TAG }}\"
           ===============================================================
           "
           exit 1
@@ -45,4 +45,4 @@ jobs:
           artifactErrorsFailBuild: true
           draft: true
           generateReleaseNotes: true
-          tag: v${{ needs.version.outputs.GIT_TAG }}
+          tag: v${{ jobs.version.outputs.GIT_TAG }}
