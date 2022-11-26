@@ -16,16 +16,19 @@ jobs:
       - name: Store versions
         id: store-versions
         run: |
-          echo "{GIT_TAG}={${GITHUB_REF/refs\/tags\//}}
-          echo "{META_VERSION}{$(cat ./META)}
+          echo "{GIT_TAG}={${GITHUB_REF/refs\/tags\//}}" >> $GITHUB_OUTPUT
+          echo "{META_VERSION}{$(cat ./META)}" >> $GITHUB_OUTPUT
       - name: Validate version
         id: validate-version
         if: ${{ steps.store-versions.outputs.GIT_TAG }} != ${{ steps.store-versions.outputs.META_VERSION }}
         run: |
           echo "
+          ===============================================================
           Invalid version detected!
+          ===============================================================
           ./META is \"${{ steps.store-versions.outputs.META_VERSION }}\"
-          while Git tag is \"${{ steps.store-versions.outputs.GIT_TAG }}\"
+          Git tag is \"${{ steps.store-versions.outputs.GIT_TAG }}\"
+          ===============================================================
           "
           exit 1
       - name: Build on Windows
