@@ -32,9 +32,8 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          artifacts:
-            - ${{ github.workspace }}/windows-*
+          artifacts: "${{ github.workspace }}/windows-*"
           artifactErrorsFailBuild: true
           draft: true
           generateReleaseNotes: true
-          tag: v${{ steps.export.outputs.meta.version }}
+          tag: v${{ steps.store-versions.outputs.GIT_TAG }}
