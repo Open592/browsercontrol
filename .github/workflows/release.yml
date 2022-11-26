@@ -18,8 +18,8 @@ jobs:
       - name: Define versions
         id: version
         run: |
-          echo "{GIT_TAG}={${{ github.ref_name }}}" >> $GITHUB_OUTPUT
-          echo "{META_VERSION}={$(cat META)}" >> $GITHUB_OUTPUT
+          echo "GIT_TAG=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "META_VERSION=$(cat META)" >> $GITHUB_OUTPUT
       - name: Validate version
         id: validate-version
         if: ${{ needs.version.outputs.GIT_TAG }} != ${{ needs.version.outputs.META_VERSION }}
