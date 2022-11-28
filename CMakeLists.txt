@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.13.0)
 
 project(
   browsercontrol
-  VERSION 0.0.1
+  VERSION 0.1.0
   DESCRIPTION "Cross platform browsercontrol library"
   HOMEPAGE_URL "https://github.com/Open592/browsercontrol"
   LANGUAGES C CXX
