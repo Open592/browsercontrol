@@ -58,11 +58,9 @@ jobs:
           }
 
           Compress-Archive @compress
-
-          echo "ASSET_PATH=${assetPath}" >> $GITHUB_OUTPUT
       - uses: actions/upload-artifact@v3
         if: ${{ inputs.store-output }}
         with:
           name: windows-${{ matrix.arch }}
-          path: ${{ steps.package-assets.outputs.ASSET_PATH }}
+          path: ${{ github.workspace }}\ghr-output\windows-${{ matrix.arch }}.zip
           if-no-files-found: error
