@@ -45,4 +45,5 @@ jobs:
           artifacts: ${{ github.workspace }}/artifacts/windows-*/*.zip
           artifactErrorsFailBuild: true
           generateReleaseNotes: true
+          prerelease: ${{ endsWith(github.ref_name, '-rc') }}
           tag: ${{ github.ref_name }}
