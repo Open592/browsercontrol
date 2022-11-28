@@ -43,9 +43,26 @@ jobs:
           cd .\build\
           cmake.exe -A "${{ matrix.arch }}" ..\
           MSBuild.exe /m /p:Configuration=${{ inputs.build-type }} /p:Platform=${{ matrix.arch }} .\browsercontrol.sln
+      - name: 'Package assets'
+        if: ${{ inputs.store-output }}
+        id: 'package-assets'
+        shell: pwsh
+        run: |
+          mkdir ${{ github.workspace }}\ghr-output
+
+          $assetPath = "${{ github.workspace }}\ghr-output\windows-${{ matrix.arch }}.zip"
+          $compress = @{
+            Path = ".\build\${{ inputs.build-type }}\*"
+            CompressionLevel = "Fastest"
+            DestinationPath = ${assetPath}
+          }
+
+          Compress-Archive @compress
+
+          echo "ASSET_PATH=${assetPath}" >> $GITHUB_OUTPUT
       - uses: actions/upload-artifact@v3
         if: ${{ inputs.store-output }}
         with:
           name: windows-${{ matrix.arch }}
-          path: build/${{ inputs.build-type }}/
+          path: ${{ steps.package-assets.outputs.ASSET_PATH }}
           if-no-files-found: error

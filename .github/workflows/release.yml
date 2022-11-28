@@ -20,29 +20,17 @@ jobs:
         run: |
           echo "GIT_TAG=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "META_VERSION=$(cat META)" >> $GITHUB_OUTPUT
-      - name: Validate version
-        id: validate-version
-        if: ${{ steps.version.outputs.GIT_TAG }} != ${{ steps.version.outputs.META_VERSION }}
-        run: |
-          echo "
-          ===============================================================
-          Invalid version detected!
-          ===============================================================
-          ./META is \"${{ steps.version.outputs.META_VERSION }}\"
-          Git tag is \"${{ steps.version.outputs.GIT_TAG }}\"
-          ===============================================================
-          "
-          exit 1
       - name: Build on Windows
         uses: ./.github/workflows/build-windows.yml
         with:
           build-type: 'Release'
           store-output: true
-      - name: Create release
-        uses: ncipollo/release-action@v1
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
         with:
-          artifacts: "${{ github.workspace }}/windows-*"
-          artifactErrorsFailBuild: true
-          draft: true
-          generateReleaseNotes: true
-          tag: v${{ steps.version.outputs.GIT_TAG }}
+          path: ${{ github.workspace }}/artifacts/
+      - name: List artifacts
+        id: list-artifacts
+        run: |
+          ls -la
+          ls -la ${{ github.workspace }}/artifacts/
