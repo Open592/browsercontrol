@@ -1,11 +1,12 @@
-name: Create a release upon push to master.
+name: Create a release upon pushing new tags
 
 # Upon pushes to release branches or master we will create
 # a new release if there have been changes to the META
 # file.
 on:
   push:
-    # TODO: Update to only fire on release and master branches with modified 'META' file
+    tags:
+      - v*
 
 jobs:
   version-check:

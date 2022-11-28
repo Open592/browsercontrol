@@ -30,7 +30,7 @@ jobs:
         with:
           # Rewrite 'win32' as 'x86'
           architecture: ${{ matrix.arch == 'win32' && 'x86' || matrix.arch }}
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
       - uses: ilammy/msvc-dev-cmd@v1
         with:
