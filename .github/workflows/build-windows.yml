@@ -37,15 +37,15 @@ jobs:
           arch: ${{ matrix.arch }}
           vsversion: 2022
       - uses: nuget/setup-nuget@v1
-      - name: 'Build browsercontrol.dll'
+      - name: Build browsercontrol.dll
         run: |
           mkdir .\build
           cd .\build\
           cmake.exe -A "${{ matrix.arch }}" ..\
           MSBuild.exe /m /p:Configuration=${{ inputs.build-type }} /p:Platform=${{ matrix.arch }} .\browsercontrol.sln
-      - name: 'Package assets'
+      - name: Package assets
         if: ${{ inputs.store-output }}
-        id: 'package-assets'
+        id: package-assets
         shell: pwsh
         run: |
           mkdir ${{ github.workspace }}\ghr-output

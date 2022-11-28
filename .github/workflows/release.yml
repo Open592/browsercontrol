@@ -13,29 +13,25 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-      - name: Define outputs
-        id: define-version
-        run: |
-          echo "META_VERSION=$(cat META)" >> $GITHUB_OUTPUT
       - name: Validate versions
         id: validate-version
         run: |
-          if [[ "${{ github.ref_name }}" != "${{ steps.version.outputs.META_VERSION }}" ]]; then
+          if [[ "${{ github.ref_name }}" != "$(cat META)" ]]; then
             echo "
             ===============================================================
             Invalid version detected!
             ===============================================================
             Git tag is \"${{ github.ref_name }}\"
-            ./META is \"${{ steps.version.outputs.META_VERSION }}\"
+            ./META is \"$(cat META)\"
             ===============================================================
             "
-            echo "SHOULD EXIT 1"
+            exit 1
           fi
   build-windows:
     needs: [version-check]
     uses: ./.github/workflows/build-windows.yml
     with:
-      build-type: 'Release'
+      build-type: Release
       store-output: true
   release-browsercontrol:
     needs: [build-windows, version-check]
@@ -45,9 +41,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: ${{ github.workspace }}/artifacts/
-      - name: List artifacts
-        id: list-artifacts
-        run: |
-          ls -la
-          ls -la ${{ github.workspace }}/artifacts/windows-win32/
-          ls -la ${{ github.workspace }}/artifacts/windows-x86/
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ github.workspace }}/artifacts/windows-*/*.zip
+          artifactErrorsFailBuild: true
+          generateReleaseNotes: true
+          tag: ${{ github.ref_name }}
