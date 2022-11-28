@@ -49,4 +49,5 @@ jobs:
         id: list-artifacts
         run: |
           ls -la
-          ls -la ${{ github.workspace }}/artifacts/
+          ls -la ${{ github.workspace }}/artifacts/windows-win32/
+          ls -la ${{ github.workspace }}/artifacts/windows-x86/
