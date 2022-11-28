@@ -1,15 +1,12 @@
-name: Create a release upon pushing new tags
+name: Create a release
 
-# Upon pushes to release branches or master we will create
-# a new release if there have been changes to the META
-# file.
 on:
   push:
     tags:
       - v*
 
 jobs:
-  version-check:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -28,14 +25,14 @@ jobs:
             "
             exit 1
           fi
-  build-windows:
-    needs: [version-check]
-    uses: ./.github/workflows/build-windows.yml
+  build:
+    needs: [validate]
+    uses: ./.github/workflows/build-all.yml
     with:
       build-type: Release
       store-output: true
-  release-browsercontrol:
-    needs: [build-windows, version-check]
+  release:
+    needs: [build, validate]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts

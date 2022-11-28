@@ -1,4 +1,4 @@
-name: Build all supported platforms
+name: Build on all supported platforms
 
 on:
   workflow_call:
@@ -20,3 +20,6 @@ on:
 jobs:
   build-windows:
     uses: ./.github/workflows/build-windows.yml
+    with:
+      build-type: ${{ inputs.build-type }}
+      store-output: ${{ inputs.store-output }}

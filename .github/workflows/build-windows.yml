@@ -15,10 +15,9 @@ on:
         default: false
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
     strategy:
-      fail-fast: true
       matrix:
         arch:
           - x64
