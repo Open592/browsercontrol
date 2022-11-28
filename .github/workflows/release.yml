@@ -32,13 +32,13 @@ jobs:
             echo "SHOULD EXIT 1"
           fi
   build-windows:
-    needs: [version]
+    needs: [version-check]
     uses: ./.github/workflows/build-windows.yml
     with:
       build-type: 'Release'
       store-output: true
   release-browsercontrol:
-    needs: [build-windows, version]
+    needs: [build-windows, version-check]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
