@@ -8,23 +8,39 @@ on:
     # TODO: Update to only fire on release and master branches with modified 'META' file
 
 jobs:
-  release-browsercontrol:
+  version-check:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-      - name: Define versions
-        id: version
+      - name: Define outputs
+        id: define-version
         run: |
-          echo "GIT_TAG=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "META_VERSION=$(cat META)" >> $GITHUB_OUTPUT
-      - name: Build on Windows
-        uses: ./.github/workflows/build-windows.yml
-        with:
-          build-type: 'Release'
-          store-output: true
+      - name: Validate versions
+        id: validate-version
+        run: |
+          if [[ "${{ github.ref_name }}" != "${{ steps.version.outputs.META_VERSION }}" ]]; then
+            echo "
+            ===============================================================
+            Invalid version detected!
+            ===============================================================
+            Git tag is \"${{ github.ref_name }}\"
+            ./META is \"${{ steps.version.outputs.META_VERSION }}\"
+            ===============================================================
+            "
+            echo "SHOULD EXIT 1"
+          fi
+  build-windows:
+    needs: [version]
+    uses: ./.github/workflows/build-windows.yml
+    with:
+      build-type: 'Release'
+      store-output: true
+  release-browsercontrol:
+    needs: [build-windows, version]
+    runs-on: ubuntu-latest
+    steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
