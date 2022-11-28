@@ -1,0 +1,49 @@
+name: Create a release
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Validate versions
+        id: validate-version
+        run: |
+          if [[ "${{ github.ref_name }}" != "$(cat META)" ]]; then
+            echo "
+            ===============================================================
+            Invalid version detected!
+            ===============================================================
+            Git tag is \"${{ github.ref_name }}\"
+            ./META is \"$(cat META)\"
+            ===============================================================
+            "
+            exit 1
+          fi
+  build:
+    needs: [validate]
+    uses: ./.github/workflows/build-all.yml
+    with:
+      build-type: Release
+      store-output: true
+  release:
+    needs: [build, validate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ${{ github.workspace }}/artifacts/
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ github.workspace }}/artifacts/windows-*/*.zip
+          artifactErrorsFailBuild: true
+          generateReleaseNotes: true
+          prerelease: ${{ endsWith(github.ref_name, '-rc') }}
+          tag: ${{ github.ref_name }}

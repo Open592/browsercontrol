@@ -4,16 +4,20 @@ on:
   workflow_call:
     inputs:
       build-type:
-        description: 'The build type. Can be one of "Debug" or "Release". Defaults to "Release"'
+        description: The build type. Can be one of "Debug" or "Release". Defaults to "Release".
         type: string
-        required: false
-        default: 'Release'
+        required: true
+        default: Release
+      store-output:
+        description: Whether the build should be stored. (Useful for release builds). Defaults to false.
+        type: boolean
+        required: true
+        default: false
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
     strategy:
-      fail-fast: true
       matrix:
         arch:
           - x64
@@ -25,17 +29,37 @@ jobs:
         with:
           # Rewrite 'win32' as 'x86'
           architecture: ${{ matrix.arch == 'win32' && 'x86' || matrix.arch }}
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.arch }}
           vsversion: 2022
       - uses: nuget/setup-nuget@v1
-      - name: 'Build browsercontrol.dll'
+      - name: Build browsercontrol.dll
         run: |
           mkdir .\build
           cd .\build\
           cmake.exe -A "${{ matrix.arch }}" ..\
           MSBuild.exe /m /p:Configuration=${{ inputs.build-type }} /p:Platform=${{ matrix.arch }} .\browsercontrol.sln
+      - name: Package assets
+        if: ${{ inputs.store-output }}
+        id: package-assets
+        shell: pwsh
+        run: |
+          mkdir ${{ github.workspace }}\ghr-output
 
+          $assetPath = "${{ github.workspace }}\ghr-output\windows-${{ matrix.arch }}.zip"
+          $compress = @{
+            Path = ".\build\${{ inputs.build-type }}\*"
+            CompressionLevel = "Fastest"
+            DestinationPath = ${assetPath}
+          }
+
+          Compress-Archive @compress
+      - uses: actions/upload-artifact@v3
+        if: ${{ inputs.store-output }}
+        with:
+          name: windows-${{ matrix.arch }}
+          path: ${{ github.workspace }}\ghr-output\windows-${{ matrix.arch }}.zip
+          if-no-files-found: error
