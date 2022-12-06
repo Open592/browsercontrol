@@ -5,7 +5,7 @@
 #include "BrowserContext.hpp"
 
 JNIEXPORT jboolean JNICALL Java_nativeadvert_browsercontrol_browsercontrol0(
-    JNIEnv* env, jclass thisObj, jobject advertCanvas, jstring URL)
+    JNIEnv* env, [[maybe_unused]] jclass thisObj, jobject advertCanvas, jstring URL)
 {
     const jchar* initialDestination = env->GetStringChars(URL, nullptr);
 
@@ -24,12 +24,12 @@ JNIEXPORT jboolean JNICALL Java_nativeadvert_browsercontrol_browsercontrol0(
     return JNI_FALSE;
 }
 
-JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_destroy0(JNIEnv* env, jclass thisObj)
+JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_destroy0([[maybe_unused]] JNIEnv* env, [[maybe_unused]] jclass thisObj)
 {
     BrowserContext::the().DestroyBrowserWindow();
 }
 
-JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_navigate0(JNIEnv* env, jclass thisObj, jstring URL)
+JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_navigate0(JNIEnv* env, [[maybe_unused]] jclass thisObj, jstring URL)
 {
     const jchar* destination = env->GetStringChars(URL, nullptr);
 
@@ -38,7 +38,8 @@ JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_navigate0(JNIEnv* env, j
     env->ReleaseStringChars(URL, destination);
 }
 
-JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_resize0(JNIEnv* env, jclass thisObj, jint width, jint height)
+JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_resize0(
+    [[maybe_unused]] JNIEnv* env, [[maybe_unused]] jclass thisObj, jint width, jint height)
 {
     BrowserContext::the().ResizeBrowserWindow(width, height);
 }

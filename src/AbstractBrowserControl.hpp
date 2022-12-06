@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef ABSTRACTBROWSERCONTROL_H
-#define ABSTRACTBROWSERCONTROL_H
+#pragma once
 
 #include <string>
 
@@ -49,5 +48,3 @@ public:
      */
     virtual void Navigate(const jchar* destination) = 0;
 };
-
-#endif /* ABSTRACTBROWSERCONTROL_H */

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef BROWSERDATA_HPP
-#define BROWSERDATA_HPP
+#pragma once
 
 class BrowserData {
 public:
@@ -71,5 +70,3 @@ private:
      */
     std::atomic<Status> m_status;
 };
-
-#endif // BROWSERDATA_HPP

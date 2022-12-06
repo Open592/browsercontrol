@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef BROWSERCONTEXT_HPP
-#define BROWSERCONTEXT_HPP
+#pragma once
 
 #include <cassert>
 #include <jawt.h>
@@ -87,5 +86,3 @@ private:
 
     std::unique_ptr<AbstractBrowserControl> m_control;
 };
-
-#endif // BROWSERCONTEXT_HPP

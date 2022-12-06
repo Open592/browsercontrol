@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef WEBVIEW2BROWSERWINDOW_HPP
-#define WEBVIEW2BROWSERWINDOW_HPP
+#pragma once
 
 #include "BrowserData.hpp"
 
@@ -62,5 +61,3 @@ private:
     wil::com_ptr<ICoreWebView2Controller> m_controller;
     wil::com_ptr<ICoreWebView2> m_webView;
 };
-
-#endif // WEBVIEW2BROWSERWINDOW_HPP

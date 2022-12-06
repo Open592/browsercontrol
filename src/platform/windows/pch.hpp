@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef BROWSERCONTROL_PCH_HPP
-#define BROWSERCONTROL_PCH_HPP
+#pragma once
 
 #define WIN32_LEAN_AND_MEAN
 #define UNICODE
@@ -26,5 +25,3 @@
 #include <string>
 #include <thread>
 #include <utility>
-
-#endif // BROWSERCONTROL_PCH_HPP

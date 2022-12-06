@@ -12,28 +12,29 @@ extern "C" {
  * Method:    resize0
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_resize0(JNIEnv*, jclass, jint, jint);
+JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_resize0(
+    [[maybe_unused]] JNIEnv*, [[maybe_unused]] jclass, jint, jint);
 
 /*
  * Class:     nativeadvert_browsercontrol
  * Method:    navigate0
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_navigate0(JNIEnv*, jclass, jstring);
+JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_navigate0(JNIEnv*, [[maybe_unused]] jclass, jstring);
 
 /*
  * Class:     nativeadvert_browsercontrol
  * Method:    browsercontrol0
  * Signature: (Ljava/awt/Canvas;Ljava/lang/String;)Z
  */
-JNIEXPORT jboolean JNICALL Java_nativeadvert_browsercontrol_browsercontrol0(JNIEnv*, jclass, jobject, jstring);
+JNIEXPORT jboolean JNICALL Java_nativeadvert_browsercontrol_browsercontrol0(JNIEnv*, [[maybe_unused]] jclass, jobject, jstring);
 
 /*
  * Class:     nativeadvert_browsercontrol
  * Method:    destroy0
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_destroy0(JNIEnv*, jclass);
+JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_destroy0([[maybe_unused]] JNIEnv*, [[maybe_unused]] jclass);
 
 #ifdef __cplusplus
 }

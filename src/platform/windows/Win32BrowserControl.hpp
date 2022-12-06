@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef WIN32BROWSERCONTROL_HPP
-#define WIN32BROWSERCONTROL_HPP
+#pragma once
 
 #include "../../AbstractBrowserControl.hpp"
 #include "BrowserData.hpp"
@@ -29,5 +28,3 @@ private:
     std::shared_ptr<BrowserData> m_browserData;
     [[maybe_unused]] std::jthread m_browserWindowThread;
 };
-
-#endif // WIN32BROWSERCONTROL_HPP
