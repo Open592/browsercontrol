@@ -42,6 +42,8 @@ install(FILES ${CMAKE_BINARY_DIR}/browsercontrol.pc DESTINATION ${CMAKE_INSTALL_
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   add_subdirectory(src/platform/windows)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  add_subdirectory(src/platform/linux)
 else()
   message(FATAL_ERROR "This platform is not currently supported!")
 endif()
