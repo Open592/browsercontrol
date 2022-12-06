@@ -13,7 +13,7 @@ add_jar(examplejar
         SOURCES ExampleAppletViewer/TerminateHandler.java
         SOURCES nativeadvert/browsercontrol.java
         ENTRY_POINT ExampleAppletViewer/ExampleAppletViewer
-        OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        OUTPUT_DIR ${CMAKE_BINARY_DIR}
         )
 
 if (generatorIsMultiConfig)
