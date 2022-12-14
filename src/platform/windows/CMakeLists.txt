@@ -18,7 +18,7 @@ endif()
 
 target_precompile_headers(browsercontrol PRIVATE pch.hpp)
 
-include(nugetfetch)
+include(NugetFetch)
 
 nugetfetch(WebView2 "Microsoft.Web.WebView2" "1.0.1418.22")
 

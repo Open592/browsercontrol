@@ -26,4 +26,6 @@ find_package(X11 REQUIRED)
 target_link_libraries(browsercontrol PRIVATE ${X11_LIBRARIES})
 target_include_directories(browsercontrol PRIVATE ${X11_INCLUDE_DIR})
 
+include(FindCEF)
+
 target_sources(browsercontrol PRIVATE CEFBrowserControl.cpp init.cpp)
