@@ -22,8 +22,9 @@ target_compile_options(browsercontrol PRIVATE
 target_precompile_headers(browsercontrol PRIVATE pch.hpp)
 
 find_package(X11 REQUIRED)
+find_package(CEF REQUIRED)
 
-target_link_libraries(browsercontrol PRIVATE ${X11_LIBRARIES})
-target_include_directories(browsercontrol PRIVATE ${X11_INCLUDE_DIR})
+target_link_libraries(browsercontrol PRIVATE ${X11_LIBRARIES} ${CEF_LIBRARY} ${CEFWRAPPER_LIBRARY})
+target_include_directories(browsercontrol PRIVATE ${X11_INCLUDE_DIR} ${CEF_INCLUDE_DIR})
 
 target_sources(browsercontrol PRIVATE CEFBrowserControl.cpp init.cpp)

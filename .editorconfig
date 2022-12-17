@@ -9,3 +9,9 @@ trim_trailing_whitespace = true
 [*.{cpp,hpp, c, h}]
 indent_size = 4
 indent_style = space
+
+# TODO: This could get out of sync with cmake-format
+[{CMakeLists.txt,*.cmake}]
+indent_size = 2
+indent_style = space
+
