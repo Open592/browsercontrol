@@ -2,7 +2,7 @@
 
 #include "BrowserData.hpp"
 
-BrowserData::BrowserData()
+BrowserData::BrowserData(std::pair<int, int> initialSize)
     /**
      * Within the initial browsercontrol.dll this is used as the fallback
      * value within the thread proc which initializes the window/browser view
@@ -11,8 +11,8 @@ BrowserData::BrowserData()
      * - In the original code this was just "www.jagex.com" (no https)
      */
     : m_destination(L"https://www.jagex.com")
-    , m_size(std::make_pair(CW_USEDEFAULT, CW_USEDEFAULT))
-    , m_status(Status::NOT_STARTED)
+    , m_size(std::move(initialSize))
+    , m_state(State::NOT_STARTED)
 {
 }
 
@@ -22,7 +22,7 @@ int BrowserData::GetWidth() const noexcept { return m_size.first; }
 
 int BrowserData::GetHeight() const noexcept { return m_size.second; }
 
-bool BrowserData::IsRunning() const noexcept { return m_status == Status::RUNNING; }
+bool BrowserData::IsRunning() const noexcept { return m_state == State::RUNNING; }
 
 void BrowserData::SetDestination(std::wstring&& destination) noexcept
 {
@@ -35,10 +35,10 @@ void BrowserData::SetDestination(std::wstring&& destination) noexcept
 
 void BrowserData::SetSize(int width, int height) noexcept { m_size = std::make_pair(width, height); }
 
-void BrowserData::SetStatus(Status status) noexcept
+void BrowserData::SetState(State status) noexcept
 {
-    m_status = status;
-    m_status.notify_all();
+    m_state = status;
+    m_state.notify_all();
 }
 
 /**
@@ -46,7 +46,7 @@ void BrowserData::SetStatus(Status status) noexcept
  */
 bool BrowserData::WaitForInitializationResult() noexcept
 {
-    m_status.wait(Status::NOT_STARTED);
+    m_state.wait(State::NOT_STARTED);
 
     return IsRunning();
 }

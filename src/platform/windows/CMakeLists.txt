@@ -48,4 +48,4 @@ target_include_directories(
   browsercontrol PRIVATE ${WebView2-PATH}/build/native/include ${WindowsImplementationLibrary-PATH}/include
 )
 
-target_sources(browsercontrol PRIVATE init.cpp BrowserData.cpp Win32BrowserControl.cpp WebView2BrowserWindow.cpp)
+target_sources(browsercontrol PRIVATE init.cpp Win32BrowserControl.cpp WebView2BrowserWindow.cpp)

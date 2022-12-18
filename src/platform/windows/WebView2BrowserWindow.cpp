@@ -179,18 +179,18 @@ WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, std::shared_ptr<
     , m_parentWindow(parentWindow)
 {
     if (!EnsureWebViewIsAvailable()) {
-        m_data->SetStatus(BrowserData::Status::FAILED_TO_START);
+        m_data->SetState(BrowserData::State::FAILED_TO_START);
 
         return;
     }
 
     if (!InitializeWebView()) {
-        m_data->SetStatus(BrowserData::Status::FAILED_TO_START);
+        m_data->SetState(BrowserData::State::FAILED_TO_START);
     } else {
         // We have successfully created our browser window and are prepared to start accepting
         // messages. At this point initialization has finished, and we can signal success back to
         // the caller
-        m_data->SetStatus(BrowserData::Status::RUNNING);
+        m_data->SetState(BrowserData::State::RUNNING);
     }
 }
 
@@ -250,7 +250,7 @@ void WebView2BrowserWindow::Destroy()
 {
     // At this point we are about to destroy the backing windows of the browser control. Any further calls to
     // exported functions will result in failures, so we must mark the browser control as terminated.
-    m_data->SetStatus(BrowserData::Status::TERMINATED);
+    m_data->SetState(BrowserData::State::TERMINATED);
 
     SetParent(m_parentWindow, nullptr);
     DestroyWindow(m_parentWindow);

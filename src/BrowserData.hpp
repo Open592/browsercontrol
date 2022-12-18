@@ -2,9 +2,14 @@
 
 #pragma once
 
+#include <atomic>
+#include <cstdint>
+#include <string>
+#include <utility>
+
 class BrowserData {
 public:
-    enum class Status : uint8_t {
+    enum class State : uint8_t {
         NOT_STARTED,
         RUNNING,
         FAILED_TO_START,
@@ -17,7 +22,7 @@ public:
      * These values are generally used as default when calling CreateWindow
      * but I have confirmed that they were used in the original browsercontrol.dll
      */
-    BrowserData();
+    explicit BrowserData(std::pair<int, int>);
 
     [[nodiscard]] const std::wstring& GetDestination() const noexcept;
     [[nodiscard]] int GetWidth() const noexcept;
@@ -50,7 +55,7 @@ public:
      */
     void SetDestination(std::wstring&&) noexcept;
     void SetSize(int, int) noexcept;
-    void SetStatus(Status) noexcept;
+    void SetState(State) noexcept;
     [[nodiscard]] bool WaitForInitializationResult() noexcept;
 
 private:
@@ -65,8 +70,8 @@ private:
     std::pair<int, int> m_size;
 
     /**
-     * Tracks the current status of the browser window, allowing for an easy way for exported
+     * Tracks the current state of the browser window, allowing for an easy way for exported
      * methods to access the state of the browser control
      */
-    std::atomic<Status> m_status;
+    std::atomic<State> m_state;
 };

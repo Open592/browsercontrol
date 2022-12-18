@@ -79,7 +79,7 @@ std::wstring Win32BrowserControl::GetJavaWString(const jchar* str)
 }
 
 Win32BrowserControl::Win32BrowserControl()
-    : m_browserData(std::make_shared<BrowserData>())
+    : m_browserData(std::make_shared<BrowserData>(std::make_pair(CW_USEDEFAULT, CW_USEDEFAULT)))
 {
     // Initialize the browser window module
     WebView2BrowserWindow::Register();
@@ -146,7 +146,7 @@ void Win32BrowserControl::StartMessagePump()
 
 handle_error:
     // Notify caller that we failed
-    m_browserData->SetStatus(BrowserData::Status::FAILED_TO_START);
+    m_browserData->SetState(BrowserData::State::FAILED_TO_START);
 }
 
 void Win32BrowserControl::Destroy() noexcept
