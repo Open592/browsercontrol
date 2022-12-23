@@ -22,7 +22,7 @@ include(FindJNI)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(browsercontrol SHARED src/browsercontrol.cpp src/BrowserContext.cpp)
+add_library(browsercontrol SHARED src/browsercontrol.cpp src/BrowserContext.cpp src/BrowserData.cpp)
 
 set_target_properties(browsercontrol PROPERTIES VERSION ${PROJECT_VERSION} PUBLIC_HEADER include/browsercontrol.h)
 

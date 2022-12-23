@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "BrowserData.hpp"
+#include "../../BrowserData.hpp"
 
 /**
  * @brief Implementation of a WebView2 browser window for displaying

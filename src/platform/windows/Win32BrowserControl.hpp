@@ -3,7 +3,7 @@
 #pragma once
 
 #include "../../AbstractBrowserControl.hpp"
-#include "BrowserData.hpp"
+#include "../../BrowserData.hpp"
 
 class Win32BrowserControl : public AbstractBrowserControl {
 public:
