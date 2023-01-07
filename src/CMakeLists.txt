@@ -6,7 +6,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(GNUInstallDirs)
 include(FindJNI)
 
-set(BROWSERCONTROL_TARGET_OUT_DIR ${CMAKE_BINARY_DIR})
 set(BROWSERCONTROL_SHARED_FILES ${SOURCES_ROOT}/browsercontrol.cpp ${SOURCES_ROOT}/BrowserContext.cpp
                                 ${SOURCES_ROOT}/BrowserData.cpp
 )
