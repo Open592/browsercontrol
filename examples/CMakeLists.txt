@@ -13,7 +13,7 @@ add_jar(examplejar
         SOURCES nativeadvert/browsercontrol.java
         ENTRY_POINT ExampleAppletViewer/ExampleAppletViewer
         OUTPUT_NAME example
-        OUTPUT_DIR ${OUTPUT_DIR}
+        OUTPUT_DIR ${OUTPUT_DIR}/examples
         )
 
 if (generatorIsMultiConfig)

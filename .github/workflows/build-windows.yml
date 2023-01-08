@@ -51,7 +51,7 @@ jobs:
 
           $assetPath = "${{ github.workspace }}\ghr-output\windows-${{ matrix.arch }}.zip"
           $compress = @{
-            Path = ".\build\${{ inputs.build-type }}\*"
+            Path = ".\build\output\${{ inputs.build-type }}\*"
             CompressionLevel = "Fastest"
             DestinationPath = ${assetPath}
           }
