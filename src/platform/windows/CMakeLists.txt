@@ -54,3 +54,5 @@ target_include_directories(
   browsercontrol PRIVATE ${JNI_INCLUDE_DIRS} ${WebView2-PATH}/build/native/include
                          ${WindowsImplementationLibrary-PATH}/include ${CMAKE_SOURCE_DIR}
 )
+
+set_browsercontrol_target_properties(browsercontrol)

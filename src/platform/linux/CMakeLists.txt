@@ -17,7 +17,7 @@ set(CEF_TARGET browsercontrol)
 
 add_logical_target(libcef_lib ${CEF_LIB_DEBUG} ${CEF_LIB_RELEASE})
 
-set(CEF_TARGET_OUT_DIR "${CMAKE_BINARY_DIR}/artifacts")
+set(CEF_TARGET_OUT_DIR ${OUTPUT_DIR})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
@@ -34,15 +34,7 @@ add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
 target_include_directories(${CEF_TARGET} PUBLIC ${JNI_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
 target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
 
-set_target_properties(
-  ${CEF_TARGET}
-  PROPERTIES VERSION ${PROJECT_VERSION}
-             INSTALL_RPATH "$ORIGIN"
-             BUILD_WITH_INSTALL_RPATH TRUE
-             ARCHIVE_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR}
-             RUNTIME_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR}
-             LIBRARY_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR}
-)
+set_browsercontrol_target_properties(${CEF_TARGET})
 
 copy_files(${CEF_TARGET} "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
 copy_files(${CEF_TARGET} "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")

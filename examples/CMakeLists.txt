@@ -6,14 +6,14 @@ include(UseJava)
 get_property(generatorIsMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 add_jar(examplejar
-        OUTPUT_NAME example
         SOURCES ExampleAppletViewer/AdvertComponentListener.java
         SOURCES ExampleAppletViewer/AdvertFrame.java
         SOURCES ExampleAppletViewer/ExampleAppletViewer.java
         SOURCES ExampleAppletViewer/TerminateHandler.java
         SOURCES nativeadvert/browsercontrol.java
         ENTRY_POINT ExampleAppletViewer/ExampleAppletViewer
-        OUTPUT_DIR ${CMAKE_BINARY_DIR}
+        OUTPUT_NAME example
+        OUTPUT_DIR ${OUTPUT_DIR}
         )
 
 if (generatorIsMultiConfig)

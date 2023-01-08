@@ -10,6 +10,18 @@ set(BROWSERCONTROL_SHARED_FILES ${SOURCES_ROOT}/browsercontrol.cpp ${SOURCES_ROO
                                 ${SOURCES_ROOT}/BrowserData.cpp
 )
 
+macro(SET_BROWSERCONTROL_TARGET_PROPERTIES target)
+  set_target_properties(
+    ${target}
+    PROPERTIES VERSION ${PROJECT_VERSION}
+               INSTALL_RPATH "$ORIGIN"
+               BUILD_WITH_INSTALL_RPATH TRUE
+               ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+               RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+               LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+  )
+endmacro()
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   add_subdirectory(platform/windows)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
