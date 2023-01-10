@@ -2,7 +2,7 @@
 
 #include <X11/Xlib.h>
 
-#include "../../BrowserContext.hpp"
+#include "src/BrowserContext.hpp"
 #include "CEFBrowserControl.hpp"
 
 __attribute__((constructor)) void setup()

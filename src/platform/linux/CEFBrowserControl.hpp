@@ -4,7 +4,7 @@
 
 #include <jni.h>
 
-#include "../../AbstractBrowserControl.hpp"
+#include "src/AbstractBrowserControl.hpp"
 
 class CEFBrowserControl : public AbstractBrowserControl {
 public:
