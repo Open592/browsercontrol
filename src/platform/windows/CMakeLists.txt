@@ -31,7 +31,7 @@ if(NOT EXISTS ${WindowsImplementationLibrary-PATH})
 endif()
 
 add_library(
-  browsercontrol SHARED ${BROWSERCONTROL_SHARED_FILES} init.cpp Win32BrowserControl.cpp WebView2BrowserWindow.cpp
+  browsercontrol SHARED ${BROWSERCONTROL_SHARED_SOURCES} init.cpp Win32BrowserControl.cpp WebView2BrowserWindow.cpp
 )
 
 target_precompile_headers(browsercontrol PRIVATE pch.hpp)

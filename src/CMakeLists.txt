@@ -6,8 +6,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(GNUInstallDirs)
 include(FindJNI)
 
-set(BROWSERCONTROL_SHARED_FILES ${SOURCES_ROOT}/browsercontrol.cpp ${SOURCES_ROOT}/BrowserContext.cpp
-                                ${SOURCES_ROOT}/BrowserData.cpp
+set(BROWSERCONTROL_SHARED_SOURCES ${SOURCES_ROOT}/browsercontrol.cpp ${SOURCES_ROOT}/BrowserContext.cpp
+                                  ${SOURCES_ROOT}/BrowserData.cpp
 )
 
 macro(SET_BROWSERCONTROL_TARGET_PROPERTIES target)
