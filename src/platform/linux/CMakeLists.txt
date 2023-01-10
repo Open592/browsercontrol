@@ -1,30 +1,41 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
-cmake_policy(SET CMP0079 NEW)
+include(DownloadCEF)
 
-# cmake-format: off
-target_compile_options(browsercontrol PRIVATE
-        "-Wall"
-        "-Wextra"
-        "-Wshadow"
-        "-Wnon-virtual-dtor"
-        "-pedantic"
-        "-Wold-style-cast"
-        "-Wcast-align"
-        "-Wunused"
-        "$<$<CONFIG:DEBUG>:-g>"
-        "$<$<CONFIG:DEBUG>:-pg>"
-        "$<$<CONFIG:DEBUG>:-O0>"
-        "$<$<CONFIG:RELEASE>:-O2>"
-)
-# cmake-format: on
+download_cef("108.4.13+ga98cd4c+chromium-108.0.5359.125" "${CMAKE_SOURCE_DIR}/third_party/cef")
 
-target_precompile_headers(browsercontrol PRIVATE pch.hpp)
+list(APPEND CMAKE_MODULE_PATH ${CEF_ROOT}/cmake)
 
 find_package(X11 REQUIRED)
 find_package(CEF REQUIRED)
 
-target_link_libraries(browsercontrol PRIVATE ${X11_LIBRARIES} ${CEF_LIBRARY} ${CEFWRAPPER_LIBRARY})
-target_include_directories(browsercontrol PRIVATE ${X11_INCLUDE_DIR} ${CEF_INCLUDE_DIR})
+print_cef_config()
 
-target_sources(browsercontrol PRIVATE CEFBrowserControl.cpp init.cpp)
+add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
+
+add_logical_target(libcef_lib ${CEF_LIB_DEBUG} ${CEF_LIB_RELEASE})
+
+set(CEF_TARGET_OUT_DIR ${OUTPUT_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
+
+# Library target
+add_library(browsercontrol SHARED ${BROWSERCONTROL_SHARED_SOURCES} init.cpp CEFBrowserControl.cpp)
+target_precompile_headers(browsercontrol PRIVATE pch.hpp)
+set_library_target_properties(browsercontrol)
+add_dependencies(browsercontrol libcef_dll_wrapper)
+target_include_directories(browsercontrol PUBLIC ${JNI_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
+target_link_libraries(browsercontrol libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
+set_browsercontrol_target_properties(browsercontrol)
+
+# Helper executable target
+add_executable(browsercontrol_helper helper.cpp)
+set_executable_target_properties(browsercontrol_helper)
+add_dependencies(browsercontrol_helper libcef_dll_wrapper)
+target_link_libraries(browsercontrol_helper libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
+set_browsercontrol_target_properties(browsercontrol_helper)
+
+copy_files(browsercontrol "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
+copy_files(browsercontrol "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
+
+set_linux_suid_permissions(browsercontrol "${CEF_TARGET_OUT_DIR}/chrome-sandbox")

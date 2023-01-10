@@ -9,7 +9,7 @@
 # PACKAGE_NAME :: NuGet package name we want to fetch
 #
 # VERSION :: Version of the package we want to fetch
-function(NugetFetch OUTPUT_NAME PACKAGE_NAME PACKAGE_VERSION)
+function(nuget_fetch OUTPUT_NAME PACKAGE_NAME PACKAGE_VERSION)
   find_program(NUGET_EXE nuget)
 
   if(NOT NUGET_EXE)

@@ -17,12 +17,14 @@ public:
     };
 
     /**
-     * Initialize BrowserData with a set of default values.
-     *
-     * These values are generally used as default when calling CreateWindow
-     * but I have confirmed that they were used in the original browsercontrol.dll
+     * Initialize BrowserData with default width and height
      */
-    explicit BrowserData(std::pair<int, int>);
+    BrowserData() noexcept;
+
+    /**
+     * Initialize BrowserData with an explicit width and height
+     */
+    explicit BrowserData(int, int) noexcept;
 
     [[nodiscard]] const std::wstring& GetDestination() const noexcept;
     [[nodiscard]] int GetWidth() const noexcept;
@@ -33,18 +35,18 @@ public:
      *
      * This does not mean that the browser window is displaying anything,
      * but is more of a status indicating we have made a request to the
-     * underlying WebView2 instance that we would like to be running.
+     * underlying browser instance that we would like to be running.
      *
-     * In the case that the WebView2 runtime is not available on the user's
-     * machine we must first bootstrap it. During this process we will not
-     * report truthy from this method. We only begin to return truthy once
-     * we have successfully bootstrapped the WebView2 process.
+     * In the case of the WebView2 runtime on Windows, if it's not available
+     * on the user's machine we must first bootstrap it. During this process
+     * this method will continue to report false. We only begin reporting
+     * true once we have successfully bootstrapped the WebView2 process.
      *
-     * Due to this there may be a small delay on the AppletViewer side the
-     * first time users attempt to load the game if they do *not* have
-     * WebView2 installed from previous applications.
+     * Due to this, on Windows, there may be a small delay for the
+     * AppletViewer the first time the user attempts to load the game if they
+     * do *not* have WebView2 installed from a previous application.
      *
-     * @return Truthy if we have received signs of life from the WebView2
+     * @return True if we have received signs of life from the browser
      * process.
      */
     [[nodiscard]] bool IsRunning() const noexcept;
@@ -59,12 +61,15 @@ public:
     [[nodiscard]] bool WaitForInitializationResult() noexcept;
 
 private:
-    std::wstring m_destination;
+    /**
+     * Difference: In the original code this was just "www.jagex.com" (no https)
+     */
+    std::wstring m_destination = L"https://www.jagex.com";
 
     /**
      * We only need to hold width and height as x,y is always 0.
      *
-     * Decompiled example of resize event handler:
+     * Decompiled example of resize event handler from the Windows DLL:
      * `SetWindowPos(HWND_18000e1a0,(HWND)0x0,0,0,(int)width,(int)height,0x16);`
      */
     std::pair<int, int> m_size;
@@ -73,5 +78,5 @@ private:
      * Tracks the current state of the browser window, allowing for an easy way for exported
      * methods to access the state of the browser control
      */
-    std::atomic<State> m_state;
+    std::atomic<State> m_state = State::NOT_STARTED;
 };

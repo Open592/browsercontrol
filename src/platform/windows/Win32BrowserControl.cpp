@@ -79,7 +79,11 @@ std::wstring Win32BrowserControl::GetJavaWString(const jchar* str)
 }
 
 Win32BrowserControl::Win32BrowserControl()
-    : m_browserData(std::make_shared<BrowserData>(std::make_pair(CW_USEDEFAULT, CW_USEDEFAULT)))
+    /**
+     * Within the initial browsercontrol.dll this was used as the fallback
+     * value within the thread proc which initialized the window/browser view
+     */
+    : m_browserData(std::make_shared<BrowserData>(CW_USEDEFAULT, CW_USEDEFAULT))
 {
     // Initialize the browser window module
     WebView2BrowserWindow::Register();

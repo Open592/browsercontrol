@@ -5,15 +5,24 @@ include(UseJava)
 
 get_property(generatorIsMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
+set(EXAMPLES_OUTPUT_DIR ${OUTPUT_DIR})
+
+# When in multi config environment we will copy the output jar to the
+# appropriate build directory. Because of this we will store the jar
+# in its own directory to avoid polluting the root.
+if (generatorIsMultiConfig)
+  set(EXAMPLES_OUTPUT_DIR ${OUTPUT_DIR}/examples)
+endif()
+
 add_jar(examplejar
-        OUTPUT_NAME example
         SOURCES ExampleAppletViewer/AdvertComponentListener.java
         SOURCES ExampleAppletViewer/AdvertFrame.java
         SOURCES ExampleAppletViewer/ExampleAppletViewer.java
         SOURCES ExampleAppletViewer/TerminateHandler.java
         SOURCES nativeadvert/browsercontrol.java
         ENTRY_POINT ExampleAppletViewer/ExampleAppletViewer
-        OUTPUT_DIR ${CMAKE_BINARY_DIR}
+        OUTPUT_NAME example
+        OUTPUT_DIR ${EXAMPLES_OUTPUT_DIR}
         )
 
 if (generatorIsMultiConfig)
