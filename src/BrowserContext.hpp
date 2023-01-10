@@ -3,8 +3,10 @@
 #pragma once
 
 #include <cassert>
-#include <jawt.h>
 #include <memory>
+
+#include <jni.h>
+#include <jawt.h>
 
 #include "AbstractBrowserControl.hpp"
 
@@ -55,9 +57,9 @@ public:
      *
      * This will handle all teardown logic when we are unloading.
      *
-     * It is the job of the shared library deinitialization logic to call this method.
+     * It is the job of the shared library de-initialization logic to call this method.
      *
-     * @return Returns thruthy if we were able to successfully unregister the browser control
+     * @return Returns true if we were able to successfully unregister the browser control
      */
     bool UnregisterBrowserControl();
 
@@ -71,7 +73,7 @@ public:
      * @param initialDestination The browser window will point to this address on initial load. It can be modified
      * using the Navigate method
      *
-     * @return Returns truthy if we were able to successfully initialize the browser control
+     * @return Returns true if we were able to successfully initialize the browser control
      */
     bool InitializeBrowserWindow(JNIEnv*, jobject, const jchar*) const noexcept;
 

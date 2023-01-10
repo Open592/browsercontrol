@@ -4,6 +4,8 @@
 
 #include <string>
 
+#include <jni.h>
+
 class AbstractBrowserControl {
 public:
     AbstractBrowserControl() = default;

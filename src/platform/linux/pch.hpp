@@ -3,4 +3,7 @@
 #pragma once
 
 #include <jawt_md.h>
+#include <jawt.h>
 #include <jni.h>
+
+#include <X11/Xlib.h>
