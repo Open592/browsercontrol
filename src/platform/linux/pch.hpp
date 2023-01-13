@@ -2,8 +2,10 @@
 
 #pragma once
 
-#include <jawt_md.h>
+#include <memory>
+
 #include <jawt.h>
+#include <jawt_md.h>
 #include <jni.h>
 
-#include <X11/Xlib.h>
+#include <xcb/xcb.h>
