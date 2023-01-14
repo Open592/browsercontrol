@@ -2,8 +2,10 @@
 
 #pragma once
 
-#include <atomic>
+#include <condition_variable>
 #include <cstdint>
+#include <memory>
+#include <mutex>
 #include <string>
 #include <utility>
 
@@ -26,9 +28,9 @@ public:
      */
     explicit BrowserData(int, int) noexcept;
 
-    [[nodiscard]] const std::wstring& GetDestination() const noexcept;
-    [[nodiscard]] int GetWidth() const noexcept;
-    [[nodiscard]] int GetHeight() const noexcept;
+    [[nodiscard]] const std::wstring& GetDestination() noexcept;
+    [[nodiscard]] int GetWidth() noexcept;
+    [[nodiscard]] int GetHeight() noexcept;
 
     /**
      * Returns whether or not the browser window is running.
@@ -49,7 +51,7 @@ public:
      * @return True if we have received signs of life from the browser
      * process.
      */
-    [[nodiscard]] bool IsRunning() const noexcept;
+    [[nodiscard]] bool IsRunning() noexcept;
     /**
      * Setting the destination does not perform any validation about the
      * validity or security of a particular URL. This is left up to the
@@ -78,5 +80,8 @@ private:
      * Tracks the current state of the browser window, allowing for an easy way for exported
      * methods to access the state of the browser control
      */
-    std::atomic<State> m_state = State::NOT_STARTED;
+    State m_state = State::NOT_STARTED;
+
+    std::condition_variable m_cv;
+    std::mutex m_mutex;
 };

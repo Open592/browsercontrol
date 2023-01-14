@@ -17,10 +17,11 @@
 #include <jawt_md.h>
 #include <jni.h>
 
-#include <atomic>
+#include <condition_variable>
 #include <filesystem>
 #include <format>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <thread>
