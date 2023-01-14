@@ -2,7 +2,9 @@
 
 #pragma once
 
+#include <condition_variable>
 #include <memory>
+#include <mutex>
 
 #include <jawt.h>
 #include <jawt_md.h>

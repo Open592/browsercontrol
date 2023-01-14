@@ -12,6 +12,17 @@ find_package(CEF REQUIRED)
 
 print_cef_config()
 
+# cmake-format: off
+add_compile_options(
+  "-pedantic"
+  "-Wall"
+  "$<$<CONFIG:DEBUG>:-g>"
+  "$<$<CONFIG:DEBUG>:-pg>"
+  "$<$<CONFIG:DEBUG>:-Werror>"
+  "$<$<CONFIG:RELEASE>:-O3>"
+)
+# cmake-format: on
+
 add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
 
 add_logical_target(libcef_lib ${CEF_LIB_DEBUG} ${CEF_LIB_RELEASE})

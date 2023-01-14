@@ -2,7 +2,6 @@
 
 #include "BrowserData.hpp"
 
-
 BrowserData::BrowserData() noexcept
     : m_size(0, 0)
 {
@@ -13,13 +12,33 @@ BrowserData::BrowserData(int width, int height) noexcept
 {
 }
 
-const std::wstring& BrowserData::GetDestination() const noexcept { return m_destination; }
+const std::wstring& BrowserData::GetDestination() noexcept
+{
+    std::lock_guard lk(m_mutex);
 
-int BrowserData::GetWidth() const noexcept { return m_size.first; }
+    return m_destination;
+}
 
-int BrowserData::GetHeight() const noexcept { return m_size.second; }
+int BrowserData::GetWidth() noexcept
+{
+    std::lock_guard lk(m_mutex);
 
-bool BrowserData::IsRunning() const noexcept { return m_state == State::RUNNING; }
+    return m_size.first;
+}
+
+int BrowserData::GetHeight() noexcept
+{
+    std::lock_guard lk(m_mutex);
+
+    return m_size.second;
+}
+
+bool BrowserData::IsRunning() noexcept
+{
+    std::lock_guard lk(m_mutex);
+
+    return m_state == State::RUNNING;
+}
 
 void BrowserData::SetDestination(std::wstring&& destination) noexcept
 {
@@ -27,15 +46,26 @@ void BrowserData::SetDestination(std::wstring&& destination) noexcept
         return;
     }
 
+    std::lock_guard lk(m_mutex);
+
     m_destination = std::move(destination);
 }
 
-void BrowserData::SetSize(int width, int height) noexcept { m_size = std::make_pair(width, height); }
+void BrowserData::SetSize(int width, int height) noexcept
+{
+    std::lock_guard lk(m_mutex);
+
+    m_size = std::make_pair(width, height);
+}
 
 void BrowserData::SetState(State state) noexcept
 {
-    m_state = state;
-    m_state.notify_all();
+    {
+        std::lock_guard lk(m_mutex);
+        m_state = state;
+    }
+
+    m_cv.notify_one();
 }
 
 /**
@@ -43,7 +73,8 @@ void BrowserData::SetState(State state) noexcept
  */
 bool BrowserData::WaitForInitializationResult() noexcept
 {
-    m_state.wait(State::NOT_STARTED);
+    std::unique_lock lk(m_mutex);
+    m_cv.wait(lk, [this] { return m_state != State::NOT_STARTED; });
 
     return IsRunning();
 }
