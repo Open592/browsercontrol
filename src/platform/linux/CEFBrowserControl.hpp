@@ -4,6 +4,8 @@
 
 #include <memory>
 
+#include <include/cef_base.h>
+#include <jawt.h>
 #include <jni.h>
 #include <xcb/xcb.h>
 
@@ -23,6 +25,8 @@ public:
     void Navigate(std::wstring) noexcept override;
 
 private:
+    [[nodiscard]] static CefWindowHandle ResolveHostWindow(JNIEnv*, jobject) noexcept;
+
     std::unique_ptr<DisplayConnection> m_display;
     std::shared_ptr<BrowserData> m_data;
 };
