@@ -66,18 +66,6 @@ HWND Win32BrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas)
     return nullptr;
 }
 
-std::wstring Win32BrowserControl::GetJavaWString(const jchar* str)
-{
-    std::wstring result;
-
-    if (str != nullptr) {
-        // We can safely reinterpret_cast since we verified that jchar and WCHAR are the same size
-        result.assign(reinterpret_cast<const WCHAR*>(str));
-    }
-
-    return result;
-}
-
 Win32BrowserControl::Win32BrowserControl()
     /**
      * Within the initial browsercontrol.dll this was used as the fallback
@@ -91,7 +79,7 @@ Win32BrowserControl::Win32BrowserControl()
 
 Win32BrowserControl::~Win32BrowserControl() { WebView2BrowserWindow::Unregister(); }
 
-bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const jchar* initialDestination) noexcept
+bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring initialDestination) noexcept
 {
     if (canvas == nullptr) {
         return false;
@@ -103,10 +91,9 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, const jchar* i
         return false;
     }
 
-    std::wstring destination = GetJavaWString(initialDestination);
     // On initialization of the browser context a default value is set for the destination.
     // We must update this with the initial destination sent during browsercontrol0()
-    m_browserData->SetDestination(std::move(destination));
+    m_browserData->SetDestination(initialDestination);
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnusedValue"
@@ -165,10 +152,9 @@ void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept
     SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::RESIZE), NULL, NULL);
 }
 
-void Win32BrowserControl::Navigate(const jchar* destination) noexcept
+void Win32BrowserControl::Navigate(std::wstring destination) noexcept
 {
-    std::wstring dest = GetJavaWString(destination);
-    m_browserData->SetDestination(std::move(dest));
+    m_browserData->SetDestination(destination);
 
     SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::NAVIGATE), NULL, NULL);
 }

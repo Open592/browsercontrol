@@ -31,7 +31,7 @@ bool BrowserContext::UnregisterBrowserControl()
 }
 
 bool BrowserContext::InitializeBrowserWindow(
-    JNIEnv* env, jobject parentContainer, const jchar* initialDestination) const noexcept
+    JNIEnv* env, jobject parentContainer, std::wstring initialDestination) const noexcept
 {
     if (!m_control || m_control->IsRunning()) {
         return false;
@@ -58,9 +58,9 @@ void BrowserContext::ResizeBrowserWindow(int32_t width, int32_t height) const no
     m_control->Resize(width, height);
 }
 
-void BrowserContext::Navigate(const jchar* destination) const noexcept
+void BrowserContext::Navigate(std::wstring destination) const noexcept
 {
-    if (!m_control || !m_control->IsRunning() || destination == nullptr) {
+    if (!m_control || !m_control->IsRunning() || destination.empty()) {
         return;
     }
 

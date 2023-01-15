@@ -40,7 +40,7 @@ bool BrowserData::IsRunning() noexcept
     return m_state == State::RUNNING;
 }
 
-void BrowserData::SetDestination(std::wstring&& destination) noexcept
+void BrowserData::SetDestination(std::wstring destination) noexcept
 {
     if (destination.empty()) {
         return;
@@ -48,7 +48,7 @@ void BrowserData::SetDestination(std::wstring&& destination) noexcept
 
     std::lock_guard lk(m_mutex);
 
-    m_destination = std::move(destination);
+    m_destination = destination;
 }
 
 void BrowserData::SetSize(int width, int height) noexcept
@@ -74,6 +74,7 @@ void BrowserData::SetState(State state) noexcept
 bool BrowserData::WaitForInitializationResult() noexcept
 {
     std::unique_lock lk(m_mutex);
+
     m_cv.wait(lk, [this] { return m_state != State::NOT_STARTED; });
 
     return IsRunning();
