@@ -37,7 +37,7 @@ target_precompile_headers(browsercontrol PRIVATE pch.hpp)
 set_library_target_properties(browsercontrol)
 add_dependencies(browsercontrol libcef_dll_wrapper)
 target_include_directories(browsercontrol PUBLIC ${CMAKE_SOURCE_DIR} ${JNI_INCLUDE_DIRS} ${XCB_INCLUDE_DIRS})
-target_link_libraries(browsercontrol libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} ${XCB_LIBRARIES})
+target_link_libraries(browsercontrol libcef_lib libcef_dll_wrapper ${JNI_LIBRARIES} ${CEF_STANDARD_LIBS} ${XCB_LIBRARIES})
 set_browsercontrol_target_properties(browsercontrol)
 
 # Helper executable target
