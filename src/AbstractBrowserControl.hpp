@@ -20,7 +20,7 @@ public:
      *
      * @return Returns truthy on success.
      */
-    virtual bool Initialize(JNIEnv*, jobject, const jchar*) = 0;
+    virtual bool Initialize(JNIEnv*, jobject, std::wstring) = 0;
 
     /**
      * @brief Checks if the browser window is running
@@ -48,5 +48,5 @@ public:
      * @param destination Unicode encoded string respresenting the location
      * we wish to navigate to
      */
-    virtual void Navigate(const jchar* destination) = 0;
+    virtual void Navigate(std::wstring) = 0;
 };

@@ -57,7 +57,7 @@ public:
      * validity or security of a particular URL. This is left up to the
      * dll caller as well as the web view.
      */
-    void SetDestination(std::wstring&&) noexcept;
+    void SetDestination(std::wstring) noexcept;
     void SetSize(int, int) noexcept;
     void SetState(State) noexcept;
     [[nodiscard]] bool WaitForInitializationResult() noexcept;

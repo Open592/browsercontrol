@@ -10,15 +10,14 @@ public:
     Win32BrowserControl();
 
     ~Win32BrowserControl() override;
-    bool Initialize(JNIEnv*, jobject, const jchar*) noexcept override;
+    bool Initialize(JNIEnv*, jobject, std::wstring) noexcept override;
     [[nodiscard]] bool IsRunning() const noexcept override;
     void Destroy() noexcept override;
     void Resize(int32_t, int32_t) noexcept override;
-    void Navigate(const jchar *) noexcept override;
+    void Navigate(std::wstring) noexcept override;
 
 private:
     [[nodiscard]] static HWND ResolveHostWindow(JNIEnv*, jobject);
-    [[nodiscard]] static std::wstring GetJavaWString(const jchar*);
 
     void StartMessagePump();
 

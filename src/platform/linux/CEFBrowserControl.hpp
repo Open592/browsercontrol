@@ -16,13 +16,13 @@ public:
     CEFBrowserControl() noexcept;
 
     ~CEFBrowserControl() override;
-    bool Initialize(JNIEnv*, jobject, const jchar*) noexcept override;
+    [[nodiscard]] bool Initialize(JNIEnv*, jobject, std::wstring) noexcept override;
     [[nodiscard]] bool IsRunning() const noexcept override;
     void Destroy() noexcept override;
     void Resize(int32_t, int32_t) noexcept override;
-    void Navigate(const jchar*) noexcept override;
+    void Navigate(std::wstring) noexcept override;
 
 private:
+    std::unique_ptr<DisplayConnection> m_display;
     std::shared_ptr<BrowserData> m_data;
-    std::unique_ptr<DisplayConnection> m_displayConnection;
 };

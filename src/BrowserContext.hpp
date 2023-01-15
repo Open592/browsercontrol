@@ -5,8 +5,8 @@
 #include <cassert>
 #include <memory>
 
-#include <jni.h>
 #include <jawt.h>
+#include <jni.h>
 
 #include "AbstractBrowserControl.hpp"
 
@@ -75,13 +75,13 @@ public:
      *
      * @return Returns true if we were able to successfully initialize the browser control
      */
-    bool InitializeBrowserWindow(JNIEnv*, jobject, const jchar*) const noexcept;
+    bool InitializeBrowserWindow(JNIEnv*, jobject, std::wstring) const noexcept;
 
     void DestroyBrowserWindow() const noexcept;
 
     void ResizeBrowserWindow(int32_t, int32_t) const noexcept;
 
-    void Navigate(const jchar*) const noexcept;
+    void Navigate(std::wstring) const noexcept;
 
 private:
     BrowserContext() = default;
