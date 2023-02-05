@@ -27,6 +27,6 @@ public:
 private:
     [[nodiscard]] static CefWindowHandle ResolveHostWindow(JNIEnv*, jobject) noexcept;
 
-    std::unique_ptr<DisplayConnection> m_display;
+    std::shared_ptr<DisplayConnection> m_display;
     std::shared_ptr<BrowserData> m_data;
 };
