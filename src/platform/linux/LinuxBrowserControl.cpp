@@ -16,10 +16,17 @@ CEFBrowserControl::~CEFBrowserControl() noexcept = default;
 
 bool CEFBrowserControl::IsRunning() const noexcept { return m_data->IsRunning(); }
 
-bool CEFBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring initialDestination) noexcept {
+bool CEFBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring initialDestination) noexcept
+{
     CefWindowHandle host = ResolveHostWindow(env, canvas);
 
-    return host != kNullWindowHandle;
+    if (host == kNullWindowHandle) {
+        return false;
+    }
+
+    m_data->SetDestination(initialDestination);
+
+    return m_data->WaitForInitializationResult();
 }
 
 void CEFBrowserControl::Destroy() noexcept { return; }
