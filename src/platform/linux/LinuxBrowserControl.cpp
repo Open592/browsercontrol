@@ -1,22 +1,17 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "CEFBrowserControl.hpp"
+#include "LinuxBrowserControl.hpp"
 
-CEFBrowserControl::CEFBrowserControl() noexcept
-    : m_display(DisplayConnection::Connect())
-    , m_data(std::make_shared<BrowserData>())
+LinuxBrowserControl::LinuxBrowserControl() noexcept
+    : m_data(std::make_shared<BrowserData>())
 {
-    if (m_display == nullptr) {
-        // Failed to make a connection to the X server
-        m_data->SetState(BrowserData::State::FAILED_TO_START);
-    }
 }
 
-CEFBrowserControl::~CEFBrowserControl() noexcept = default;
+LinuxBrowserControl::~LinuxBrowserControl() noexcept = default;
 
-bool CEFBrowserControl::IsRunning() const noexcept { return m_data->IsRunning(); }
+bool LinuxBrowserControl::IsRunning() const noexcept { return m_data->IsRunning(); }
 
-bool CEFBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring initialDestination) noexcept
+bool LinuxBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring initialDestination) noexcept
 {
     CefWindowHandle host = ResolveHostWindow(env, canvas);
 
@@ -29,14 +24,14 @@ bool CEFBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring ini
     return m_data->WaitForInitializationResult();
 }
 
-void CEFBrowserControl::Destroy() noexcept { return; }
+void LinuxBrowserControl::Destroy() noexcept { return; }
 
-void CEFBrowserControl::Resize(int32_t, int32_t) noexcept { return; }
+void LinuxBrowserControl::Resize(int32_t, int32_t) noexcept { return; }
 
-void CEFBrowserControl::Navigate(std::wstring) noexcept { return; }
+void LinuxBrowserControl::Navigate(std::wstring) noexcept { return; }
 
 // static
-CefWindowHandle CEFBrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas) noexcept
+CefWindowHandle LinuxBrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas) noexcept
 {
     JAWT awt;
 
