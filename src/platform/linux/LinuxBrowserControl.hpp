@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <memory>
 
 #include <include/cef_base.h>
@@ -25,6 +26,19 @@ public:
 
 private:
     [[nodiscard]] static CefWindowHandle ResolveHostWindow(JNIEnv*, jobject) noexcept;
+
+    /**
+     * We require that our host process passes us information about the current working
+     * directory of the executable. We use this information to pass the browser subprocess
+     * helper path to chromium.
+     *
+     * This information is passed in Java system properties under the following key:
+     *
+     * com.open592.workingDirectory
+     *
+     * We require that the browser helper is a sibling of the applet viewer.
+     */
+    [[nodiscard]] static std::filesystem::path ResolveWorkingDirectory(JNIEnv*) noexcept;
 
     std::shared_ptr<BrowserData> m_data;
 };

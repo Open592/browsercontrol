@@ -81,7 +81,7 @@ public:
 
     void ResizeBrowserWindow(int32_t, int32_t) const noexcept;
 
-    void Navigate(std::wstring) const noexcept;
+    void Navigate(const std::wstring&) const noexcept;
 
 private:
     BrowserContext() = default;
