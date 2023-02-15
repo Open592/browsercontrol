@@ -9,15 +9,14 @@
 #include <jni.h>
 #include <xcb/xcb.h>
 
-#include "DisplayConnection.hpp"
 #include "src/AbstractBrowserControl.hpp"
 #include "src/BrowserData.hpp"
 
-class CEFBrowserControl : public AbstractBrowserControl {
+class LinuxBrowserControl : public AbstractBrowserControl {
 public:
-    CEFBrowserControl() noexcept;
+    LinuxBrowserControl() noexcept;
 
-    ~CEFBrowserControl() override;
+    ~LinuxBrowserControl() override;
     [[nodiscard]] bool Initialize(JNIEnv*, jobject, std::wstring) noexcept override;
     [[nodiscard]] bool IsRunning() const noexcept override;
     void Destroy() noexcept override;
@@ -27,6 +26,5 @@ public:
 private:
     [[nodiscard]] static CefWindowHandle ResolveHostWindow(JNIEnv*, jobject) noexcept;
 
-    std::shared_ptr<DisplayConnection> m_display;
     std::shared_ptr<BrowserData> m_data;
 };
