@@ -1,14 +1,8 @@
-package ExampleAppletViewer;
-
-import java.awt.BorderLayout;
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Insets;
-import java.awt.Panel;
+package com.open592.appletviewer;
 
 import nativeadvert.browsercontrol;
+
+import java.awt.*;
 
 public final class AdvertFrame {
     private static Frame frame;
@@ -88,17 +82,17 @@ public final class AdvertFrame {
         int appletHeight = containerHeight - ADVERT_HEIGHT;
 
         advertContainer.setBounds(
-            0,
-            0,
-            appletWidth,
-            ADVERT_HEIGHT
+                0,
+                0,
+                appletWidth,
+                ADVERT_HEIGHT
         );
 
         fakeApplet.setBounds(
-            0,
-            ADVERT_HEIGHT,
-            appletWidth,
-            appletHeight
+                0,
+                ADVERT_HEIGHT,
+                appletWidth,
+                appletHeight
         );
 
         if (advertContainer != null && browsercontrol.isCreated()) {
