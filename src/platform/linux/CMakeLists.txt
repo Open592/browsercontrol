@@ -2,7 +2,7 @@
 
 include(DownloadCEF)
 
-download_cef("108.4.13+ga98cd4c+chromium-108.0.5359.125" "${CMAKE_SOURCE_DIR}/third_party/cef")
+download_cef("110.0.25+g75b1c96+chromium-110.0.5481.78" "${CMAKE_SOURCE_DIR}/third_party/cef")
 
 list(APPEND CMAKE_MODULE_PATH ${CEF_ROOT}/cmake)
 
@@ -32,12 +32,16 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
 
 # Library target
-add_library(browsercontrol SHARED ${BROWSERCONTROL_SHARED_SOURCES} init.cpp CEFBrowserControl.cpp DisplayConnection.cpp)
+add_library(
+  browsercontrol SHARED ${BROWSERCONTROL_SHARED_SOURCES} init.cpp LinuxBrowserControl.cpp BrowserApp.cpp BrowserHandler.cpp
+)
 target_precompile_headers(browsercontrol PRIVATE pch.hpp)
 set_library_target_properties(browsercontrol)
 add_dependencies(browsercontrol libcef_dll_wrapper)
-target_include_directories(browsercontrol PUBLIC ${CMAKE_SOURCE_DIR} ${JNI_INCLUDE_DIRS} ${XCB_INCLUDE_DIRS})
-target_link_libraries(browsercontrol libcef_lib libcef_dll_wrapper ${JNI_LIBRARIES} ${CEF_STANDARD_LIBS} ${XCB_LIBRARIES})
+target_include_directories(browsercontrol PUBLIC ${CMAKE_SOURCE_DIR} ${JNI_INCLUDE_DIRS})
+target_link_libraries(
+  browsercontrol libcef_lib libcef_dll_wrapper ${JNI_LIBRARIES} ${CEF_STANDARD_LIBS}
+)
 set_browsercontrol_target_properties(browsercontrol)
 
 # Helper executable target

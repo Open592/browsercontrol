@@ -3,6 +3,7 @@
 #pragma once
 
 #include <condition_variable>
+#include <filesystem>
 #include <memory>
 #include <mutex>
 

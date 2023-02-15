@@ -1,22 +1,17 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "CEFBrowserControl.hpp"
+#include "LinuxBrowserControl.hpp"
 
-CEFBrowserControl::CEFBrowserControl() noexcept
-    : m_display(DisplayConnection::Connect())
-    , m_data(std::make_shared<BrowserData>())
+LinuxBrowserControl::LinuxBrowserControl() noexcept
+    : m_data(std::make_shared<BrowserData>())
 {
-    if (m_display == nullptr) {
-        // Failed to make a connection to the X server
-        m_data->SetState(BrowserData::State::FAILED_TO_START);
-    }
 }
 
-CEFBrowserControl::~CEFBrowserControl() noexcept = default;
+LinuxBrowserControl::~LinuxBrowserControl() noexcept { CefShutdown(); }
 
-bool CEFBrowserControl::IsRunning() const noexcept { return m_data->IsRunning(); }
+bool LinuxBrowserControl::IsRunning() const noexcept { return m_data->IsRunning(); }
 
-bool CEFBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring initialDestination) noexcept
+bool LinuxBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring initialDestination) noexcept
 {
     CefWindowHandle host = ResolveHostWindow(env, canvas);
 
@@ -24,19 +19,51 @@ bool CEFBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring ini
         return false;
     }
 
+    std::filesystem::path workingDirectory = ResolveWorkingDirectory(env);
+
+    if (workingDirectory.empty()) {
+        return false;
+    }
+
+    auto browserSubprocessPath = workingDirectory / "browsercontrol_helper";
+    auto logFilePath = workingDirectory / "cef_debug.log";
+
     m_data->SetDestination(initialDestination);
+
+    m_app = new BrowserApp(m_data, host);
+
+    char* argv[] = { (char*)"browsercontrol" };
+    CefMainArgs args(1, argv);
+    CefSettings settings;
+
+    CefString(&settings.browser_subprocess_path) = browserSubprocessPath.string();
+    settings.multi_threaded_message_loop = true;
+    CefString(&settings.log_file) = logFilePath.string();
+    CefString(&settings.resources_dir_path) = workingDirectory.string();
+    settings.no_sandbox = true;
+    settings.log_severity = LOGSEVERITY_VERBOSE;
+
+    CefRefPtr<BrowserApp> app(m_app);
+
+    bool res = CefInitialize(args, settings, app.get(), nullptr);
+
+    if (!res) {
+        m_data->SetState(BrowserData::State::FAILED_TO_START);
+
+        return false;
+    }
 
     return m_data->WaitForInitializationResult();
 }
 
-void CEFBrowserControl::Destroy() noexcept { return; }
+void LinuxBrowserControl::Destroy() noexcept { CefShutdown(); }
 
-void CEFBrowserControl::Resize(int32_t, int32_t) noexcept { return; }
+void LinuxBrowserControl::Resize(int32_t, int32_t) noexcept { return; }
 
-void CEFBrowserControl::Navigate(std::wstring) noexcept { return; }
+void LinuxBrowserControl::Navigate(std::wstring) noexcept { }
 
 // static
-CefWindowHandle CEFBrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas) noexcept
+CefWindowHandle LinuxBrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas) noexcept
 {
     JAWT awt;
 
@@ -84,6 +111,46 @@ CefWindowHandle CEFBrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas
     drawingSurface->FreeDrawingSurfaceInfo(drawingSurfaceInfo);
     drawingSurface->Unlock(drawingSurface);
     awt.FreeDrawingSurface(drawingSurface);
+
+    return result;
+}
+
+// static
+std::filesystem::path LinuxBrowserControl::ResolveWorkingDirectory(JNIEnv* env) noexcept
+{
+    jclass system = env->FindClass("java/lang/System");
+
+    if (system == nullptr || env->ExceptionCheck() == JNI_TRUE) {
+        return {};
+    }
+
+    jmethodID getProperty = env->GetStaticMethodID(system, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
+
+    if (getProperty == nullptr || env->ExceptionCheck() == JNI_TRUE) {
+        return {};
+    }
+
+    jstring propertyName = env->NewStringUTF("com.open592.workingDirectory");
+
+    if (propertyName == nullptr || env->ExceptionCheck() == JNI_TRUE) {
+        return {};
+    }
+
+    auto workingDirectory = (jstring)(env->CallStaticObjectMethod(system, getProperty, propertyName));
+
+    if (workingDirectory == nullptr || env->ExceptionCheck() == JNI_TRUE) {
+        return {};
+    }
+
+    const char* property = env->GetStringUTFChars(workingDirectory, JNI_FALSE);
+
+    if (property == nullptr) {
+        return {};
+    }
+
+    std::filesystem::path result = std::filesystem::canonical(property);
+
+    env->ReleaseStringUTFChars(workingDirectory, property);
 
     return result;
 }

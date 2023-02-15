@@ -2,6 +2,8 @@
 
 #include "BrowserContext.hpp"
 
+#include <utility>
+
 bool BrowserContext::RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&& control)
 {
     if (m_control) {
@@ -37,7 +39,7 @@ bool BrowserContext::InitializeBrowserWindow(
         return false;
     }
 
-    return m_control->Initialize(env, parentContainer, initialDestination);
+    return m_control->Initialize(env, parentContainer, std::move(initialDestination));
 }
 
 void BrowserContext::DestroyBrowserWindow() const noexcept

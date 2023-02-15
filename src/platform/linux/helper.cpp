@@ -16,11 +16,13 @@
  * https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-entry-point-function
  */
 
-#include <iostream>
+#include "include/cef_app.h"
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    std::cout << "Hello world!\n";
+    CefSettings settings;
+    settings.log_severity = LOGSEVERITY_VERBOSE;
+    CefMainArgs mainArgs(argc, argv);
 
-    return EXIT_SUCCESS;
+    return CefExecuteProcess(mainArgs, nullptr, nullptr);
 }
