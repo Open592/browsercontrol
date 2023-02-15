@@ -16,11 +16,15 @@
  * https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-entry-point-function
  */
 
-#include <iostream>
+#include <include/cef_app.h>
+#include <include/cef_command_line.h>
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    std::cout << "Hello world!\n";
+    // FIXME: Without this declaration we are unable to link. Look more into this.
+    CefSettings settings;
 
-    return EXIT_SUCCESS;
+    CefMainArgs mainArgs(argc, argv);
+
+    return CefExecuteProcess(mainArgs, nullptr, nullptr);
 }

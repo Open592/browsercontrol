@@ -25,7 +25,31 @@ bool LinuxBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring i
         return false;
     }
 
+    auto browserSubProcessHelperPath = workingDirectory / "browsercontrol_helper";
+    auto debugLogFilePath = workingDirectory / "cef_debug.log";
+
     m_data->SetDestination(initialDestination);
+
+    char* argv[] = { (char*)"browsercontrol" };
+    CefMainArgs args(1, argv);
+
+    CefSettings settings;
+    CefString(&settings.browser_subprocess_path) = browserSubProcessHelperPath.string();
+    settings.multi_threaded_message_loop = true;
+    CefString(&settings.log_file) = debugLogFilePath.string();
+    CefString(&settings.resources_dir_path) = workingDirectory.string();
+    settings.no_sandbox = true;
+    settings.log_severity = LOGSEVERITY_VERBOSE;
+
+    m_app = new BrowserControlApp(m_data, host);
+
+    bool res = CefInitialize(args, settings, m_app.get(), nullptr);
+
+    if (!res) {
+        m_data->SetState(BrowserData::State::FAILED_TO_START);
+
+        return false;
+    }
 
     return m_data->WaitForInitializationResult();
 }

@@ -13,6 +13,8 @@
 #include "src/AbstractBrowserControl.hpp"
 #include "src/BrowserData.hpp"
 
+#include "BrowserControlApp.hpp"
+
 class LinuxBrowserControl : public AbstractBrowserControl {
 public:
     LinuxBrowserControl() noexcept;
@@ -40,5 +42,6 @@ private:
      */
     [[nodiscard]] static std::filesystem::path ResolveWorkingDirectory(JNIEnv*) noexcept;
 
+    CefRefPtr<BrowserControlApp> m_app;
     std::shared_ptr<BrowserData> m_data;
 };
