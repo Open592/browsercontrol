@@ -2,6 +2,8 @@
 
 #include "BrowserContext.hpp"
 
+#include <utility>
+
 bool BrowserContext::RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&& control)
 {
     if (m_control) {
@@ -37,7 +39,7 @@ bool BrowserContext::InitializeBrowserWindow(
         return false;
     }
 
-    return m_control->Initialize(env, parentContainer, initialDestination);
+    return m_control->Initialize(env, parentContainer, std::move(initialDestination));
 }
 
 void BrowserContext::DestroyBrowserWindow() const noexcept
@@ -58,7 +60,7 @@ void BrowserContext::ResizeBrowserWindow(int32_t width, int32_t height) const no
     m_control->Resize(width, height);
 }
 
-void BrowserContext::Navigate(std::wstring destination) const noexcept
+void BrowserContext::Navigate(const std::wstring& destination) const noexcept
 {
     if (!m_control || !m_control->IsRunning() || destination.empty()) {
         return;

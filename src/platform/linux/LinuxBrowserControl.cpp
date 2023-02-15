@@ -19,6 +19,12 @@ bool LinuxBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring i
         return false;
     }
 
+    std::filesystem::path workingDirectory = ResolveWorkingDirectory(env);
+
+    if (workingDirectory.empty()) {
+        return false;
+    }
+
     m_data->SetDestination(initialDestination);
 
     return m_data->WaitForInitializationResult();
@@ -79,6 +85,46 @@ CefWindowHandle LinuxBrowserControl::ResolveHostWindow(JNIEnv* env, jobject canv
     drawingSurface->FreeDrawingSurfaceInfo(drawingSurfaceInfo);
     drawingSurface->Unlock(drawingSurface);
     awt.FreeDrawingSurface(drawingSurface);
+
+    return result;
+}
+
+// static
+std::filesystem::path LinuxBrowserControl::ResolveWorkingDirectory(JNIEnv* env) noexcept
+{
+    jclass system = env->FindClass("java/lang/System");
+
+    if (system == nullptr || env->ExceptionCheck() == JNI_TRUE) {
+        return {};
+    }
+
+    jmethodID getProperty = env->GetStaticMethodID(system, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
+
+    if (getProperty == nullptr || env->ExceptionCheck() == JNI_TRUE) {
+        return {};
+    }
+
+    jstring propertyName = env->NewStringUTF("com.open592.workingDirectory");
+
+    if (propertyName == nullptr || env->ExceptionCheck() == JNI_TRUE) {
+        return {};
+    }
+
+    auto workingDirectory = (jstring)(env->CallStaticObjectMethod(system, getProperty, propertyName));
+
+    if (workingDirectory == nullptr || env->ExceptionCheck() == JNI_TRUE) {
+        return {};
+    }
+
+    const char* property = env->GetStringUTFChars(workingDirectory, JNI_FALSE);
+
+    if (property == nullptr) {
+        return {};
+    }
+
+    std::filesystem::path result = std::filesystem::canonical(property);
+
+    env->ReleaseStringUTFChars(workingDirectory, property);
 
     return result;
 }
