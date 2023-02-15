@@ -3,3 +3,8 @@ cmake-build-release/
 .vscode/
 .idea/
 **/third_party/
+examples/AppletViewer/.gradle
+examples/AppletViewer/DawnCache
+examples/AppletViewer/GPUCache
+examples/AppletViewer/Web Data
+examples/AppletViewer/Web Data-*

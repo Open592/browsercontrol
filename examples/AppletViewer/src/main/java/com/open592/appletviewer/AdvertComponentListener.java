@@ -1,9 +1,9 @@
-package ExampleAppletViewer;
+package com.open592.appletviewer;
 
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
-class AdvertComponentListener implements ComponentListener {
+public class AdvertComponentListener implements ComponentListener {
     static private AdvertComponentListener m_instance;
 
     static AdvertComponentListener initialize() {
