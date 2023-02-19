@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "JVMSignals.hpp"
+
 #include "LinuxBrowserControl.hpp"
 
 LinuxBrowserControl::LinuxBrowserControl() noexcept
@@ -38,10 +40,15 @@ bool LinuxBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring i
     settings.multi_threaded_message_loop = true;
     CefString(&settings.log_file) = debugLogFilePath.string();
     CefString(&settings.resources_dir_path) = workingDirectory.string();
-    settings.no_sandbox = true;
-    settings.log_severity = LOGSEVERITY_VERBOSE;
 
     m_app = new BrowserControlApp(m_data, host);
+
+    // CefInitialize will overwrite JVM signal handlers. This causes issues with JIT'd code
+    // and results in random crashes. Backup the present signal handlers, and after
+    // returning from CefInitialize restore them to their previous actions.
+    //
+    // See: https://bitbucket.org/chromiumembedded/java-cef/issues/41/mac-jcef-frequently-crashing-in-thread
+    JVMSignals::Backup();
 
     bool res = CefInitialize(args, settings, m_app.get(), nullptr);
 
@@ -50,6 +57,8 @@ bool LinuxBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring i
 
         return false;
     }
+
+    JVMSignals::Restore();
 
     return m_data->WaitForInitializationResult();
 }

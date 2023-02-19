@@ -33,7 +33,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
 # Library target
 add_library(
   browsercontrol SHARED ${BROWSERCONTROL_SHARED_SOURCES} init.cpp LinuxBrowserControl.cpp BrowserControlApp.cpp
-                        BrowserControlClient.cpp
+                        BrowserControlClient.cpp JVMSignals.cpp
 )
 target_precompile_headers(browsercontrol PRIVATE pch.hpp)
 set_library_target_properties(browsercontrol)
