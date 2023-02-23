@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <include/base/cef_bind.h>
+#include <include/wrapper/cef_helpers.h>
+
 #include "JVMSignals.hpp"
 
 #include "LinuxBrowserControl.hpp"
@@ -7,6 +10,11 @@
 LinuxBrowserControl::LinuxBrowserControl() noexcept
     : m_data(std::make_shared<BrowserData>())
 {
+    JVMSignals::Backup();
+
+    // We initialize this within the library constructor, but want the call to `Initialize`
+    // to determine thread ownership.
+    m_threadChecker.DetachFromThread();
 }
 
 LinuxBrowserControl::~LinuxBrowserControl() noexcept = default;
@@ -15,6 +23,13 @@ bool LinuxBrowserControl::IsRunning() const noexcept { return m_data->IsRunning(
 
 bool LinuxBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring initialDestination) noexcept
 {
+    // Determines thread ownership
+    //
+    // Makes the most sense to invoke these methods from the Event Dispatch thread to ensure
+    // consistency.
+    // An example can be found within `examples/`
+    DCHECK(m_threadChecker.CalledOnValidThread());
+
     CefWindowHandle host = ResolveHostWindow(env, canvas);
 
     if (host == kNullWindowHandle) {
@@ -43,13 +58,6 @@ bool LinuxBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring i
 
     m_app = new BrowserControlApp(m_data, host);
 
-    // CefInitialize will overwrite JVM signal handlers. This causes issues with JIT'd code
-    // and results in random crashes. Backup the present signal handlers, and after
-    // returning from CefInitialize restore them to their previous actions.
-    //
-    // See: https://bitbucket.org/chromiumembedded/java-cef/issues/41/mac-jcef-frequently-crashing-in-thread
-    JVMSignals::Backup();
-
     bool res = CefInitialize(args, settings, m_app.get(), nullptr);
 
     if (!res) {
@@ -63,11 +71,17 @@ bool LinuxBrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring i
     return m_data->WaitForInitializationResult();
 }
 
-void LinuxBrowserControl::Destroy() noexcept { return; }
+void LinuxBrowserControl::Destroy() noexcept
+{
+    DCHECK(m_threadChecker.CalledOnValidThread());
 
-void LinuxBrowserControl::Resize(int32_t, int32_t) noexcept { return; }
+    // FIXME: Overhaul shutdown logic - close browsers and clients
+    CefShutdown();
+}
 
-void LinuxBrowserControl::Navigate(std::wstring) noexcept { return; }
+void LinuxBrowserControl::Resize(int32_t, int32_t) noexcept { }
+
+void LinuxBrowserControl::Navigate(std::wstring) noexcept { }
 
 // static
 CefWindowHandle LinuxBrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas) noexcept

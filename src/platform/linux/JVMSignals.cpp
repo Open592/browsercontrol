@@ -11,7 +11,7 @@ namespace {
 // CEF, restore.
 //
 // https://github.com/chromiumembedded/java-cef/blob/master/native/signal_restore_posix.cpp
-const std::array<int, 13> signalsToRestore = {
+constexpr std::array<int, 13> signalsToRestore = {
     SIGHUP,
     SIGINT,
     SIGQUIT,
