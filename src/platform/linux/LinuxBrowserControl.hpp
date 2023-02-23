@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <memory>
 
+#include <include/base/cef_thread_checker.h>
 #include <include/cef_base.h>
 #include <jawt.h>
 #include <jni.h>
@@ -44,4 +45,5 @@ private:
 
     CefRefPtr<BrowserControlApp> m_app;
     std::shared_ptr<BrowserData> m_data;
+    base::ThreadChecker m_threadChecker;
 };
