@@ -3,65 +3,89 @@ package nativeadvert;
 import java.awt.*;
 
 public class browsercontrol {
-    private static boolean iscreated = false;
+    private static boolean isCreated = false;
     private static boolean error = false;
 
-    private static native void resize0(int var0, int var1);
-
     public static boolean isCreated() {
-        return iscreated;
+        return isCreated;
     }
-
-    private static native void navigate0(String var0);
-
-    private static native boolean browsercontrol0(Canvas var0, String var1);
 
     public static void destroy() {
-        if (iscreated) {
-            destroy0();
-            iscreated = false;
-        } else {
+        if (!isCreated()) {
             throw new IllegalStateException();
+        }
+
+        try {
+            Runnable r = () -> {
+                destroy0();
+
+                isCreated = false;
+            };
+
+            if (EventQueue.isDispatchThread()) {
+                r.run();
+            } else {
+                EventQueue.invokeLater(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public static void resize(int var0, int var1) {
-        if (!iscreated) {
+    public static void resize(int width, int height) {
+        if (!isCreated()) {
             throw new IllegalStateException();
-        } else {
-            resize0(var0, var1);
         }
+
+        resize0(width, height);
     }
 
-    public static void navigate(String var0) {
-        if (iscreated) {
-            navigate0(var0);
-        } else {
+    public static void navigate(String URL) {
+        if (!isCreated()) {
             throw new IllegalStateException();
         }
+
+        navigate0(URL);
     }
 
     private browsercontrol() {
     }
 
-    public static boolean create(Canvas var0, String var1) {
-        if (!iscreated) {
-            if (error) {
-                return false;
-            } else {
-                boolean var2 = browsercontrol0(var0, var1);
-                if (!var2) {
-                    error = true;
-                } else {
-                    iscreated = true;
-                }
-
-                return var2;
-            }
-        } else {
+    public static void create(Canvas advertContainer, String URL) {
+        if (isCreated()) {
             throw new IllegalStateException();
         }
+
+        if (error) {
+            return;
+        }
+
+        Runnable r = () -> {
+            boolean result = browsercontrol0(advertContainer, URL);
+
+            if (!result) {
+                error = true;
+            } else {
+                isCreated = true;
+            }
+        };
+
+        try {
+            if (EventQueue.isDispatchThread()) {
+                r.run();
+            } else {
+                EventQueue.invokeAndWait(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    private static native boolean browsercontrol0(Canvas var0, String var1);
+
+    private static native void navigate0(String var0);
+
+    private static native void resize0(int var0, int var1);
 
     private static native void destroy0();
 }

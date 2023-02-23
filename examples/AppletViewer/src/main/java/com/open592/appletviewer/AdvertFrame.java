@@ -19,6 +19,7 @@ public final class AdvertFrame {
             System.out.println("Attempting to destroy browsercontrol");
 
             browsercontrol.destroy();
+            innerContainer.remove(fakeApplet);
         }
 
         System.exit(0);
