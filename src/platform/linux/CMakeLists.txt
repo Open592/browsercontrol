@@ -2,7 +2,7 @@
 
 include(DownloadCEF)
 
-download_cef("108.4.13+ga98cd4c+chromium-108.0.5359.125" "${CMAKE_SOURCE_DIR}/third_party/cef")
+download_cef("110.0.30+g3c2b68f+chromium-110.0.5481.178" "${CMAKE_SOURCE_DIR}/third_party/cef")
 
 list(APPEND CMAKE_MODULE_PATH ${CEF_ROOT}/cmake)
 

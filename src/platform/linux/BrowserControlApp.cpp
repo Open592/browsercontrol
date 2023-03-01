@@ -11,6 +11,12 @@ BrowserControlApp::BrowserControlApp(std::shared_ptr<BrowserData> data, CefWindo
 {
 }
 
+void BrowserControlApp::OnBeforeCommandLineProcessing(
+    const CefString& processType, CefRefPtr<CefCommandLine> commandLine)
+{
+    commandLine->AppendSwitch("--disable-extensions");
+}
+
 void BrowserControlApp::OnContextInitialized()
 {
     CEF_REQUIRE_UI_THREAD();
