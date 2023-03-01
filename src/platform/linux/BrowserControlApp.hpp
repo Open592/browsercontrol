@@ -14,6 +14,7 @@ public:
     CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override { return this; }
 
     // CefBrowserProcessHandler overrides
+    void OnBeforeCommandLineProcessing(const CefString&, CefRefPtr<CefCommandLine>) override;
     void OnContextInitialized() override;
 
 private:
