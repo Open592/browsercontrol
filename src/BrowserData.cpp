@@ -68,16 +68,19 @@ void BrowserData::SetState(State state) noexcept
     m_cv.notify_one();
 }
 
+void BrowserData::WaitForStateTransition(State state) noexcept
+{
+    std::unique_lock lk(m_mutex);
+
+    m_cv.wait(lk, [this, state] { return m_state != state; });
+}
+
 /**
  * Report the initialization result after the browser status has transitioned to something other than NOT_STARTED
  */
 bool BrowserData::WaitForInitializationResult() noexcept
 {
-    {
-        std::unique_lock lk(m_mutex);
-
-        m_cv.wait(lk, [this] { return m_state != State::NOT_STARTED; });
-    }
+    WaitForStateTransition(State::NOT_STARTED);
 
     return IsRunning();
 }

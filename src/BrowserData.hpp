@@ -60,6 +60,7 @@ public:
     void SetDestination(const std::wstring&) noexcept;
     void SetSize(int, int) noexcept;
     void SetState(State) noexcept;
+    void WaitForStateTransition(State) noexcept;
     [[nodiscard]] bool WaitForInitializationResult() noexcept;
 
 private:
