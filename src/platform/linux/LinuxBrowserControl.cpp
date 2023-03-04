@@ -75,7 +75,12 @@ void LinuxBrowserControl::Destroy() noexcept
 {
     DCHECK(m_threadChecker.CalledOnValidThread());
 
-    // FIXME: Overhaul shutdown logic - close browsers and clients
+    m_app->ShutDown();
+
+    m_data->WaitForStateTransition(BrowserData::State::RUNNING);
+
+    m_app = nullptr;
+
     CefShutdown();
 }
 

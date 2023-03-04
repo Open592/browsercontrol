@@ -4,11 +4,24 @@
 
 #include "BrowserControlClient.hpp"
 
-BrowserControlClient* BrowserControlClient::The()
+BrowserControlClient::BrowserControlClient(std::shared_ptr<BrowserData> data)
+    : m_data(std::move(data))
 {
-    static BrowserControlClient instance;
+}
 
-    return &instance;
+CefRefPtr<CefBrowser> BrowserControlClient::GetBrowser()
+{
+    if (m_browser) {
+        return m_browser;
+    }
+
+    return nullptr;
+}
+
+bool BrowserControlClient::DoClose(CefRefPtr<CefBrowser> browser)
+{
+    // Allow close to continue
+    return false;
 }
 
 void BrowserControlClient::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
@@ -36,4 +49,15 @@ void BrowserControlClient::OnAfterCreated(CefRefPtr<CefBrowser> browser)
     if (!m_browser) {
         m_browser = browser;
     }
+
+    m_data->SetState(BrowserData::State::RUNNING);
+}
+
+void BrowserControlClient::OnBeforeClose(CefRefPtr<CefBrowser>)
+{
+    if (m_browser) {
+        m_browser = nullptr;
+    }
+
+    m_data->SetState(BrowserData::State::TERMINATED);
 }

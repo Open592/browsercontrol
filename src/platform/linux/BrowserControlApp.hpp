@@ -4,11 +4,16 @@
 
 #include <include/cef_app.h>
 
-#include "../../BrowserData.hpp"
+#include "src/BrowserData.hpp"
+
+#include "BrowserControlClient.hpp"
 
 class BrowserControlApp : public CefApp, public CefBrowserProcessHandler {
 public:
     explicit BrowserControlApp(std::shared_ptr<BrowserData>, CefWindowHandle) noexcept;
+    ~BrowserControlApp() override;
+
+    void ShutDown();
 
     // CefApp overrides
     CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override { return this; }
@@ -18,6 +23,7 @@ public:
     void OnContextInitialized() override;
 
 private:
+    CefRefPtr<BrowserControlClient> m_client;
     std::shared_ptr<BrowserData> m_data;
     CefWindowHandle m_handle;
 

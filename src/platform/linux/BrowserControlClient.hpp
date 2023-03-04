@@ -4,12 +4,13 @@
 
 #include <include/cef_client.h>
 
+#include "src/BrowserData.hpp"
+
 class BrowserControlClient : public CefClient, public CefContextMenuHandler, public CefLifeSpanHandler {
 public:
-    static BrowserControlClient* The();
+    explicit BrowserControlClient(std::shared_ptr<BrowserData>);
 
-    BrowserControlClient(const BrowserControlClient&) = delete;
-    void operator=(const BrowserControlClient&) = delete;
+    CefRefPtr<CefBrowser> GetBrowser();
 
     // CefContextMenuHandler overrides
     CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override { return this; }
@@ -18,14 +19,16 @@ public:
     bool OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame>, const CefString&, const CefString&,
         WindowOpenDisposition, bool, const CefPopupFeatures&, CefWindowInfo&, CefRefPtr<CefClient>&,
         CefBrowserSettings&, CefRefPtr<CefDictionaryValue>&, bool*) override;
+
     // CefLifeSpanHandler overrides
+    bool DoClose(CefRefPtr<CefBrowser> browser) override;
     CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
     void OnAfterCreated(CefRefPtr<CefBrowser>) override;
+    void OnBeforeClose(CefRefPtr<CefBrowser>) override;
 
 private:
-    BrowserControlClient() = default;
-
     CefRefPtr<CefBrowser> m_browser;
+    std::shared_ptr<BrowserData> m_data;
 
     IMPLEMENT_REFCOUNTING(BrowserControlClient);
 };
