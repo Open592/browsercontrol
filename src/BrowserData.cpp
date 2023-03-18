@@ -33,12 +33,14 @@ int BrowserData::GetHeight() noexcept
     return m_size.second;
 }
 
-bool BrowserData::IsRunning() noexcept
+BrowserData::State BrowserData::GetState() noexcept
 {
     std::lock_guard lk(m_mutex);
 
-    return m_state == State::RUNNING;
+    return m_state;
 }
+
+bool BrowserData::IsRunning() noexcept { return GetState() == State::RUNNING; }
 
 void BrowserData::SetDestination(const std::wstring& destination) noexcept
 {
@@ -72,7 +74,7 @@ void BrowserData::WaitForStateTransition(State state) noexcept
 {
     std::unique_lock lk(m_mutex);
 
-    m_cv.wait(lk, [this, state] { return m_state != state; });
+    m_cv.wait(lk, [&] { return m_state != state; });
 }
 
 /**

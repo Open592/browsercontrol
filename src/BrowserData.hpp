@@ -14,7 +14,6 @@ public:
     enum class State : uint8_t {
         NOT_STARTED,
         RUNNING,
-        FAILED_TO_START,
         TERMINATED,
     };
 
@@ -31,6 +30,7 @@ public:
     [[nodiscard]] const std::wstring& GetDestination() noexcept;
     [[nodiscard]] int GetWidth() noexcept;
     [[nodiscard]] int GetHeight() noexcept;
+    [[nodiscard]] State GetState() noexcept;
 
     /**
      * Returns whether or not the browser window is running.

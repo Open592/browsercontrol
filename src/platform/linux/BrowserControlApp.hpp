@@ -3,6 +3,7 @@
 #pragma once
 
 #include <include/cef_app.h>
+#include <xcb/xcb.h>
 
 #include "src/BrowserData.hpp"
 
@@ -10,7 +11,7 @@
 
 class BrowserControlApp : public CefApp, public CefBrowserProcessHandler {
 public:
-    explicit BrowserControlApp(std::shared_ptr<BrowserData>, CefWindowHandle) noexcept;
+    explicit BrowserControlApp(std::shared_ptr<BrowserData>, xcb_window_t) noexcept;
     ~BrowserControlApp() override;
 
     void ShutDown();
@@ -25,7 +26,7 @@ public:
 private:
     CefRefPtr<BrowserControlClient> m_client;
     std::shared_ptr<BrowserData> m_data;
-    CefWindowHandle m_handle;
+    xcb_window_t m_handle;
 
     IMPLEMENT_REFCOUNTING(BrowserControlApp);
 };

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "LinuxBrowserControl.hpp"
 #include "src/BrowserContext.hpp"
+
+#include "LinuxBrowserControl.hpp"
 
 __attribute__((constructor)) void setup()
 {

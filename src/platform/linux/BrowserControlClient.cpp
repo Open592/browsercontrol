@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <iostream>
+
 #include <include/wrapper/cef_helpers.h>
 
 #include "BrowserControlClient.hpp"
@@ -7,7 +9,10 @@
 BrowserControlClient::BrowserControlClient(std::shared_ptr<BrowserData> data)
     : m_data(std::move(data))
 {
+    std::cout << "ctor bcc\n";
 }
+
+BrowserControlClient::~BrowserControlClient() { std::cout << "dror bcc\n"; }
 
 CefRefPtr<CefBrowser> BrowserControlClient::GetBrowser()
 {
@@ -46,6 +51,7 @@ bool BrowserControlClient::OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPt
 
 void BrowserControlClient::OnAfterCreated(CefRefPtr<CefBrowser> browser)
 {
+    std::cout << "On after created" << std::endl;
     if (!m_browser) {
         m_browser = browser;
     }
@@ -55,6 +61,7 @@ void BrowserControlClient::OnAfterCreated(CefRefPtr<CefBrowser> browser)
 
 void BrowserControlClient::OnBeforeClose(CefRefPtr<CefBrowser>)
 {
+    std::cout << "On before close" << std::endl;
     if (m_browser) {
         m_browser = nullptr;
     }

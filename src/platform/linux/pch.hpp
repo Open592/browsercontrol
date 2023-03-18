@@ -4,8 +4,11 @@
 
 #include <condition_variable>
 #include <filesystem>
+#include <functional>
 #include <memory>
 #include <mutex>
+#include <thread>
+#include <vector>
 
 #include <include/cef_app.h>
 #include <include/cef_base.h>

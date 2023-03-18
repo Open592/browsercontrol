@@ -9,6 +9,7 @@
 class BrowserControlClient : public CefClient, public CefContextMenuHandler, public CefLifeSpanHandler {
 public:
     explicit BrowserControlClient(std::shared_ptr<BrowserData>);
+    ~BrowserControlClient();
 
     CefRefPtr<CefBrowser> GetBrowser();
 

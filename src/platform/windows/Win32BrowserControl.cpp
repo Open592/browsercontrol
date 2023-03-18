@@ -137,7 +137,7 @@ void Win32BrowserControl::StartMessagePump()
 
 handle_error:
     // Notify caller that we failed
-    m_browserData->SetState(BrowserData::State::FAILED_TO_START);
+    m_browserData->SetState(BrowserData::State::TERMINATED);
 }
 
 void Win32BrowserControl::Destroy() noexcept
