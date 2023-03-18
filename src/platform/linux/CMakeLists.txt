@@ -2,7 +2,7 @@
 
 include(DownloadCEF)
 
-download_cef("110.0.30+g3c2b68f+chromium-110.0.5481.178" "${CMAKE_SOURCE_DIR}/third_party/cef")
+download_cef("111.2.6+g491d238+chromium-111.0.5563.65" "${CMAKE_SOURCE_DIR}/third_party/cef")
 
 list(APPEND CMAKE_MODULE_PATH ${CEF_ROOT}/cmake)
 
@@ -31,10 +31,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
 
 # Library target
-add_library(
-  browsercontrol SHARED ${BROWSERCONTROL_SHARED_SOURCES} init.cpp LinuxBrowserControl.cpp BrowserControlApp.cpp
-                        BrowserControlClient.cpp JVMSignals.cpp
-)
+add_library(browsercontrol SHARED ${BROWSERCONTROL_SHARED_SOURCES} init.cpp LinuxBrowserControl.cpp)
 target_precompile_headers(browsercontrol PRIVATE pch.hpp)
 set_library_target_properties(browsercontrol)
 add_dependencies(browsercontrol libcef_dll_wrapper)
