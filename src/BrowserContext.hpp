@@ -9,6 +9,7 @@
 #include <jni.h>
 
 #include "AbstractBrowserControl.hpp"
+#include "BrowserData.hpp"
 
 class BrowserContext {
 public:
@@ -38,6 +39,9 @@ public:
     BrowserContext(const BrowserContext&) = delete;
     void operator=(const BrowserContext&) = delete;
 
+    AbstractBrowserControl* GetBrowserControl();
+    BrowserData* GetBrowserData();
+
     /**
      * @brief Register the browser control with the browser context.
      *
@@ -50,7 +54,7 @@ public:
      * @return Returns truthy if we were able to successfully register the
      * browser control
      */
-    bool RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&&);
+    bool RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&&, std::unique_ptr<BrowserData>&&);
 
     /**
      * @brief Unregister the browser control
@@ -87,4 +91,5 @@ private:
     BrowserContext() = default;
 
     std::unique_ptr<AbstractBrowserControl> m_control;
+    std::unique_ptr<BrowserData> m_data;
 };

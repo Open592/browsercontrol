@@ -4,7 +4,11 @@
 
 #include <utility>
 
-bool BrowserContext::RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&& control)
+AbstractBrowserControl* BrowserContext::GetBrowserControl() { return m_control.get(); }
+BrowserData* BrowserContext::GetBrowserData() { return m_data.get(); }
+
+bool BrowserContext::RegisterBrowserControl(
+    std::unique_ptr<AbstractBrowserControl>&& control, std::unique_ptr<BrowserData>&& data)
 {
     if (m_control) {
         // If we attempt to register multiple browser controls with the browser
@@ -13,6 +17,7 @@ bool BrowserContext::RegisterBrowserControl(std::unique_ptr<AbstractBrowserContr
     }
 
     m_control = std::move(control);
+    m_data = std::move(data);
 
     return true;
 }
