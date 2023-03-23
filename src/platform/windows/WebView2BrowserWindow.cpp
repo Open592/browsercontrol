@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "src/BrowserContext.hpp"
+
 #include "WebView2BrowserWindow.hpp"
 
 using namespace Microsoft::WRL;
@@ -8,9 +10,7 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
 {
     switch (message) {
     case WM_CREATE: {
-        auto* createStruct = std::bit_cast<CREATESTRUCT*>(lParam);
-        auto* data = static_cast<std::shared_ptr<BrowserData>*>(createStruct->lpCreateParams);
-        auto* instance = new WebView2BrowserWindow(hwnd, *data);
+        auto* instance = new WebView2BrowserWindow(hwnd);
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)instance);
     } break;
@@ -162,7 +162,7 @@ bool WebView2BrowserWindow::Unregister()
     return UnregisterClass(WindowClassName, instance);
 }
 
-HWND WebView2BrowserWindow::Create(HWND hostWindow, std::shared_ptr<BrowserData> data)
+HWND WebView2BrowserWindow::Create(HWND hostWindow)
 {
     HINSTANCE instance = WebView2BrowserWindow::Register();
 
@@ -170,27 +170,29 @@ HWND WebView2BrowserWindow::Create(HWND hostWindow, std::shared_ptr<BrowserData>
         return nullptr;
     }
 
-    return CreateWindowEx(WS_EX_LEFT, WindowClassName, WindowName, WS_CHILDWINDOW | WS_VISIBLE, 0, 0, data->GetWidth(),
-        data->GetHeight(), hostWindow, nullptr, instance, &data);
+    auto height = BrowserContext::the().GetBrowserData()->GetHeight();
+    auto width = BrowserContext::the().GetBrowserData()->GetWidth();
+
+    return CreateWindowEx(WS_EX_LEFT, WindowClassName, WindowName, WS_CHILDWINDOW | WS_VISIBLE, 0, 0, width, height,
+        hostWindow, nullptr, instance, nullptr);
 }
 
-WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, std::shared_ptr<BrowserData> data)
-    : m_data(std::move(data))
-    , m_parentWindow(parentWindow)
+WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow)
+    : m_parentWindow(parentWindow)
 {
     if (!EnsureWebViewIsAvailable()) {
-        m_data->SetState(BrowserData::State::FAILED_TO_START);
+        BrowserContext::the().GetBrowserData()->SetState(BrowserData::State::FAILED_TO_START);
 
         return;
     }
 
     if (!InitializeWebView()) {
-        m_data->SetState(BrowserData::State::FAILED_TO_START);
+        BrowserContext::the().GetBrowserData()->SetState(BrowserData::State::FAILED_TO_START);
     } else {
         // We have successfully created our browser window and are prepared to start accepting
         // messages. At this point initialization has finished, and we can signal success back to
         // the caller
-        m_data->SetState(BrowserData::State::RUNNING);
+        BrowserContext::the().GetBrowserData()->SetState(BrowserData::State::RUNNING);
     }
 }
 
@@ -250,7 +252,7 @@ void WebView2BrowserWindow::Destroy()
 {
     // At this point we are about to destroy the backing windows of the browser control. Any further calls to
     // exported functions will result in failures, so we must mark the browser control as terminated.
-    m_data->SetState(BrowserData::State::TERMINATED);
+    BrowserContext::the().GetBrowserData()->SetState(BrowserData::State::TERMINATED);
 
     SetParent(m_parentWindow, nullptr);
     DestroyWindow(m_parentWindow);
@@ -258,8 +260,11 @@ void WebView2BrowserWindow::Destroy()
 
 void WebView2BrowserWindow::Resize()
 {
-    SetWindowPos(m_parentWindow, nullptr, 0, 0, m_data->GetWidth(), m_data->GetHeight(),
-        SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_FRAMECHANGED);
+    auto width = BrowserContext::the().GetBrowserData()->GetWidth();
+    auto height = BrowserContext::the().GetBrowserData()->GetHeight();
+
+    SetWindowPos(
+        m_parentWindow, nullptr, 0, 0, width, height, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_FRAMECHANGED);
 
     if (m_controller != nullptr) {
         RECT bounds;
@@ -272,6 +277,6 @@ void WebView2BrowserWindow::Resize()
 void WebView2BrowserWindow::Navigate()
 {
     if (m_webView != nullptr) {
-        m_webView->Navigate(m_data->GetDestination().c_str());
+        m_webView->Navigate(BrowserContext::the().GetBrowserData()->GetDestination().c_str());
     }
 }

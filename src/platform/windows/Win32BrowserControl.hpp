@@ -24,6 +24,5 @@ private:
     HWND m_browserWindow = nullptr;
     HWND m_hostWindow = nullptr;
 
-    std::shared_ptr<BrowserData> m_browserData;
     [[maybe_unused]] std::jthread m_browserWindowThread;
 };

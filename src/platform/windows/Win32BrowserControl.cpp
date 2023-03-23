@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "Win32BrowserControl.hpp"
+#include "src/BrowserContext.hpp"
+
 #include "WebView2BrowserWindow.hpp"
+#include "Win32BrowserControl.hpp"
 
 using namespace Microsoft::WRL;
 
@@ -67,11 +69,6 @@ HWND Win32BrowserControl::ResolveHostWindow(JNIEnv* env, jobject canvas)
 }
 
 Win32BrowserControl::Win32BrowserControl()
-    /**
-     * Within the initial browsercontrol.dll this was used as the fallback
-     * value within the thread proc which initialized the window/browser view
-     */
-    : m_browserData(std::make_shared<BrowserData>(CW_USEDEFAULT, CW_USEDEFAULT))
 {
     // Initialize the browser window module
     WebView2BrowserWindow::Register();
@@ -93,7 +90,7 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring i
 
     // On initialization of the browser context a default value is set for the destination.
     // We must update this with the initial destination sent during browsercontrol0()
-    m_browserData->SetDestination(initialDestination);
+    BrowserContext::the().GetBrowserData()->SetDestination(initialDestination);
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnusedValue"
@@ -102,10 +99,10 @@ bool Win32BrowserControl::Initialize(JNIEnv* env, jobject canvas, std::wstring i
     m_browserWindowThread = std::jthread([&] { StartMessagePump(); });
 #pragma clang diagnostic pop
 
-    return m_browserData->WaitForInitializationResult();
+    return BrowserContext::the().GetBrowserData()->WaitForInitializationResult();
 }
 
-bool Win32BrowserControl::IsRunning() const noexcept { return m_browserData->IsRunning(); }
+bool Win32BrowserControl::IsRunning() const noexcept { return BrowserContext::the().GetBrowserData()->IsRunning(); }
 
 void Win32BrowserControl::StartMessagePump()
 {
@@ -113,7 +110,7 @@ void Win32BrowserControl::StartMessagePump()
         goto handle_error;
     }
 
-    m_browserWindow = WebView2BrowserWindow::Create(m_hostWindow, m_browserData);
+    m_browserWindow = WebView2BrowserWindow::Create(m_hostWindow);
 
     if (m_browserWindow == nullptr) {
         goto handle_error;
@@ -137,7 +134,7 @@ void Win32BrowserControl::StartMessagePump()
 
 handle_error:
     // Notify caller that we failed
-    m_browserData->SetState(BrowserData::State::FAILED_TO_START);
+    BrowserContext::the().GetBrowserData()->SetState(BrowserData::State::FAILED_TO_START);
 }
 
 void Win32BrowserControl::Destroy() noexcept
@@ -147,14 +144,14 @@ void Win32BrowserControl::Destroy() noexcept
 
 void Win32BrowserControl::Resize(int32_t width, int32_t height) noexcept
 {
-    m_browserData->SetSize(width, height);
+    BrowserContext::the().GetBrowserData()->SetSize(width, height);
 
     SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::RESIZE), NULL, NULL);
 }
 
 void Win32BrowserControl::Navigate(std::wstring destination) noexcept
 {
-    m_browserData->SetDestination(destination);
+    BrowserContext::the().GetBrowserData()->SetDestination(destination);
 
     SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::NAVIGATE), NULL, NULL);
 }
