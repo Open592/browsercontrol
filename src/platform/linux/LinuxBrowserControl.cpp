@@ -2,10 +2,7 @@
 
 #include "LinuxBrowserControl.hpp"
 
-LinuxBrowserControl::LinuxBrowserControl() noexcept
-    : m_data(std::make_shared<BrowserData>())
-{
-}
+LinuxBrowserControl::LinuxBrowserControl() noexcept { }
 
 LinuxBrowserControl::~LinuxBrowserControl() noexcept = default;
 

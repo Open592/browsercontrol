@@ -17,7 +17,4 @@ public:
     void Destroy() noexcept override;
     void Resize(int32_t, int32_t) noexcept override;
     void Navigate(std::wstring) noexcept override;
-
-private:
-    std::shared_ptr<BrowserData> m_data;
 };

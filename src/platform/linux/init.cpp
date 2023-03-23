@@ -35,7 +35,9 @@ __attribute__((constructor)) void setup()
      */
     XInitThreads();
 
-    BrowserContext::the().RegisterBrowserControl(std::make_unique<LinuxBrowserControl>());
+    auto control = std::make_unique<LinuxBrowserControl>();
+    auto data = std::make_unique<BrowserData>();
+    BrowserContext::the().RegisterBrowserControl(std::move(control), std::move(data));
 }
 
 __attribute__((destructor)) void teardown() { BrowserContext::the().UnregisterBrowserControl(); }
