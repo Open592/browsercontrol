@@ -39,8 +39,8 @@ public:
     BrowserContext(const BrowserContext&) = delete;
     void operator=(const BrowserContext&) = delete;
 
-    AbstractBrowserControl* GetBrowserControl();
-    BrowserData* GetBrowserData();
+    [[nodiscard]] AbstractBrowserControl* GetBrowserControl() const { return m_control.get(); }
+    [[nodiscard]] BrowserData* GetBrowserData() const { return m_data.get(); }
 
     /**
      * @brief Register the browser control with the browser context.

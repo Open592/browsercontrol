@@ -3,6 +3,8 @@
 #include "LinuxBrowserControl.hpp"
 #include "src/BrowserContext.hpp"
 
+#include "LinuxBrowserData.hpp"
+
 __attribute__((constructor)) void setup()
 {
     /**
@@ -36,7 +38,8 @@ __attribute__((constructor)) void setup()
     XInitThreads();
 
     auto control = std::make_unique<LinuxBrowserControl>();
-    auto data = std::make_unique<BrowserData>();
+    auto data = std::make_unique<LinuxBrowserData>();
+
     BrowserContext::the().RegisterBrowserControl(std::move(control), std::move(data));
 }
 
