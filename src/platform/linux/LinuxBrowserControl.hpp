@@ -9,7 +9,7 @@
 
 class LinuxBrowserControl : public AbstractBrowserControl {
 public:
-    LinuxBrowserControl() noexcept;
+    LinuxBrowserControl() noexcept = default;
 
     ~LinuxBrowserControl() override;
     [[nodiscard]] bool Initialize(JNIEnv*, jobject, std::wstring) noexcept override;

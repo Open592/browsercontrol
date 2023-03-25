@@ -4,9 +4,6 @@
 
 #include <utility>
 
-AbstractBrowserControl* BrowserContext::GetBrowserControl() { return m_control.get(); }
-BrowserData* BrowserContext::GetBrowserData() { return m_data.get(); }
-
 bool BrowserContext::RegisterBrowserControl(
     std::unique_ptr<AbstractBrowserControl>&& control, std::unique_ptr<BrowserData>&& data)
 {
