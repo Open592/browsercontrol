@@ -2,7 +2,7 @@
 
 #include "include/browsercontrol.h"
 
-#include "BrowserContext.hpp"
+#include "Browser.hpp"
 
 [[nodiscard]] static std::wstring ConvertJavaStringToWString(JNIEnv* env, jstring input)
 {
@@ -36,7 +36,7 @@ JNIEXPORT jboolean JNICALL Java_nativeadvert_browsercontrol_browsercontrol0(
         return JNI_FALSE;
     }
 
-    bool result = BrowserContext::the().InitializeBrowserWindow(env, advertCanvas, initialDestination);
+    bool result = Browser::The().GetBrowserContext()->Initialize(env, advertCanvas, std::move(initialDestination));
 
     if (result) {
         return JNI_TRUE;
@@ -48,7 +48,7 @@ JNIEXPORT jboolean JNICALL Java_nativeadvert_browsercontrol_browsercontrol0(
 JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_destroy0(
     [[maybe_unused]] JNIEnv* env, [[maybe_unused]] jclass thisObj)
 {
-    BrowserContext::the().DestroyBrowserWindow();
+    Browser::The().GetBrowserContext()->Destroy();
 }
 
 JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_navigate0(
@@ -56,11 +56,15 @@ JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_navigate0(
 {
     std::wstring destination = ConvertJavaStringToWString(env, URL);
 
-    BrowserContext::the().Navigate(destination);
+    if (destination.empty()) {
+        return;
+    }
+
+    Browser::The().GetBrowserContext()->Navigate(std::move(destination));
 }
 
 JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_resize0(
     [[maybe_unused]] JNIEnv* env, [[maybe_unused]] jclass thisObj, jint width, jint height)
 {
-    BrowserContext::the().ResizeBrowserWindow(width, height);
+    Browser::The().GetBrowserContext()->Resize(width, height);
 }

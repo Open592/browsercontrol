@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "src/BrowserContext.hpp"
+#include "src/Browser.hpp"
 
 #include "WebView2BrowserWindow.hpp"
+#include "WindowsBrowserContext.hpp"
 
 using namespace Microsoft::WRL;
+
+using Base::ApplicationState;
 
 LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -170,8 +173,9 @@ HWND WebView2BrowserWindow::Create(HWND hostWindow)
         return nullptr;
     }
 
-    auto height = BrowserContext::the().GetBrowserData()->GetHeight();
-    auto width = BrowserContext::the().GetBrowserData()->GetWidth();
+    auto data = WindowsBrowserContext::The()->GetBrowserData();
+    auto height = data->GetHeight();
+    auto width = data->GetWidth();
 
     return CreateWindowEx(WS_EX_LEFT, WindowClassName, WindowName, WS_CHILDWINDOW | WS_VISIBLE, 0, 0, width, height,
         hostWindow, nullptr, instance, nullptr);
@@ -181,18 +185,18 @@ WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow)
     : m_parentWindow(parentWindow)
 {
     if (!EnsureWebViewIsAvailable()) {
-        BrowserContext::the().GetBrowserData()->SetState(BrowserData::State::FAILED_TO_START);
+        WindowsBrowserContext::The()->GetBrowserData()->SetState(ApplicationState::FAILED);
 
         return;
     }
 
     if (!InitializeWebView()) {
-        BrowserContext::the().GetBrowserData()->SetState(BrowserData::State::FAILED_TO_START);
+        WindowsBrowserContext::The()->GetBrowserData()->SetState(ApplicationState::FAILED);
     } else {
         // We have successfully created our browser window and are prepared to start accepting
         // messages. At this point initialization has finished, and we can signal success back to
         // the caller
-        BrowserContext::the().GetBrowserData()->SetState(BrowserData::State::RUNNING);
+        WindowsBrowserContext::The()->GetBrowserData()->SetState(ApplicationState::STARTED);
     }
 }
 
@@ -251,8 +255,8 @@ bool WebView2BrowserWindow::InitializeWebView() noexcept
 void WebView2BrowserWindow::Destroy()
 {
     // At this point we are about to destroy the backing windows of the browser control. Any further calls to
-    // exported functions will result in failures, so we must mark the browser control as terminated.
-    BrowserContext::the().GetBrowserData()->SetState(BrowserData::State::TERMINATED);
+    // exported functions will result in failures, so we must mark the browser control as pending.
+    WindowsBrowserContext::The()->GetBrowserData()->SetState(Base::ApplicationState::PENDING);
 
     SetParent(m_parentWindow, nullptr);
     DestroyWindow(m_parentWindow);
@@ -260,8 +264,9 @@ void WebView2BrowserWindow::Destroy()
 
 void WebView2BrowserWindow::Resize()
 {
-    auto width = BrowserContext::the().GetBrowserData()->GetWidth();
-    auto height = BrowserContext::the().GetBrowserData()->GetHeight();
+    auto data = WindowsBrowserContext::The()->GetBrowserData();
+    auto height = data->GetHeight();
+    auto width = data->GetWidth();
 
     SetWindowPos(
         m_parentWindow, nullptr, 0, 0, width, height, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_FRAMECHANGED);
@@ -277,6 +282,6 @@ void WebView2BrowserWindow::Resize()
 void WebView2BrowserWindow::Navigate()
 {
     if (m_webView != nullptr) {
-        m_webView->Navigate(BrowserContext::the().GetBrowserData()->GetDestination().c_str());
+        m_webView->Navigate(WindowsBrowserContext::The()->GetBrowserData()->GetDestination().c_str());
     }
 }

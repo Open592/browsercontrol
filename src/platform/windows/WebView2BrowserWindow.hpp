@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "../../BrowserData.hpp"
-
 /**
  * @brief Implementation of a WebView2 browser window for displaying
  * advertisements within the AppletViewer.
