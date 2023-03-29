@@ -4,14 +4,14 @@ cmake_policy(SET CMP0079 NEW)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # cmake-format: off
-  add_compile_options(
-    "/permissive"
-    "$<$<CONFIG:DEBUG>:/Od>"
-    "$<$<CONFIG:DEBUG>:/Z7>"
-    "$<$<CONFIG:DEBUG>:/DEBUG>"
-    "$<$<CONFIG:RELEASE>:/O2>"
-  )
-  # cmake-format: on
+    add_compile_options(
+            "/permissive"
+            "$<$<CONFIG:DEBUG>:/Od>"
+            "$<$<CONFIG:DEBUG>:/Z7>"
+            "$<$<CONFIG:DEBUG>:/DEBUG>"
+            "$<$<CONFIG:RELEASE>:/O2>"
+    )
+    # cmake-format: on
 else()
   message(FATAL_ERROR "MSVC is the only compiler currently supported on Windows!")
 endif()
@@ -31,7 +31,8 @@ if(NOT EXISTS ${WindowsImplementationLibrary-PATH})
 endif()
 
 add_library(
-  browsercontrol SHARED ${BROWSERCONTROL_SHARED_SOURCES} init.cpp Win32BrowserControl.cpp WebView2BrowserWindow.cpp
+  browsercontrol SHARED ${BROWSERCONTROL_SHARED_SOURCES} init.cpp WebView2BrowserWindow.cpp WindowsBrowserContext.cpp
+                        WindowsBrowserData.cpp
 )
 
 target_precompile_headers(browsercontrol PRIVATE pch.hpp)

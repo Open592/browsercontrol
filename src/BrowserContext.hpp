@@ -2,70 +2,23 @@
 
 #pragma once
 
-#include <cassert>
 #include <memory>
 
-#include <jawt.h>
-#include <jni.h>
-
-#include "AbstractBrowserControl.hpp"
 #include "BrowserData.hpp"
 
+namespace Base {
+
+/**
+ * Provide a generic browser context which exposes a interface for interacting
+ * with all of the separate platform's browser controls.
+ *
+ * It is up to each supported platform to implement the underlying functionality.
+ */
 class BrowserContext {
 public:
-    /**
-     * @brief In order to support the original browsercontrol interface we must
-     * store a singleton reference to the browser context.
-     *
-     * It is unsupported to attempt to initialize more than 1 browser context,
-     * and we will fail if attempted.
-     *
-     * The reason for only supporting a single browsercontext is that the
-     * following methods are not sent any reference to the underlying browser
-     * window:
-     * - destroy
-     * - navigate
-     * - resize
-     *
-     * @return Returns singleton reference to BrowserContext
-     */
-    static BrowserContext& the()
-    {
-        static BrowserContext instance;
+    virtual ~BrowserContext() = default;
 
-        return instance;
-    }
-
-    BrowserContext(const BrowserContext&) = delete;
-    void operator=(const BrowserContext&) = delete;
-
-    [[nodiscard]] AbstractBrowserControl* GetBrowserControl() const { return m_control.get(); }
-    [[nodiscard]] BrowserData* GetBrowserData() const { return m_data.get(); }
-
-    /**
-     * @brief Register the browser control with the browser context.
-     *
-     * Until we have a valid browser control all other calls to the browser
-     * context will fail.
-     *
-     * It is the job of the shared library initialization code to call this
-     * this method.
-     *
-     * @return Returns truthy if we were able to successfully register the
-     * browser control
-     */
-    bool RegisterBrowserControl(std::unique_ptr<AbstractBrowserControl>&&, std::unique_ptr<BrowserData>&&);
-
-    /**
-     * @brief Unregister the browser control
-     *
-     * This will handle all teardown logic when we are unloading.
-     *
-     * It is the job of the shared library de-initialization logic to call this method.
-     *
-     * @return Returns true if we were able to successfully unregister the browser control
-     */
-    bool UnregisterBrowserControl();
+    [[nodiscard]] virtual BrowserData* GetBrowserData() const noexcept;
 
     /**
      * @brief Initialize the browser window by passing both the parent container and initial destination.
@@ -79,17 +32,28 @@ public:
      *
      * @return Returns true if we were able to successfully initialize the browser control
      */
-    bool InitializeBrowserWindow(JNIEnv*, jobject, std::wstring) const noexcept;
+    bool Initialize(JNIEnv*, jobject, std::wstring);
 
-    void DestroyBrowserWindow() const noexcept;
+    void Destroy();
 
-    void ResizeBrowserWindow(int32_t, int32_t) const noexcept;
+    void Resize(int32_t, int32_t);
 
-    void Navigate(const std::wstring&) const noexcept;
+    void Navigate(std::wstring);
+
+protected:
+    explicit BrowserContext(std::unique_ptr<BrowserData>) noexcept;
+
+    std::unique_ptr<BrowserData> m_data;
 
 private:
-    BrowserContext() = default;
-
-    std::unique_ptr<AbstractBrowserControl> m_control;
-    std::unique_ptr<BrowserData> m_data;
+    // Each platform is responsible for implementing the API
+    //
+    // We expect these functions to reference `GetBrowserData` when
+    // accessing browser specific data.
+    virtual bool PerformInitialize(JNIEnv*, jobject) = 0;
+    virtual void PerformDestroy() = 0;
+    virtual void PerformResize() = 0;
+    virtual void PerformNavigate() = 0;
 };
+
+}

@@ -2,71 +2,58 @@
 
 #include "BrowserContext.hpp"
 
-#include <utility>
+namespace Base {
 
-bool BrowserContext::RegisterBrowserControl(
-    std::unique_ptr<AbstractBrowserControl>&& control, std::unique_ptr<BrowserData>&& data)
+BrowserContext::BrowserContext(std::unique_ptr<BrowserData> data) noexcept
+    : m_data(std::move(data))
 {
-    if (m_control) {
-        // If we attempt to register multiple browser controls with the browser
-        // context this is invalid behavior.
+}
+
+BrowserData* BrowserContext::GetBrowserData() const noexcept { return m_data.get(); }
+
+bool BrowserContext::Initialize(JNIEnv* env, jobject parentContainer, std::wstring initialDestination)
+{
+    // We should not be initializing more than once.
+    if (!GetBrowserData() || GetBrowserData()->IsRunning()) {
         return false;
     }
 
-    m_control = std::move(control);
-    m_data = std::move(data);
-
-    return true;
-}
-
-bool BrowserContext::UnregisterBrowserControl()
-{
-    if (!m_control) {
-        return false;
+    if (!initialDestination.empty()) {
+        GetBrowserData()->SetDestination(std::move(initialDestination));
     }
 
-    if (m_control->IsRunning()) {
-        m_control->Destroy();
-    }
-
-    m_control.reset();
-
-    return true;
+    return PerformInitialize(env, parentContainer);
 }
 
-bool BrowserContext::InitializeBrowserWindow(
-    JNIEnv* env, jobject parentContainer, std::wstring initialDestination) const noexcept
+void BrowserContext::Destroy()
 {
-    if (!m_control || m_control->IsRunning()) {
-        return false;
-    }
-
-    return m_control->Initialize(env, parentContainer, std::move(initialDestination));
-}
-
-void BrowserContext::DestroyBrowserWindow() const noexcept
-{
-    if (!m_control || !m_control->IsRunning()) {
+    if (!GetBrowserData() || !GetBrowserData()->IsRunning()) {
         return;
     }
 
-    m_control->Destroy();
+    PerformDestroy();
 }
 
-void BrowserContext::ResizeBrowserWindow(int32_t width, int32_t height) const noexcept
+void BrowserContext::Resize(int32_t width, int32_t height)
 {
-    if (!m_control || !m_control->IsRunning()) {
+    if (!GetBrowserData() || !GetBrowserData()->IsRunning()) {
         return;
     }
 
-    m_control->Resize(width, height);
+    GetBrowserData()->SetSize(width, height);
+
+    PerformResize();
 }
 
-void BrowserContext::Navigate(const std::wstring& destination) const noexcept
+void BrowserContext::Navigate(std::wstring destination)
 {
-    if (!m_control || !m_control->IsRunning() || destination.empty()) {
+    if (!GetBrowserData() || !GetBrowserData()->IsRunning() || destination.empty()) {
         return;
     }
 
-    m_control->Navigate(destination);
+    GetBrowserData()->SetDestination(std::move(destination));
+
+    PerformNavigate();
+}
+
 }

@@ -5,37 +5,42 @@
 #include <condition_variable>
 #include <cstdint>
 #include <filesystem>
-#include <memory>
 #include <mutex>
 #include <string>
-#include <utility>
 
 #include <jni.h>
 
+namespace Base {
+
+enum class ApplicationState : uint8_t {
+    /**
+     * Represents the state of:
+     * - Waiting to start
+     * - Waiting to terminate
+     *
+     * There is no state to represent "terminated" - this will be
+     * represented by the program seizing to exist.
+     */
+    PENDING,
+    /**
+     * Represents the state of a browser being ready to navigate to
+     * pages.
+     */
+    STARTED,
+    /**
+     * Represents any situation where we have failed and are unable to
+     * proceed.
+     */
+    FAILED,
+};
+
 class BrowserData {
 public:
-    enum class State : uint8_t {
-        NOT_STARTED,
-        RUNNING,
-        FAILED_TO_START,
-        TERMINATED,
-    };
-
-    /**
-     * Initialize BrowserData with default width and height
-     */
-    BrowserData() noexcept;
-
-    /**
-     * Initialize BrowserData with an explicit width and height
-     */
-    explicit BrowserData(int, int) noexcept;
-
     virtual ~BrowserData() = default;
 
-    [[nodiscard]] const std::wstring& GetDestination() noexcept;
-    [[nodiscard]] int GetWidth() noexcept;
-    [[nodiscard]] int GetHeight() noexcept;
+    [[nodiscard]] const std::wstring& GetDestination() const noexcept;
+    [[nodiscard]] int GetWidth() const noexcept;
+    [[nodiscard]] int GetHeight() const noexcept;
 
     /**
      * Returns whether or not the browser window is running.
@@ -56,7 +61,7 @@ public:
      * @return True if we have received signs of life from the browser
      * process.
      */
-    [[nodiscard]] bool IsRunning() noexcept;
+    [[nodiscard]] bool IsRunning() const noexcept;
 
     /**
      * Resolve the working directory of the parent application.
@@ -73,11 +78,16 @@ public:
      * validity or security of a particular URL. This is left up to the
      * dll caller as well as the web view.
      */
-    void SetDestination(const std::wstring&) noexcept;
+    void SetDestination(std::wstring) noexcept;
     void SetSize(int, int) noexcept;
-    void SetState(State) noexcept;
-    void WaitForStateTransition(State) noexcept;
-    [[nodiscard]] bool WaitForInitializationResult() noexcept;
+    void SetState(ApplicationState) noexcept;
+
+    void WaitForStateOrFailure(ApplicationState) noexcept;
+
+protected:
+    BrowserData() = default;
+
+    mutable std::mutex m_mutex;
 
 private:
     /**
@@ -97,8 +107,9 @@ private:
      * Tracks the current state of the browser window, allowing for an easy way for exported
      * methods to access the state of the browser control
      */
-    State m_state = State::NOT_STARTED;
+    ApplicationState m_state = ApplicationState::PENDING;
 
     std::condition_variable m_cv;
-    std::mutex m_mutex;
 };
+
+}
