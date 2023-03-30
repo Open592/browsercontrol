@@ -38,16 +38,16 @@ bool WindowsBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
         return false;
     }
 
-    if (GetBrowserData()->ResolveHostWindow(env, canvas) == nullptr) {
+    if (m_data->ResolveHostWindow(env, canvas) == nullptr) {
         return false;
     }
 
     m_browserThread = std::thread([&] { StartMessagePump(); });
 
     // Block until the browser reports that we are running
-    GetBrowserData()->WaitForStateOrFailure(Base::ApplicationState::STARTED);
+    m_data->WaitForStateOrFailure(Base::ApplicationState::STARTED);
 
-    return GetBrowserData()->IsRunning();
+    return m_data->IsRunning();
 }
 
 void WindowsBrowserContext::StartMessagePump()
@@ -56,7 +56,7 @@ void WindowsBrowserContext::StartMessagePump()
         goto handle_error;
     }
 
-    m_browserWindow = WebView2BrowserWindow::Create(GetBrowserData()->GetHostWindow());
+    m_browserWindow = WebView2BrowserWindow::Create(m_data->GetHostWindow());
 
     if (m_browserWindow == nullptr) {
         goto handle_error;
@@ -80,7 +80,7 @@ void WindowsBrowserContext::StartMessagePump()
 
 handle_error:
     // Notify caller that we failed
-    GetBrowserData()->SetState(Base::ApplicationState::FAILED);
+    m_data->SetState(Base::ApplicationState::FAILED);
 }
 
 void WindowsBrowserContext::PerformDestroy()

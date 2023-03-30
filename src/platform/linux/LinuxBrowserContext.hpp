@@ -20,7 +20,7 @@ public:
     [[nodiscard]] static LinuxBrowserContext* The();
 
     explicit LinuxBrowserContext(std::unique_ptr<LinuxBrowserData>) noexcept;
-    ~LinuxBrowserContext() override;
+    ~LinuxBrowserContext() override = default;
 
     [[nodiscard]] LinuxBrowserData* GetBrowserData() const noexcept override;
 

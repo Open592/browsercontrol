@@ -8,6 +8,8 @@
 // static
 LinuxBrowserContext* LinuxBrowserContext::The()
 {
+    assert(Browser::The().GetBrowserContext() != nullptr);
+
     // This method would only ever be available when working on Windows
     //
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
@@ -19,13 +21,11 @@ LinuxBrowserContext::LinuxBrowserContext(std::unique_ptr<LinuxBrowserData> data)
 {
 }
 
-LinuxBrowserContext::~LinuxBrowserContext() noexcept = default;
-
 LinuxBrowserData* LinuxBrowserContext::GetBrowserData() const noexcept { return m_data.get(); }
 
 bool LinuxBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
 {
-    std::filesystem::path workingDirectory = GetBrowserData()->ResolveWorkingDirectory(env);
+    std::filesystem::path workingDirectory = m_data->ResolveWorkingDirectory(env);
 
     if (workingDirectory.empty()) {
         return false;

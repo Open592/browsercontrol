@@ -34,12 +34,7 @@ public:
      *
      * @return Returns singleton reference to BrowserContext
      */
-    static Browser& The()
-    {
-        static Browser instance;
-
-        return instance;
-    }
+    [[nodiscard]] static Browser& The();
 
     Browser(const Browser&) = delete;
     Browser(Browser&&) = delete;

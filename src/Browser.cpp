@@ -2,6 +2,14 @@
 
 #include "Browser.hpp"
 
+// static
+Browser& Browser::The()
+{
+    static Browser instance;
+
+    return instance;
+}
+
 Browser::Browser()
     : m_context(nullptr)
 {
