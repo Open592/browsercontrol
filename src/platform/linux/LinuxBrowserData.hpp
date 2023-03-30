@@ -8,7 +8,7 @@
 
 #include "src/BrowserData.hpp"
 
-class LinuxBrowserData : public BrowserData {
+class LinuxBrowserData : public Base::BrowserData {
 public:
     [[nodiscard]] std::filesystem::path GetWorkingDirectory() const noexcept { return m_workingDirectory; }
     [[nodiscard]] std::filesystem::path ResolveWorkingDirectory(JNIEnv*) noexcept override;
