@@ -33,5 +33,6 @@ private:
 
     HWND m_browserWindow = nullptr;
 
+    std::unique_ptr<WindowsBrowserData> m_data;
     std::thread m_browserThread;
 };

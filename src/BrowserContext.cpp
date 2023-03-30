@@ -4,13 +4,6 @@
 
 namespace Base {
 
-BrowserContext::BrowserContext(std::unique_ptr<BrowserData> data) noexcept
-    : m_data(std::move(data))
-{
-}
-
-BrowserData* BrowserContext::GetBrowserData() const noexcept { return m_data.get(); }
-
 bool BrowserContext::Initialize(JNIEnv* env, jobject parentContainer, std::wstring initialDestination)
 {
     // We should not be initializing more than once.

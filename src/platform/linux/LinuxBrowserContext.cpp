@@ -15,19 +15,13 @@ LinuxBrowserContext* LinuxBrowserContext::The()
 }
 
 LinuxBrowserContext::LinuxBrowserContext(std::unique_ptr<LinuxBrowserData> data) noexcept
-    : Base::BrowserContext(std::move(data))
+    : m_data(std::move(data))
 {
 }
 
 LinuxBrowserContext::~LinuxBrowserContext() noexcept = default;
 
-LinuxBrowserData* LinuxBrowserContext::GetBrowserData() const noexcept
-{
-    // This method would only ever be available when working on Windows
-    //
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-    return static_cast<LinuxBrowserData*>(Base::BrowserContext::GetBrowserData());
-}
+LinuxBrowserData* LinuxBrowserContext::GetBrowserData() const noexcept { return m_data.get(); }
 
 bool LinuxBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
 {

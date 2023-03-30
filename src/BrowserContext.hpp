@@ -18,7 +18,7 @@ class BrowserContext {
 public:
     virtual ~BrowserContext() = default;
 
-    [[nodiscard]] virtual BrowserData* GetBrowserData() const noexcept;
+    [[nodiscard]] virtual BrowserData* GetBrowserData() const noexcept = 0;
 
     /**
      * @brief Initialize the browser window by passing both the parent container and initial destination.
@@ -41,9 +41,7 @@ public:
     void Navigate(std::wstring);
 
 protected:
-    explicit BrowserContext(std::unique_ptr<BrowserData>) noexcept;
-
-    std::unique_ptr<BrowserData> m_data;
+    BrowserContext() noexcept = default;
 
 private:
     // Each platform is responsible for implementing the API
