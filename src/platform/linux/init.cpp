@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "LinuxBrowserControl.hpp"
-#include "src/BrowserContext.hpp"
+#include "src/Browser.hpp"
 
+#include "LinuxBrowserContext.hpp"
 #include "LinuxBrowserData.hpp"
 
 __attribute__((constructor)) void setup()
@@ -37,10 +37,8 @@ __attribute__((constructor)) void setup()
      */
     XInitThreads();
 
-    auto control = std::make_unique<LinuxBrowserControl>();
     auto data = std::make_unique<LinuxBrowserData>();
+    auto context = std::make_unique<LinuxBrowserContext>(std::move(data));
 
-    BrowserContext::the().RegisterBrowserControl(std::move(control), std::move(data));
+    Browser::The().RegisterBrowserContext(std::move(context));
 }
-
-__attribute__((destructor)) void teardown() { BrowserContext::the().UnregisterBrowserControl(); }
