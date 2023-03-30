@@ -19,7 +19,7 @@ WindowsBrowserContext* WindowsBrowserContext::The() noexcept
 }
 
 WindowsBrowserContext::WindowsBrowserContext(std::unique_ptr<WindowsBrowserData> data)
-    : Base::BrowserContext(std::move(data))
+    : m_data(std::move(data))
 {
 }
 
@@ -30,13 +30,7 @@ WindowsBrowserContext::~WindowsBrowserContext() noexcept
     }
 }
 
-WindowsBrowserData* WindowsBrowserContext::GetBrowserData() const noexcept
-{
-    // This method would only ever be available when working on Windows
-    //
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-    return static_cast<WindowsBrowserData*>(Base::BrowserContext::GetBrowserData());
-}
+WindowsBrowserData* WindowsBrowserContext::GetBrowserData() const noexcept { return m_data.get(); }
 
 bool WindowsBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
 {

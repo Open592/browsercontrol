@@ -30,4 +30,6 @@ private:
     void PerformDestroy() override;
     void PerformResize() override;
     void PerformNavigate() override;
+
+    std::unique_ptr<LinuxBrowserData> m_data;
 };
