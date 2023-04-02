@@ -21,6 +21,7 @@ WindowsBrowserContext* WindowsBrowserContext::The() noexcept
 WindowsBrowserContext::WindowsBrowserContext(std::unique_ptr<WindowsBrowserData> data)
     : m_data(std::move(data))
 {
+    assert(m_data != nullptr && "Expected browser data to exist!");
 }
 
 WindowsBrowserContext::~WindowsBrowserContext() noexcept
@@ -30,7 +31,7 @@ WindowsBrowserContext::~WindowsBrowserContext() noexcept
     }
 }
 
-WindowsBrowserData* WindowsBrowserContext::GetBrowserData() const noexcept { return m_data.get(); }
+WindowsBrowserData& WindowsBrowserContext::GetBrowserData() const noexcept { return *m_data; }
 
 bool WindowsBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
 {
