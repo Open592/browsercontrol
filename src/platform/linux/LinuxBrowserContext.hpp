@@ -10,19 +10,10 @@
 
 class LinuxBrowserContext : public Base::BrowserContext {
 public:
-    /**
-     * We require a way to obtain the derived class from within the Windows
-     * context. This static method effectively passes through the context
-     * pointer provided by the Singleton Browser()
-     *
-     * For more information about the need for a singleton see Browser::The()
-     */
-    [[nodiscard]] static LinuxBrowserContext* The();
-
     explicit LinuxBrowserContext(std::unique_ptr<LinuxBrowserData>) noexcept;
     ~LinuxBrowserContext() override = default;
 
-    [[nodiscard]] LinuxBrowserData* GetBrowserData() const noexcept override;
+    [[nodiscard]] LinuxBrowserData& GetBrowserData() const noexcept override;
 
 private:
     // Platform specific methods
@@ -30,6 +21,4 @@ private:
     void PerformDestroy() override;
     void PerformResize() override;
     void PerformNavigate() override;
-
-    std::unique_ptr<LinuxBrowserData> m_data;
 };
