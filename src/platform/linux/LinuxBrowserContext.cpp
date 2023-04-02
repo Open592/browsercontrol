@@ -5,23 +5,13 @@
 
 #include "LinuxBrowserContext.hpp"
 
-// static
-LinuxBrowserContext* LinuxBrowserContext::The()
-{
-    assert(Browser::The().GetBrowserContext() != nullptr);
-
-    // This method would only ever be available when working on Windows
-    //
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-    return static_cast<LinuxBrowserContext*>(Browser::The().GetBrowserContext());
-}
-
 LinuxBrowserContext::LinuxBrowserContext(std::unique_ptr<LinuxBrowserData> data) noexcept
     : m_data(std::move(data))
 {
+    assert(m_data != nullptr && "Expected browser data to exist!");
 }
 
-LinuxBrowserData* LinuxBrowserContext::GetBrowserData() const noexcept { return m_data.get(); }
+LinuxBrowserData& LinuxBrowserContext::GetBrowserData() const noexcept { return *m_data; }
 
 bool LinuxBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
 {
