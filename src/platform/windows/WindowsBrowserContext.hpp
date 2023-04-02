@@ -20,7 +20,7 @@ public:
     explicit WindowsBrowserContext(std::unique_ptr<WindowsBrowserData>);
     ~WindowsBrowserContext() noexcept override;
 
-    [[nodiscard]] WindowsBrowserData* GetBrowserData() const noexcept override;
+    [[nodiscard]] WindowsBrowserData& GetBrowserData() const noexcept override;
 
 private:
     // Platform specific methods
