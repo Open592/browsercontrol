@@ -7,17 +7,6 @@
 #include "WebView2BrowserWindow.hpp"
 #include "WindowsBrowserContext.hpp"
 
-// static
-WindowsBrowserContext* WindowsBrowserContext::The() noexcept
-{
-    assert(Browser::The().GetBrowserContext() != nullptr);
-
-    // This method would only ever be available when working on Windows
-    //
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-    return static_cast<WindowsBrowserContext*>(Browser::The().GetBrowserContext());
-}
-
 WindowsBrowserContext::WindowsBrowserContext(std::unique_ptr<WindowsBrowserData> data)
     : m_data(std::move(data))
 {
@@ -57,7 +46,7 @@ void WindowsBrowserContext::StartMessagePump()
         goto handle_error;
     }
 
-    m_browserWindow = WebView2BrowserWindow::Create(m_data->GetHostWindow());
+    m_browserWindow = WebView2BrowserWindow::Create(GetBrowserData());
 
     if (m_browserWindow == nullptr) {
         goto handle_error;
