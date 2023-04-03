@@ -8,15 +8,6 @@
 
 class WindowsBrowserContext : public Base::BrowserContext {
 public:
-    /**
-     * We require a way to obtain the derived class from within the Windows
-     * context. This static method effectively passes through the context
-     * pointer provided by the Singleton Browser()
-     *
-     * For more information about the need for a singleton see Browser::The()
-     */
-    [[nodiscard]] static WindowsBrowserContext* The() noexcept;
-
     explicit WindowsBrowserContext(std::unique_ptr<WindowsBrowserData>);
     ~WindowsBrowserContext() noexcept override;
 

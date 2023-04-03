@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "WindowsBrowserData.hpp"
+
 /**
  * @brief Implementation of a WebView2 browser window for displaying
  * advertisements within the AppletViewer.
@@ -21,9 +23,9 @@ public:
     }
     static HINSTANCE Register();
     static bool Unregister();
-    static HWND Create(HWND);
+    static HWND Create(WindowsBrowserData&);
 
-    explicit WebView2BrowserWindow(HWND);
+    explicit WebView2BrowserWindow(HWND, WindowsBrowserData&);
 
 private:
     static constexpr auto WindowClassName = L"Jb";
@@ -55,6 +57,7 @@ private:
     void Resize();
 
     HWND m_parentWindow;
+    WindowsBrowserData& m_data;
     wil::com_ptr<ICoreWebView2Controller> m_controller;
     wil::com_ptr<ICoreWebView2> m_webView;
 };
