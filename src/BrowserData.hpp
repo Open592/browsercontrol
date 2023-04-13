@@ -36,8 +36,6 @@ enum class ApplicationState : uint8_t {
 
 class BrowserData {
 public:
-    virtual ~BrowserData() = default;
-
     [[nodiscard]] const std::wstring& GetDestination() const noexcept;
     [[nodiscard]] int GetWidth() const noexcept;
     [[nodiscard]] int GetHeight() const noexcept;
@@ -86,6 +84,7 @@ public:
 
 protected:
     BrowserData() = default;
+    virtual ~BrowserData() = default;
 
     mutable std::mutex m_mutex;
 

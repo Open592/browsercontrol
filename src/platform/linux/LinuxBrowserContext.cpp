@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "src/Browser.hpp"
+#include <iostream>
+
 #include "src/BrowserContext.hpp"
 
 #include "LinuxBrowserContext.hpp"
 
 LinuxBrowserContext::LinuxBrowserContext(std::unique_ptr<LinuxBrowserData> data) noexcept
     : m_data(std::move(data))
+    , m_eventLoop(std::make_unique<BrowserEventLoop>())
 {
     assert(m_data != nullptr && "Expected browser data to exist!");
 }
@@ -20,6 +22,8 @@ bool LinuxBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
     if (workingDirectory.empty()) {
         return false;
     }
+
+    m_eventLoop->EnqueueWork(base::BindOnce([] { std::cout << "Hello world\n"; }));
 
     return true;
 }

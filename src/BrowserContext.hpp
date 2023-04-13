@@ -19,12 +19,6 @@ public:
     virtual ~BrowserContext() = default;
 
     /**
-     * Require implementors to provide their own implementation which exposes their
-     * platform specific implementations of Base::BrowserData
-     */
-    [[nodiscard]] virtual BrowserData& GetBrowserData() const noexcept = 0;
-
-    /**
      * @brief Initialize the browser window by passing both the parent container and initial destination.
      *
      * It is the job of the browsercontrol library to fill the parent container with a web view
@@ -48,6 +42,12 @@ protected:
     explicit BrowserContext() noexcept = default;
 
 private:
+    /**
+     * Require implementors to provide their own implementation which exposes their
+     * platform specific implementations of Base::BrowserData
+     */
+    [[nodiscard]] virtual BrowserData& GetBrowserData() const noexcept = 0;
+
     // Each platform is responsible for implementing the API
     //
     // We expect these functions to reference `GetBrowserData` when
