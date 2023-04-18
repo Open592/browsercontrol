@@ -62,16 +62,6 @@ public:
     [[nodiscard]] bool IsRunning() const noexcept;
 
     /**
-     * Resolve the working directory of the parent application.
-     *
-     * In the case of Linux this will point to the location of the CEF library assets
-     * and helper executable.
-     *
-     * By default this will an empty path for platforms which don't require this information.
-     */
-    [[nodiscard]] virtual std::filesystem::path ResolveWorkingDirectory(JNIEnv*) noexcept { return {}; }
-
-    /**
      * Setting the destination does not perform any validation about the
      * validity or security of a particular URL. This is left up to the
      * dll caller as well as the web view.
