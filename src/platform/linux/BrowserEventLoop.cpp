@@ -25,6 +25,11 @@ BrowserEventLoop::~BrowserEventLoop() noexcept
     m_thread.join();
 }
 
+bool BrowserEventLoop::CurrentlyOnBrowserThread() const noexcept
+{
+    return std::this_thread::get_id() == m_thread.get_id();
+}
+
 void BrowserEventLoop::EnqueueWork(base::OnceClosure&& work) noexcept
 {
     {

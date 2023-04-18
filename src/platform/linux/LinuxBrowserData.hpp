@@ -11,7 +11,7 @@
 class LinuxBrowserData : public Base::BrowserData {
 public:
     [[nodiscard]] std::filesystem::path GetWorkingDirectory() const noexcept { return m_workingDirectory; }
-    [[nodiscard]] std::filesystem::path ResolveWorkingDirectory(JNIEnv*) noexcept override;
+    [[nodiscard]] bool ResolveWorkingDirectory(JNIEnv*) noexcept;
 
 private:
     /**

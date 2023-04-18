@@ -23,6 +23,12 @@ private:
     void PerformResize() override;
     void PerformNavigate() override;
 
+    void StartCEF() const;
+
+    // Store app here since we will exit from PerformInitialize after completion
+    //
+    // Beyond initialization we aren't going to reference it.
+    CefRefPtr<BrowserApp> m_app;
     std::unique_ptr<LinuxBrowserData> m_data;
     std::unique_ptr<BrowserEventLoop> m_eventLoop;
 };

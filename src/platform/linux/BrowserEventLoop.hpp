@@ -32,19 +32,24 @@ public:
     BrowserEventLoop& operator=(BrowserEventLoop&&) noexcept = delete;
 
     /**
+     * Provide ability to query if the current thread is the main worker
+     * thread.
+     */
+    [[nodiscard]] bool CurrentlyOnBrowserThread() const noexcept;
+
+    /**
      * Enqueue work to be performed on the browser process thread.
      *
      * @example BrowserEventLoop::EnqueueWork(base::BindOnce(...));
      */
     void EnqueueWork(base::OnceClosure&&) noexcept;
 
-protected:
+private:
     // Allow deletion by std::unique_ptr only
     friend std::default_delete<BrowserEventLoop>;
 
     ~BrowserEventLoop();
 
-private:
     std::vector<base::OnceClosure> m_work;
     std::mutex m_mutex;
     std::condition_variable m_cv;
