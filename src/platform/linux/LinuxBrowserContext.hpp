@@ -6,7 +6,9 @@
 
 #include "src/BrowserData.hpp"
 
+#include "BrowserApp.hpp"
 #include "BrowserEventLoop.hpp"
+#include "BrowserWindow.hpp"
 #include "LinuxBrowserData.hpp"
 
 class LinuxBrowserContext : public Base::BrowserContext {
@@ -31,4 +33,5 @@ private:
     CefRefPtr<BrowserApp> m_app;
     std::unique_ptr<LinuxBrowserData> m_data;
     std::unique_ptr<BrowserEventLoop> m_eventLoop;
+    std::unique_ptr<BrowserWindow> m_browserWindow;
 };
