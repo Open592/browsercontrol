@@ -43,11 +43,17 @@ void BrowserData::SetDestination(std::wstring destination) noexcept
     m_destination = std::move(destination);
 }
 
-void BrowserData::SetSize(int width, int height) noexcept
+bool BrowserData::SetSize(int width, int height) noexcept
 {
     std::lock_guard<std::mutex> lk(m_mutex);
 
+    if (width == m_size.first && height == m_size.second) {
+        return false;
+    }
+
     m_size = std::make_pair(width, height);
+
+    return true;
 }
 
 void BrowserData::SetState(Base::ApplicationState state) noexcept
