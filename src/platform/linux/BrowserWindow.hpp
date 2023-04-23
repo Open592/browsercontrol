@@ -82,12 +82,11 @@ private:
 
 class BrowserWindow {
 public:
-    explicit BrowserWindow(LinuxBrowserData&, BrowserEventLoop&) noexcept;
+    explicit BrowserWindow(LinuxBrowserData&) noexcept;
 
     bool CreateHostWindow();
 
 private:
     DisplayConnection m_displayConnection;
     LinuxBrowserData& m_data;
-    BrowserEventLoop& m_eventLoop;
 };

@@ -4,15 +4,13 @@
 
 #include "BrowserWindow.hpp"
 
-BrowserWindow::BrowserWindow(LinuxBrowserData& data, BrowserEventLoop& eventLoop) noexcept
+BrowserWindow::BrowserWindow(LinuxBrowserData& data) noexcept
     : m_data(data)
-    , m_eventLoop(eventLoop) // TODO: Verify we need to pass this
 {
 }
 
 bool BrowserWindow::CreateHostWindow()
 {
-    DCHECK(m_eventLoop.CurrentlyOnBrowserThread());
     DCHECK(m_displayConnection.MakeConnection());
 
     return true;

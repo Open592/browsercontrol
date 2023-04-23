@@ -6,6 +6,8 @@ BrowserEventLoop::BrowserEventLoop()
     : m_isRunning(true)
     , m_thread { &BrowserEventLoop::ThreadWorker, this }
 {
+    // Allow ThreadWorker to handle thread assignment for the ThreadChecker
+    m_threadChecker.DetachFromThread();
 }
 
 BrowserEventLoop::~BrowserEventLoop() noexcept
@@ -25,10 +27,7 @@ BrowserEventLoop::~BrowserEventLoop() noexcept
     m_thread.join();
 }
 
-bool BrowserEventLoop::CurrentlyOnBrowserThread() const noexcept
-{
-    return std::this_thread::get_id() == m_thread.get_id();
-}
+bool BrowserEventLoop::CurrentlyOnBrowserThread() const noexcept { return m_threadChecker.CalledOnValidThread(); }
 
 void BrowserEventLoop::EnqueueWork(base::OnceClosure&& work) noexcept
 {
@@ -42,6 +41,9 @@ void BrowserEventLoop::EnqueueWork(base::OnceClosure&& work) noexcept
 
 void BrowserEventLoop::ThreadWorker() noexcept
 {
+    // Will bind the ThreadChecker to this thread.
+    DCHECK(m_threadChecker.CalledOnValidThread());
+
     std::vector<base::OnceClosure> currentWork;
 
     while (m_isRunning) {

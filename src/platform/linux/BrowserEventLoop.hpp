@@ -50,6 +50,7 @@ private:
 
     ~BrowserEventLoop();
 
+    base::ThreadChecker m_threadChecker;
     std::vector<base::OnceClosure> m_work;
     std::mutex m_mutex;
     std::condition_variable m_cv;

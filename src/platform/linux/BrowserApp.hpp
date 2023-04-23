@@ -11,13 +11,26 @@
  * This is not shared with any other process, we defer to
  * CEF's default implementation for the other processes, and
  * that logic is handled in the helper.
- *
- * Honestly we don't use CefApp for much here, just some
- * logic within `OnBeforeCommandLineProcessing`
  */
 class BrowserApp : public CefApp, public CefBrowserProcessHandler {
 public:
-    BrowserApp() = default;
+    /**
+     * Provides a simple interface for classes which will
+     * receive events during browser initialization.
+     *
+     * We are only interested in the `OnContextInitialized` callback
+     * from `CefBrowserProcessHandler`.
+     */
+    struct Delegate {
+        /**
+         * Once this method has been called we know that CEF
+         * has been initialized and we can begin the creation
+         * of the browser window.
+         */
+        virtual void OnContextInitialized() = 0;
+    };
+
+    explicit BrowserApp(Delegate&);
     ~BrowserApp() override = default;
 
     // CefApp overrides
@@ -25,6 +38,10 @@ public:
 
     // CefBrowserProcessHandler overrides
     void OnBeforeCommandLineProcessing(const CefString&, CefRefPtr<CefCommandLine>) override;
+    void OnContextInitialized() override;
 
     IMPLEMENT_REFCOUNTING(BrowserApp);
+
+private:
+    Delegate& m_delegate;
 };

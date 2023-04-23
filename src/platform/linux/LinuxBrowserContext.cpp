@@ -11,17 +11,28 @@
 #include "LinuxBrowserContext.hpp"
 
 LinuxBrowserContext::LinuxBrowserContext(std::unique_ptr<LinuxBrowserData> data) noexcept
-    : m_app(new BrowserApp())
-    , m_data(std::move(data))
+    : m_data(std::move(data))
     , m_eventLoop(std::make_unique<BrowserEventLoop>())
 {
     assert(m_data != nullptr && "Expected browser data to exist!");
     assert(m_eventLoop != nullptr && "Expected browser event loop to exist!");
 
-    m_browserWindow = std::make_unique<BrowserWindow>(*m_data, *m_eventLoop);
+    m_app = new BrowserApp(*this);
+    m_browserWindow = std::make_unique<BrowserWindow>(*m_data);
 }
 
 LinuxBrowserData& LinuxBrowserContext::GetBrowserData() const noexcept { return *m_data; }
+
+void LinuxBrowserContext::OnContextInitialized()
+{
+    if (!m_eventLoop->CurrentlyOnBrowserThread()) {
+        m_eventLoop->EnqueueWork(base::BindOnce(&LinuxBrowserContext::OnContextInitialized, base::Unretained(this)));
+    }
+
+    if (m_browserWindow->CreateHostWindow()) {
+        m_data->SetState(Base::ApplicationState::STARTED);
+    }
+}
 
 bool LinuxBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
 {
@@ -75,11 +86,5 @@ void LinuxBrowserContext::StartCEF() const
 
     JVMSignals::Restore();
 
-    if (!m_browserWindow->CreateHostWindow()) {
-        m_data->SetState(Base::ApplicationState::FAILED);
-
-        return;
-    }
-
-    m_data->SetState(Base::ApplicationState::STARTED);
+    m_data->WaitForStateOrFailure(Base::ApplicationState::STARTED);
 }
