@@ -20,7 +20,7 @@ private:
     [[nodiscard]] LinuxBrowserData& GetBrowserData() const noexcept override;
 
     // BrowserApp::Delegate methods
-    void OnContextInitialized() override;
+    void OnContextInitialized() const override;
 
     // Platform specific methods
     bool PerformInitialize(JNIEnv*, jobject) override;

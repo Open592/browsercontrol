@@ -27,10 +27,10 @@ public:
          * has been initialized and we can begin the creation
          * of the browser window.
          */
-        virtual void OnContextInitialized() = 0;
+        virtual void OnContextInitialized() const = 0;
     };
 
-    explicit BrowserApp(Delegate&);
+    explicit BrowserApp(const Delegate&);
     ~BrowserApp() override = default;
 
     // CefApp overrides
@@ -43,5 +43,5 @@ public:
     IMPLEMENT_REFCOUNTING(BrowserApp);
 
 private:
-    Delegate& m_delegate;
+    const Delegate& m_delegate;
 };

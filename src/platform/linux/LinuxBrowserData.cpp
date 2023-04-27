@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <jawt.h>
+
 #include "LinuxBrowserData.hpp"
 
 /**
@@ -68,6 +70,72 @@ bool LinuxBrowserData::ResolveWorkingDirectory(JNIEnv* env) noexcept
     m_workingDirectory = std::filesystem::canonical(property);
 
     env->ReleaseStringUTFChars(workingDirectory, property);
+
+    return true;
+}
+
+/**
+ * Resolve the host's window.
+ *
+ * This is the window from the Java side which we will be parenting
+ * our container window.
+ */
+bool LinuxBrowserData::ResolveHostWindow(JNIEnv* env, jobject canvas) noexcept
+{
+    JAWT awt;
+
+    // Note: In the original browsercontrol.dll this was set as JAWT_VERSION_1_4
+    awt.version = JAWT_VERSION_9;
+
+    if (JAWT_GetAWT(env, &awt) != JNI_TRUE) {
+        if (env->ExceptionCheck()) {
+            env->ExceptionDescribe();
+            env->ExceptionClear();
+        }
+
+        return false;
+    }
+
+    JAWT_DrawingSurface* drawingSurface = awt.GetDrawingSurface(env, canvas);
+
+    if (drawingSurface == nullptr) {
+        return false;
+    }
+
+    jint lock = drawingSurface->Lock(drawingSurface);
+
+    if ((lock & JAWT_LOCK_ERROR) != 0) {
+        awt.FreeDrawingSurface(drawingSurface);
+
+        return false;
+    }
+
+    JAWT_DrawingSurfaceInfo* drawingSurfaceInfo = drawingSurface->GetDrawingSurfaceInfo(drawingSurface);
+
+    if (drawingSurfaceInfo == nullptr) {
+        drawingSurface->Unlock(drawingSurface);
+        awt.FreeDrawingSurface(drawingSurface);
+
+        return false;
+    }
+
+    auto* x11DrawingSurfaceInfo = static_cast<JAWT_X11DrawingSurfaceInfo*>(drawingSurfaceInfo->platformInfo);
+
+    if (x11DrawingSurfaceInfo == nullptr) {
+        drawingSurface->FreeDrawingSurfaceInfo(drawingSurfaceInfo);
+        drawingSurface->Unlock(drawingSurface);
+        awt.FreeDrawingSurface(drawingSurface);
+
+        return false;
+    }
+
+    auto result = static_cast<xcb_window_t>(x11DrawingSurfaceInfo->drawable);
+
+    drawingSurface->FreeDrawingSurfaceInfo(drawingSurfaceInfo);
+    drawingSurface->Unlock(drawingSurface);
+    awt.FreeDrawingSurface(drawingSurface);
+
+    m_hostWindow = result;
 
     return true;
 }

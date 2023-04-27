@@ -23,14 +23,18 @@ LinuxBrowserContext::LinuxBrowserContext(std::unique_ptr<LinuxBrowserData> data)
 
 LinuxBrowserData& LinuxBrowserContext::GetBrowserData() const noexcept { return *m_data; }
 
-void LinuxBrowserContext::OnContextInitialized()
+void LinuxBrowserContext::OnContextInitialized() const
 {
     if (!m_eventLoop->CurrentlyOnBrowserThread()) {
         m_eventLoop->EnqueueWork(base::BindOnce(&LinuxBrowserContext::OnContextInitialized, base::Unretained(this)));
+
+        return;
     }
 
-    if (m_browserWindow->CreateHostWindow()) {
+    if (m_browserWindow->Create()) {
         m_data->SetState(Base::ApplicationState::STARTED);
+    } else {
+        m_data->SetState(Base::ApplicationState::FAILED);
     }
 }
 
@@ -40,9 +44,15 @@ bool LinuxBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
         return false;
     }
 
+    if (!m_data->ResolveHostWindow(env, canvas)) {
+        return false;
+    }
+
     m_eventLoop->EnqueueWork(base::BindOnce(&LinuxBrowserContext::StartCEF, base::Unretained(this)));
 
-    return true;
+    m_data->WaitForStateOrFailure(Base::ApplicationState::STARTED);
+
+    return m_data->IsRunning();
 }
 
 void LinuxBrowserContext::PerformDestroy()
@@ -85,6 +95,4 @@ void LinuxBrowserContext::StartCEF() const
     }
 
     JVMSignals::Restore();
-
-    m_data->WaitForStateOrFailure(Base::ApplicationState::STARTED);
 }

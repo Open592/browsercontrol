@@ -38,6 +38,7 @@ add_library(
   BrowserApp.cpp
   BrowserEventLoop.cpp
   BrowserWindow.cpp
+  ContainerWindow.cpp
   JVMSignals.cpp
   LinuxBrowserContext.cpp
   LinuxBrowserData.cpp

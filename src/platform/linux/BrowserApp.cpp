@@ -2,7 +2,7 @@
 
 #include "BrowserApp.hpp"
 
-BrowserApp::BrowserApp(BrowserApp::Delegate& delegate)
+BrowserApp::BrowserApp(const BrowserApp::Delegate& delegate)
     : m_delegate(delegate)
 {
 }

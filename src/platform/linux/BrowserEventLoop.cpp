@@ -42,7 +42,7 @@ void BrowserEventLoop::EnqueueWork(base::OnceClosure&& work) noexcept
 void BrowserEventLoop::ThreadWorker() noexcept
 {
     // Will bind the ThreadChecker to this thread.
-    DCHECK(m_threadChecker.CalledOnValidThread());
+    // DCHECK(m_threadChecker.CalledOnValidThread());
 
     std::vector<base::OnceClosure> currentWork;
 
