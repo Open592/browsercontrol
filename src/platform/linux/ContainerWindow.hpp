@@ -6,7 +6,9 @@
 
 class ContainerWindow {
 public:
-    class Delegate { };
+    struct Delegate {
+        virtual void OnContainerWindowCreate(xcb_window_t) const = 0;
+    };
 
     explicit ContainerWindow(const Delegate&) noexcept;
 
@@ -24,7 +26,7 @@ public:
      *
      * @return The X window handle
      */
-    xcb_window_t GetWindowHandle() const noexcept;
+    [[nodiscard]] xcb_window_t GetWindowHandle() const noexcept;
 
     /**
      * Initializes the connection to the X server
@@ -57,7 +59,7 @@ private:
     /**
      * Process events from the container window
      */
-    bool ProcessXEvent(const xcb_generic_event_t&) const;
+    [[nodiscard]] bool ProcessXEvent(const xcb_generic_event_t&) const;
 
     enum class EventLoopStatus {
         STOPPED,

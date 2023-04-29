@@ -18,7 +18,7 @@ LinuxBrowserContext::LinuxBrowserContext(std::unique_ptr<LinuxBrowserData> data)
     assert(m_eventLoop != nullptr && "Expected browser event loop to exist!");
 
     m_app = new BrowserApp(*this);
-    m_browserWindow = std::make_unique<BrowserWindow>(*m_data);
+    m_browserWindow = std::make_unique<BrowserWindow>(*m_data, *m_eventLoop);
 }
 
 LinuxBrowserData& LinuxBrowserContext::GetBrowserData() const noexcept { return *m_data; }
@@ -31,9 +31,7 @@ void LinuxBrowserContext::OnContextInitialized() const
         return;
     }
 
-    if (m_browserWindow->Create()) {
-        m_data->SetState(Base::ApplicationState::STARTED);
-    } else {
+    if (!m_browserWindow->Create()) {
         m_data->SetState(Base::ApplicationState::FAILED);
     }
 }

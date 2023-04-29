@@ -75,9 +75,14 @@ bool ContainerWindow::Create(xcb_window_t hostWindow)
         return false;
     }
 
+    xcb_change_property(
+        m_connection, XCB_PROP_MODE_REPLACE, m_window, wmProtocolsReply->atom, 4, 32, 1, &m_wmDeleteWindowAtom->atom);
+
     xcb_map_window(m_connection, m_window);
 
     xcb_flush(m_connection);
+
+    m_delegate.OnContainerWindowCreate(m_window);
 
     return true;
 }
@@ -183,7 +188,12 @@ void ContainerWindow::EventLoop()
         }
 
         while ((event = xcb_poll_for_event(m_connection))) {
-            ProcessXEvent(*event);
+            if (!ProcessXEvent(*event)) {
+                free(event);
+                xcb_flush(m_connection);
+
+                return;
+            }
 
             free(event);
             xcb_flush(m_connection);

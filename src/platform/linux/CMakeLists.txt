@@ -37,6 +37,7 @@ add_library(
   init.cpp
   BrowserApp.cpp
   BrowserEventLoop.cpp
+  BrowserHandler.cpp
   BrowserWindow.cpp
   ContainerWindow.cpp
   JVMSignals.cpp
