@@ -33,9 +33,9 @@ void BrowserContext::Resize(int32_t width, int32_t height)
         return;
     }
 
-    GetBrowserData().SetSize(width, height);
-
-    PerformResize();
+    if (GetBrowserData().SetSize(width, height)) {
+        PerformResize();
+    }
 }
 
 void BrowserContext::Navigate(std::wstring destination)
