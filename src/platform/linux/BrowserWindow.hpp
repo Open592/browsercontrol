@@ -9,24 +9,29 @@
 
 #include "BrowserEventLoop.hpp"
 #include "BrowserHandler.hpp"
-#include "ContainerWindow.hpp"
 #include "LinuxBrowserData.hpp"
 
-class BrowserWindow : private BrowserHandler::Delegate, private ContainerWindow::Delegate {
+class BrowserWindow final : private BrowserHandler::Delegate {
 public:
-    explicit BrowserWindow(LinuxBrowserData&, BrowserEventLoop&) noexcept;
+    struct Delegate {
+        virtual void OnBrowserWindowDestroyed() = 0;
+    };
 
-    [[nodiscard]] bool Create();
+    explicit BrowserWindow(LinuxBrowserData&, BrowserEventLoop&, Delegate&) noexcept;
+    ~BrowserWindow() = default;
 
-    // BrowserWindow::Delegate methods
+    void Create();
+    void Destroy();
+
+    // BrowserHandler::Delegate methods
     void OnBrowserCreated(CefRefPtr<CefBrowser>) override;
-    // ContainerWindow::Delegate methods
-    void OnContainerWindowCreate(xcb_window_t) const override;
+    void OnBrowserClosed(CefRefPtr<CefBrowser>) override;
 
 private:
     CefRefPtr<CefBrowser> m_browser;
     CefRefPtr<CefClient> m_clientHandler;
-    ContainerWindow m_containerWindow;
-    BrowserEventLoop& m_eventLoop;
+
     LinuxBrowserData& m_data;
+    Delegate& m_delegate;
+    BrowserEventLoop& m_eventLoop;
 };

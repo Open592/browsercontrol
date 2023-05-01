@@ -11,7 +11,9 @@
 #include "BrowserWindow.hpp"
 #include "LinuxBrowserData.hpp"
 
-class LinuxBrowserContext : public Base::BrowserContext, private BrowserApp::Delegate {
+class LinuxBrowserContext final : public Base::BrowserContext,
+                                  public BrowserWindow::Delegate,
+                                  private BrowserApp::Delegate {
 public:
     explicit LinuxBrowserContext(std::unique_ptr<LinuxBrowserData>) noexcept;
     ~LinuxBrowserContext() override = default;
@@ -21,6 +23,9 @@ private:
 
     // BrowserApp::Delegate methods
     void OnContextInitialized() const override;
+
+    // BrowserWindow::Delegate methods
+    void OnBrowserWindowDestroyed() override;
 
     // Platform specific methods
     bool PerformInitialize(JNIEnv*, jobject) override;

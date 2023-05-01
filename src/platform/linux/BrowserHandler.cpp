@@ -7,6 +7,8 @@ BrowserHandler::BrowserHandler(BrowserHandler::Delegate& delegate) noexcept
 {
 }
 
+bool BrowserHandler::DoClose(CefRefPtr<CefBrowser> browser) { return false; }
+
 void BrowserHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) { m_delegate.OnBrowserCreated(browser); }
 
-void BrowserHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) { }
+void BrowserHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) { m_delegate.OnBrowserClosed(browser); }
