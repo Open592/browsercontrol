@@ -22,6 +22,7 @@ public:
 
     void Create();
     void Destroy();
+    void Navigate() const;
 
     // BrowserHandler::Delegate methods
     void OnBrowserCreated(CefRefPtr<CefBrowser>) override;

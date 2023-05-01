@@ -84,7 +84,7 @@ void LinuxBrowserContext::PerformDestroy()
 
 void LinuxBrowserContext::PerformResize() { }
 
-void LinuxBrowserContext::PerformNavigate() { }
+void LinuxBrowserContext::PerformNavigate() { m_browserWindow->Navigate(); }
 
 void LinuxBrowserContext::StartCEF() const
 {

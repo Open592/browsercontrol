@@ -39,6 +39,13 @@ void BrowserWindow::Destroy()
     }
 }
 
+void BrowserWindow::Navigate() const
+{
+    if (m_browser) {
+        m_browser->GetMainFrame()->LoadURL(m_data.GetDestination());
+    }
+}
+
 void BrowserWindow::OnBrowserCreated(CefRefPtr<CefBrowser> browser)
 {
     if (!m_eventLoop.CurrentlyOnBrowserThread()) {
