@@ -4,33 +4,46 @@
 
 #include "BrowserWindow.hpp"
 
-BrowserWindow::BrowserWindow(LinuxBrowserData& data, BrowserEventLoop& eventLoop) noexcept
+BrowserWindow::BrowserWindow(LinuxBrowserData& data, BrowserEventLoop& eventLoop, Delegate& delegate) noexcept
     : m_clientHandler(new BrowserHandler(*this))
-    , m_containerWindow(ContainerWindow(*this))
-    , m_eventLoop(eventLoop)
     , m_data(data)
+    , m_delegate(delegate)
+    , m_eventLoop(eventLoop)
 {
 }
 
-bool BrowserWindow::Create()
+void BrowserWindow::Create()
 {
-    if (!m_containerWindow.MakeXConnection()) {
-        return false;
+    if (!m_eventLoop.CurrentlyOnBrowserThread()) {
+        return m_eventLoop.EnqueueWork(base::BindOnce(&BrowserWindow::Create, base::Unretained(this)));
     }
 
-    if (!m_containerWindow.Create(m_data.GetHostWindow())) {
-        return false;
-    }
+    CefBrowserSettings browserSettings;
+    CefWindowInfo windowInfo;
+    windowInfo.SetAsChild(m_data.GetHostWindow(), CefRect(0, 0, m_data.GetWidth(), m_data.GetHeight()));
 
-    return true;
+    bool result = CefBrowserHost::CreateBrowser(
+        windowInfo, m_clientHandler.get(), m_data.GetDestination(), browserSettings, nullptr, nullptr);
+
+    if (!result) {
+        m_data.SetState(Base::ApplicationState::FAILED);
+
+        return;
+    }
+}
+
+void BrowserWindow::Destroy()
+{
+    if (m_browser) {
+        m_browser->GetHost()->TryCloseBrowser();
+    }
 }
 
 void BrowserWindow::OnBrowserCreated(CefRefPtr<CefBrowser> browser)
 {
     if (!m_eventLoop.CurrentlyOnBrowserThread()) {
-        m_eventLoop.EnqueueWork(base::BindOnce(&BrowserWindow::OnBrowserCreated, base::Unretained(this), browser));
-
-        return;
+        return m_eventLoop.EnqueueWork(
+            base::BindOnce(&BrowserWindow::OnBrowserCreated, base::Unretained(this), browser));
     }
 
     if (!m_browser) {
@@ -40,25 +53,13 @@ void BrowserWindow::OnBrowserCreated(CefRefPtr<CefBrowser> browser)
     m_data.SetState(Base::ApplicationState::STARTED);
 }
 
-void BrowserWindow::OnContainerWindowCreate(xcb_window_t containerWindow) const
+void BrowserWindow::OnBrowserClosed(CefRefPtr<CefBrowser> browser)
 {
-    if (!m_eventLoop.CurrentlyOnBrowserThread()) {
-        m_eventLoop.EnqueueWork(
-            base::BindOnce(&BrowserWindow::OnContainerWindowCreate, base::Unretained(this), containerWindow));
+    if (browser.get()) {
+        DCHECK(m_browser->IsSame(browser));
 
-        return;
-    }
+        m_browser = nullptr;
 
-    CefBrowserSettings browserSettings;
-    CefWindowInfo windowInfo;
-    windowInfo.SetAsChild(m_containerWindow.GetWindowHandle(), CefRect(0, 0, m_data.GetWidth(), m_data.GetHeight()));
-
-    bool result = CefBrowserHost::CreateBrowser(
-        windowInfo, m_clientHandler.get(), m_data.GetDestination(), browserSettings, nullptr, nullptr);
-
-    if (!result) {
-        m_data.SetState(Base::ApplicationState::FAILED);
-
-        return;
+        m_delegate.OnBrowserWindowDestroyed();
     }
 }

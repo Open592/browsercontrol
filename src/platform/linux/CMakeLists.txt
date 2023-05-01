@@ -2,7 +2,7 @@
 
 include(DownloadCEF)
 
-download_cef("111.2.6+g491d238+chromium-111.0.5563.65" "${CMAKE_SOURCE_DIR}/third_party/cef")
+download_cef("112.3.0+gb09c4ca+chromium-112.0.5615.165" "${CMAKE_SOURCE_DIR}/third_party/cef")
 
 list(APPEND CMAKE_MODULE_PATH ${CEF_ROOT}/cmake)
 
@@ -39,7 +39,6 @@ add_library(
   BrowserEventLoop.cpp
   BrowserHandler.cpp
   BrowserWindow.cpp
-  ContainerWindow.cpp
   JVMSignals.cpp
   LinuxBrowserContext.cpp
   LinuxBrowserData.cpp
@@ -47,10 +46,8 @@ add_library(
 target_precompile_headers(browsercontrol PRIVATE pch.hpp)
 set_library_target_properties(browsercontrol)
 add_dependencies(browsercontrol libcef_dll_wrapper)
-target_link_libraries(
-  browsercontrol libcef_lib libcef_dll_wrapper ${JNI_LIBRARIES} ${XCB_LIBRARIES} ${CEF_STANDARD_LIBS}
-)
-target_include_directories(browsercontrol PUBLIC ${CMAKE_SOURCE_DIR} ${XCB_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS})
+target_link_libraries(browsercontrol libcef_lib libcef_dll_wrapper ${JNI_LIBRARIES} ${CEF_STANDARD_LIBS})
+target_include_directories(browsercontrol PUBLIC ${CMAKE_SOURCE_DIR} ${JNI_INCLUDE_DIRS})
 set_browsercontrol_target_properties(browsercontrol)
 
 # Helper executable target
