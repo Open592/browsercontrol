@@ -27,9 +27,8 @@ LinuxBrowserData& LinuxBrowserContext::GetBrowserData() const noexcept { return 
 void LinuxBrowserContext::OnContextInitialized() const
 {
     if (!m_eventLoop->CurrentlyOnBrowserThread()) {
-        m_eventLoop->EnqueueWork(base::BindOnce(&LinuxBrowserContext::OnContextInitialized, base::Unretained(this)));
-
-        return;
+        return m_eventLoop->EnqueueWork(
+            base::BindOnce(&LinuxBrowserContext::OnContextInitialized, base::Unretained(this)));
     }
 
     m_browserWindow->Create();
@@ -38,10 +37,8 @@ void LinuxBrowserContext::OnContextInitialized() const
 void LinuxBrowserContext::OnBrowserWindowDestroyed()
 {
     if (!m_eventLoop->CurrentlyOnBrowserThread()) {
-        m_eventLoop->EnqueueWork(
+        return m_eventLoop->EnqueueWork(
             base::BindOnce(&LinuxBrowserContext::OnBrowserWindowDestroyed, base::Unretained(this)));
-
-        return;
     }
 
     m_browserWindow.reset();
@@ -82,9 +79,23 @@ void LinuxBrowserContext::PerformDestroy()
     }
 }
 
-void LinuxBrowserContext::PerformResize() { m_browserWindow->Resize(); }
+void LinuxBrowserContext::PerformResize()
+{
+    if (!m_eventLoop->CurrentlyOnBrowserThread()) {
+        return m_eventLoop->EnqueueWork(base::BindOnce(&LinuxBrowserContext::PerformResize, base::Unretained(this)));
+    }
 
-void LinuxBrowserContext::PerformNavigate() { m_browserWindow->Navigate(); }
+    m_browserWindow->Resize();
+}
+
+void LinuxBrowserContext::PerformNavigate()
+{
+    if (!m_eventLoop->CurrentlyOnBrowserThread()) {
+        return m_eventLoop->EnqueueWork(base::BindOnce(&LinuxBrowserContext::PerformNavigate, base::Unretained(this)));
+    }
+
+    m_browserWindow->Navigate();
+}
 
 void LinuxBrowserContext::StartCEF() const
 {

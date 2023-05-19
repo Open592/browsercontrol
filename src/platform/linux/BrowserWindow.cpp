@@ -49,10 +49,6 @@ void BrowserWindow::Navigate() const
 
 void BrowserWindow::Resize() const
 {
-    if (!m_eventLoop.CurrentlyOnBrowserThread()) {
-        return m_eventLoop.EnqueueWork(base::BindOnce(&BrowserWindow::Resize, base::Unretained(this)));
-    }
-
     if (m_browser) {
         auto handle = m_browser->GetHost()->GetWindowHandle();
         auto display = XOpenDisplay(nullptr);
