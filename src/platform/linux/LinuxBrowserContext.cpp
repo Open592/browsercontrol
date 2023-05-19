@@ -82,7 +82,7 @@ void LinuxBrowserContext::PerformDestroy()
     }
 }
 
-void LinuxBrowserContext::PerformResize() { }
+void LinuxBrowserContext::PerformResize() { m_browserWindow->Resize(); }
 
 void LinuxBrowserContext::PerformNavigate() { m_browserWindow->Navigate(); }
 

@@ -20,9 +20,10 @@ public:
     explicit BrowserWindow(LinuxBrowserData&, BrowserEventLoop&, Delegate&) noexcept;
     ~BrowserWindow() = default;
 
-    void Create();
-    void Destroy();
+    void Create() const;
+    void Destroy() const;
     void Navigate() const;
+    void Resize() const;
 
     // BrowserHandler::Delegate methods
     void OnBrowserCreated(CefRefPtr<CefBrowser>) override;

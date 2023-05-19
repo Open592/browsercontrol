@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <X11/Xlib.h>
 #include <include/base/cef_bind.h>
 
 #include "BrowserWindow.hpp"
@@ -12,7 +13,7 @@ BrowserWindow::BrowserWindow(LinuxBrowserData& data, BrowserEventLoop& eventLoop
 {
 }
 
-void BrowserWindow::Create()
+void BrowserWindow::Create() const
 {
     if (!m_eventLoop.CurrentlyOnBrowserThread()) {
         return m_eventLoop.EnqueueWork(base::BindOnce(&BrowserWindow::Create, base::Unretained(this)));
@@ -32,7 +33,7 @@ void BrowserWindow::Create()
     }
 }
 
-void BrowserWindow::Destroy()
+void BrowserWindow::Destroy() const
 {
     if (m_browser) {
         m_browser->GetHost()->TryCloseBrowser();
@@ -43,6 +44,23 @@ void BrowserWindow::Navigate() const
 {
     if (m_browser) {
         m_browser->GetMainFrame()->LoadURL(m_data.GetDestination());
+    }
+}
+
+void BrowserWindow::Resize() const
+{
+    if (!m_eventLoop.CurrentlyOnBrowserThread()) {
+        return m_eventLoop.EnqueueWork(base::BindOnce(&BrowserWindow::Resize, base::Unretained(this)));
+    }
+
+    if (m_browser) {
+        auto handle = m_browser->GetHost()->GetWindowHandle();
+        auto display = XOpenDisplay(nullptr);
+        auto window = static_cast<Window>(handle);
+
+        XMoveResizeWindow(display, window, 0, 0, m_data.GetWidth(), m_data.GetHeight());
+
+        XCloseDisplay(display);
     }
 }
 
