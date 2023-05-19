@@ -2,7 +2,7 @@ package nativeadvert;
 
 import java.awt.*;
 
-public class browsercontrol {
+public final class browsercontrol {
     private static boolean isCreated = false;
     private static boolean error = false;
 
@@ -15,21 +15,8 @@ public class browsercontrol {
             throw new IllegalStateException();
         }
 
-        try {
-            Runnable r = () -> {
-                destroy0();
-
-                isCreated = false;
-            };
-
-            if (EventQueue.isDispatchThread()) {
-                r.run();
-            } else {
-                EventQueue.invokeLater(r);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        destroy0();
+        isCreated = false;
     }
 
     public static void resize(int width, int height) {
@@ -48,37 +35,26 @@ public class browsercontrol {
         navigate0(URL);
     }
 
-    private browsercontrol() {
-    }
+    private browsercontrol() {}
 
-    public static void create(Canvas advertContainer, String URL) {
+    public static boolean create(Canvas advertContainer, String URL) {
         if (isCreated()) {
             throw new IllegalStateException();
         }
 
         if (error) {
-            return;
+            return false;
         }
 
-        Runnable r = () -> {
-            boolean result = browsercontrol0(advertContainer, URL);
+        boolean result = browsercontrol0(advertContainer, URL);
 
-            if (!result) {
-                error = true;
-            } else {
-                isCreated = true;
-            }
-        };
-
-        try {
-            if (EventQueue.isDispatchThread()) {
-                r.run();
-            } else {
-                EventQueue.invokeAndWait(r);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!result) {
+            error = true;
+        } else {
+            isCreated = true;
         }
+
+        return result;
     }
 
     private static native boolean browsercontrol0(Canvas var0, String var1);
