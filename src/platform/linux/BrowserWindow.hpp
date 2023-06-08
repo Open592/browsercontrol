@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <xcb/xcb.h>
-
 #include <include/cef_browser.h>
 #include <include/cef_client.h>
 
@@ -18,7 +16,7 @@ public:
     };
 
     explicit BrowserWindow(LinuxBrowserData&, BrowserEventLoop&, Delegate&) noexcept;
-    ~BrowserWindow() = default;
+    ~BrowserWindow() noexcept = default;
 
     void Create() const;
     void Destroy() const;

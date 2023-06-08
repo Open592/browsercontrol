@@ -50,13 +50,13 @@ void BrowserWindow::Navigate() const
 void BrowserWindow::Resize() const
 {
     if (m_browser) {
+        auto display = cef_get_xdisplay();
         auto handle = m_browser->GetHost()->GetWindowHandle();
-        auto display = XOpenDisplay(nullptr);
         auto window = static_cast<Window>(handle);
 
         XMoveResizeWindow(display, window, 0, 0, m_data.GetWidth(), m_data.GetHeight());
 
-        XCloseDisplay(display);
+        XFlush(display);
     }
 }
 

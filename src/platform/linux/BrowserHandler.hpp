@@ -4,7 +4,10 @@
 
 #include <include/cef_client.h>
 
-class BrowserHandler : public CefClient, public CefLifeSpanHandler {
+class BrowserHandler : public CefClient,
+                       public CefContextMenuHandler,
+                       public CefLifeSpanHandler,
+                       public CefRequestHandler {
 public:
     struct Delegate {
         virtual void OnBrowserCreated(CefRefPtr<CefBrowser>) = 0;
@@ -13,11 +16,22 @@ public:
 
     explicit BrowserHandler(Delegate&) noexcept;
 
+    // CefContextMenuHandler methods
+    CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override { return this; }
+    void OnBeforeContextMenu(
+        CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>, CefRefPtr<CefContextMenuParams>, CefRefPtr<CefMenuModel>) override;
+
     // CefLifeSpanHandler methods
-    bool DoClose(CefRefPtr<CefBrowser> browser) override;
+    bool DoClose(CefRefPtr<CefBrowser>) override;
     CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
     void OnAfterCreated(CefRefPtr<CefBrowser>) override;
-    void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
+    void OnBeforeClose(CefRefPtr<CefBrowser>) override;
+    bool OnBeforePopup(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>, const CefString&, const CefString&,
+        CefLifeSpanHandler::WindowOpenDisposition, bool, const CefPopupFeatures&, CefWindowInfo&, CefRefPtr<CefClient>&,
+        CefBrowserSettings&, CefRefPtr<CefDictionaryValue>&, bool*) override;
+
+    // CefRequestHandler methods
+    CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
 
 private:
     Delegate& m_delegate;

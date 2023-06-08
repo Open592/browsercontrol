@@ -81,8 +81,10 @@ void LinuxBrowserContext::PerformDestroy()
 
 void LinuxBrowserContext::PerformResize()
 {
-    if (!m_eventLoop->CurrentlyOnBrowserThread()) {
-        return m_eventLoop->EnqueueWork(base::BindOnce(&LinuxBrowserContext::PerformResize, base::Unretained(this)));
+    if (!CefCurrentlyOn(TID_UI)) {
+        CefPostTask(TID_UI, base::BindOnce(&LinuxBrowserContext::PerformResize, base::Unretained(this)));
+
+        return;
     }
 
     m_browserWindow->Resize();
