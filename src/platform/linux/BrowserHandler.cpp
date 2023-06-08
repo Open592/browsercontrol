@@ -6,6 +6,7 @@
 
 BrowserHandler::BrowserHandler(BrowserHandler::Delegate& delegate) noexcept
     : m_delegate(delegate)
+    , m_desktopBrowser(std::make_unique<LinuxDesktopBrowser>())
 {
 }
 
@@ -32,6 +33,9 @@ bool BrowserHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefF
     CEF_REQUIRE_UI_THREAD()
 
     // TODO: Handle links with target="_blank" - they should open in the desktop browser
+    if (m_desktopBrowser->IsAvailable()) {
+        m_desktopBrowser->Open(target_url);
+    }
 
     // Block popups
     return true;

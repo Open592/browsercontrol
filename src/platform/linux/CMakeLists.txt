@@ -42,6 +42,7 @@ add_library(
   JVMSignals.cpp
   LinuxBrowserContext.cpp
   LinuxBrowserData.cpp
+  LinuxDesktopBrowser.cpp
 )
 target_precompile_headers(browsercontrol PRIVATE pch.hpp)
 set_library_target_properties(browsercontrol)
