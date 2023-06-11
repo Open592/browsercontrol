@@ -4,7 +4,7 @@
 
 #include <include/cef_client.h>
 
-#include "LinuxDesktopBrowser.hpp"
+#include "LinuxDesktopBrowserLauncher.hpp"
 
 class BrowserHandler : public CefClient,
                        public CefContextMenuHandler,
@@ -39,7 +39,7 @@ private:
     Delegate& m_delegate;
 
     // Provides the ability to open linux within the user's default browser
-    std::unique_ptr<LinuxDesktopBrowser> m_desktopBrowser;
+    std::unique_ptr<LinuxDesktopBrowserLauncher> m_desktopBrowser;
 
     IMPLEMENT_REFCOUNTING(BrowserHandler);
 };

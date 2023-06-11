@@ -10,7 +10,7 @@
  * We pass on URLs to the desktop browser when encountering
  * target="_blank"
  */
-class DesktopBrowser {
+class DesktopBrowserLauncher {
 public:
     /**
      * Allows for checking if we were able to find a
@@ -18,7 +18,7 @@ public:
      *
      * @return true if we found a browser otherwise false
      */
-    virtual bool IsAvailable() = 0;
+    [[nodiscard]] virtual bool IsAvailable() const = 0;
 
     /**
      * Opens a URL in the user's default web browser.
@@ -27,5 +27,5 @@ public:
      * within running browser sessions - otherwise we
      * will open a new window.
      */
-    virtual void Open(const std::string&) = 0;
+    virtual bool Open(const std::string&) = 0;
 };
