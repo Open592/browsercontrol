@@ -6,7 +6,7 @@
 
 BrowserHandler::BrowserHandler(BrowserHandler::Delegate& delegate) noexcept
     : m_delegate(delegate)
-    , m_desktopBrowser(std::make_unique<LinuxDesktopBrowserLauncher>())
+    , m_desktopBrowserLauncher(std::make_unique<LinuxDesktopBrowserLauncher>())
 {
 }
 
@@ -32,8 +32,8 @@ bool BrowserHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefF
 {
     CEF_REQUIRE_UI_THREAD()
 
-    if (m_desktopBrowser->IsAvailable()) {
-        m_desktopBrowser->Open(target_url);
+    if (m_desktopBrowserLauncher->IsAvailable()) {
+        m_desktopBrowserLauncher->Open(target_url);
     }
 
     // Block popups

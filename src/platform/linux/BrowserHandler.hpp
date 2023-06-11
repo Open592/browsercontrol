@@ -39,7 +39,7 @@ private:
     Delegate& m_delegate;
 
     // Provides the ability to open linux within the user's default browser
-    std::unique_ptr<LinuxDesktopBrowserLauncher> m_desktopBrowser;
+    std::unique_ptr<LinuxDesktopBrowserLauncher> m_desktopBrowserLauncher;
 
     IMPLEMENT_REFCOUNTING(BrowserHandler);
 };
