@@ -8,11 +8,6 @@
 WindowsBrowserData::WindowsBrowserData() noexcept
     : m_host(nullptr)
 {
-    /**
-     * Within the initial browsercontrol.dll this was used as the fallback
-     * value within the thread proc which initialized the window/browser view
-     */
-    SetSize(CW_USEDEFAULT, CW_USEDEFAULT);
 }
 
 HWND WindowsBrowserData::GetHostWindow() const noexcept

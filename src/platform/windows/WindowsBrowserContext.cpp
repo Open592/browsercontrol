@@ -75,15 +75,15 @@ handle_error:
 
 void WindowsBrowserContext::PerformDestroy()
 {
-    SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::DESTROY), NULL, NULL);
+    SendMessage(m_browserWindow, static_cast<UINT>(BrowserWindowEvent::DESTROY), NULL, NULL);
 }
 
 void WindowsBrowserContext::PerformResize()
 {
-    SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::RESIZE), NULL, NULL);
+    SendMessage(m_browserWindow, static_cast<UINT>(BrowserWindowEvent::RESIZE), NULL, NULL);
 }
 
 void WindowsBrowserContext::PerformNavigate()
 {
-    SendMessage(m_browserWindow, static_cast<UINT>(WebView2BrowserWindow::EventType::NAVIGATE), NULL, NULL);
+    SendMessage(m_browserWindow, static_cast<UINT>(BrowserWindowEvent::NAVIGATE), NULL, NULL);
 }

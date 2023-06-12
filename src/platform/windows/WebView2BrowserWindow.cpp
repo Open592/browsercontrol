@@ -8,7 +8,12 @@ using namespace Microsoft::WRL;
 
 using Base::ApplicationState;
 
-LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+namespace {
+
+constexpr auto WINDOW_CLASS_NAME = L"Jb";
+constexpr auto WINDOW_NAME = L"jbw";
+
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
     case WM_CREATE: {
@@ -19,20 +24,20 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)instance);
     } break;
     case WM_DESTROY:
-        delete Get(hwnd);
+        delete WebView2BrowserWindow::Get(hwnd);
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
         PostQuitMessage(EXIT_SUCCESS);
 
         return EXIT_SUCCESS;
-    case static_cast<UINT>(EventType::DESTROY):
-        Get(hwnd)->Destroy();
+    case static_cast<UINT>(BrowserWindowEvent::DESTROY):
+        WebView2BrowserWindow::Get(hwnd)->Destroy();
         break;
-    case static_cast<UINT>(EventType::RESIZE):
-        Get(hwnd)->Resize();
+    case static_cast<UINT>(BrowserWindowEvent::RESIZE):
+        WebView2BrowserWindow::Get(hwnd)->Resize();
         break;
-    case static_cast<UINT>(EventType::NAVIGATE):
-        Get(hwnd)->Navigate();
+    case static_cast<UINT>(BrowserWindowEvent::NAVIGATE):
+        WebView2BrowserWindow::Get(hwnd)->Navigate();
         break;
     default:
         return DefWindowProc(hwnd, message, wParam, lParam);
@@ -41,22 +46,12 @@ LRESULT CALLBACK WebView2BrowserWindow::WndProc(HWND hwnd, UINT message, WPARAM 
     return 0;
 }
 
-bool WebView2BrowserWindow::EnsureWebViewIsAvailable() noexcept
-{
-    wchar_t* version;
-    HRESULT hr = GetAvailableCoreWebView2BrowserVersionString(nullptr, &version);
-
-    if (FAILED(hr) || version == nullptr) {
-        return InstallWebView();
-    }
-
-    // TODO: Log version found
-    CoTaskMemFree(version);
-
-    return true;
-}
-
-bool WebView2BrowserWindow::InstallWebView() noexcept
+/**
+ * Attempt to install the WebView2 runtime using the Evergreen Bootstrapper.
+ *
+ * @return true if we successfully install the WebView2 runtime.
+ */
+[[nodiscard]] bool installWebView2() noexcept
 {
     // Provides a download link for the evergreen installer. This will install the WebView2 runtime
     // on the user's computer. After installation Microsoft will keep the runtime updated automatically.
@@ -110,7 +105,30 @@ handle_error_and_close:
     return false;
 }
 
-std::optional<std::wstring> WebView2BrowserWindow::GetUserDataDirectory() noexcept
+/**
+ * Ensure that the user's machine has a WebView2 runtime installed. In the case
+ * that the user does not have one, we attempt to install using the Evergreen
+ * Bootstrapper.
+ *
+ * @return true if the WebView2 runtime is installed or if we successfully
+ * install it - false if we encounter any errors.
+ */
+[[nodiscard]] bool ensureWebView2IsAvailable()
+{
+    wchar_t* version;
+    HRESULT hr = GetAvailableCoreWebView2BrowserVersionString(nullptr, &version);
+
+    if (FAILED(hr) || version == nullptr) {
+        return installWebView2();
+    }
+
+    // TODO: Log version found
+    CoTaskMemFree(version);
+
+    return true;
+}
+
+std::optional<std::wstring> getUserDataDirectory() noexcept
 {
     PWSTR localAppDataPath = nullptr;
     auto hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &localAppDataPath);
@@ -126,6 +144,8 @@ std::optional<std::wstring> WebView2BrowserWindow::GetUserDataDirectory() noexce
     } catch (std::filesystem::filesystem_error&) {
         return std::nullopt;
     }
+}
+
 }
 
 HINSTANCE WebView2BrowserWindow::Register()
@@ -144,7 +164,7 @@ HINSTANCE WebView2BrowserWindow::Register()
                 reinterpret_cast<LPCWSTR>(&Register), &module)) {
             WNDCLASSEX wc = { sizeof(WNDCLASSEX) };
             wc.lpfnWndProc = &WndProc;
-            wc.lpszClassName = WindowClassName;
+            wc.lpszClassName = WINDOW_CLASS_NAME;
             wc.cbWndExtra = 0;
             wc.hInstance = module;
 
@@ -163,7 +183,7 @@ bool WebView2BrowserWindow::Unregister()
         return false;
     }
 
-    return UnregisterClass(WindowClassName, instance);
+    return UnregisterClass(WINDOW_CLASS_NAME, instance);
 }
 
 HWND WebView2BrowserWindow::Create(WindowsBrowserData& data)
@@ -174,15 +194,15 @@ HWND WebView2BrowserWindow::Create(WindowsBrowserData& data)
         return nullptr;
     }
 
-    return CreateWindowEx(WS_EX_LEFT, WindowClassName, WindowName, WS_CHILDWINDOW | WS_VISIBLE, 0, 0, data.GetWidth(),
-        data.GetHeight(), data.GetHostWindow(), nullptr, instance, &data);
+    return CreateWindowEx(WS_EX_LEFT, WINDOW_CLASS_NAME, WINDOW_NAME, WS_CHILDWINDOW | WS_VISIBLE, 0, 0,
+        data.GetWidth(), data.GetHeight(), data.GetHostWindow(), nullptr, instance, &data);
 }
 
 WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, WindowsBrowserData& data)
     : m_parentWindow(parentWindow)
     , m_data(data)
 {
-    if (!EnsureWebViewIsAvailable()) {
+    if (!ensureWebView2IsAvailable()) {
         m_data.SetState(ApplicationState::FAILED);
 
         return;
@@ -198,9 +218,34 @@ WebView2BrowserWindow::WebView2BrowserWindow(HWND parentWindow, WindowsBrowserDa
     }
 }
 
+void WebView2BrowserWindow::AddEventHandlers()
+{
+    if (!m_webView) {
+        return;
+    }
+
+    m_webView->add_NewWindowRequested(
+        Callback<ICoreWebView2NewWindowRequestedEventHandler>(
+            [](ICoreWebView2*, ICoreWebView2NewWindowRequestedEventArgs* args) -> HRESULT {
+                if (args == nullptr) {
+                    return S_OK;
+                }
+
+                LPWSTR uri;
+                args->get_Uri(&uri);
+
+                // TODO: Pass this URI to the user's desktop browser
+                args->put_Handled(TRUE);
+
+                return S_OK;
+            })
+            .Get(),
+        &m_newWindowRequestToken);
+}
+
 bool WebView2BrowserWindow::InitializeWebView() noexcept
 {
-    auto userDataDirectory = GetUserDataDirectory();
+    auto userDataDirectory = getUserDataDirectory();
 
     if (!userDataDirectory.has_value()) {
         return false;
@@ -233,6 +278,7 @@ bool WebView2BrowserWindow::InitializeWebView() noexcept
                             settings->put_IsStatusBarEnabled(false);
                             settings->put_IsZoomControlEnabled(false);
 
+                            AddEventHandlers();
                             Resize();
                             Navigate();
 
@@ -250,17 +296,21 @@ bool WebView2BrowserWindow::InitializeWebView() noexcept
     }
 }
 
-void WebView2BrowserWindow::Destroy()
+void WebView2BrowserWindow::Destroy() const
 {
     // At this point we are about to destroy the backing windows of the browser control. Any further calls to
     // exported functions will result in failures, so we must mark the browser control as pending.
     m_data.SetState(ApplicationState::PENDING);
 
+    // Stop listening to WebView2 events
+    m_webView->remove_NewWindowRequested(m_newWindowRequestToken);
+
     SetParent(m_parentWindow, nullptr);
     DestroyWindow(m_parentWindow);
+    Unregister();
 }
 
-void WebView2BrowserWindow::Resize()
+void WebView2BrowserWindow::Resize() const
 {
     SetWindowPos(m_parentWindow, nullptr, 0, 0, m_data.GetWidth(), m_data.GetHeight(),
         SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_FRAMECHANGED);
@@ -273,7 +323,7 @@ void WebView2BrowserWindow::Resize()
     }
 }
 
-void WebView2BrowserWindow::Navigate()
+void WebView2BrowserWindow::Navigate() const
 {
     if (m_webView != nullptr) {
         m_webView->Navigate(m_data.GetDestination().c_str());
