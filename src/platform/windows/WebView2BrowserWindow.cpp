@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <shellapi.h>
+
 #include "src/Browser.hpp"
 
 #include "WebView2BrowserWindow.hpp"
@@ -146,6 +148,12 @@ std::optional<std::wstring> getUserDataDirectory() noexcept
     }
 }
 
+void openURLInDesktopBrowser(LPCWSTR URL)
+{
+    // Best effort call
+    ShellExecute(nullptr, L"open", URL, nullptr, nullptr, SW_SHOWNORMAL);
+}
+
 }
 
 HINSTANCE WebView2BrowserWindow::Register()
@@ -234,7 +242,8 @@ void WebView2BrowserWindow::AddEventHandlers()
                 LPWSTR uri;
                 args->get_Uri(&uri);
 
-                // TODO: Pass this URI to the user's desktop browser
+                openURLInDesktopBrowser(uri);
+
                 args->put_Handled(TRUE);
 
                 return S_OK;
