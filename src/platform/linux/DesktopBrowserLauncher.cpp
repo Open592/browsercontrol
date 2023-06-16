@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <optional>
 
-#include "LinuxDesktopBrowserLauncher.hpp"
+#include "DesktopBrowserLauncher.hpp"
 
 /**
  * This file is heavily inspired from the "webbrowser" CPython module.
@@ -22,9 +22,9 @@ namespace {
  */
 std::optional<std::string> which(const std::string& bin)
 {
+    const std::string cmd = "which " + bin;
     std::string result;
     std::array<char, 256> buffer {};
-    const std::string cmd = "which " + bin;
     FILE* fp;
 
     if ((fp = popen(cmd.c_str(), "r")) == nullptr) {
@@ -83,28 +83,21 @@ std::string resolveBrowserCommand()
     return {};
 }
 
+/**
+ * Store the path to the command which will allow us to open the user's browser
+ */
+const std::string g_desktopBrowserCommand = resolveBrowserCommand();
+
 }
 
-LinuxDesktopBrowserLauncher::LinuxDesktopBrowserLauncher()
-    : m_command(resolveBrowserCommand())
+namespace DesktopBrowserLauncher {
+
+void Open(const std::string& URL)
 {
+    const std::string command = g_desktopBrowserCommand + ' ' + URL;
+
+    // Best effort call
+    std::system(command.c_str());
 }
 
-bool LinuxDesktopBrowserLauncher::IsAvailable() const { return !m_command.empty(); }
-
-bool LinuxDesktopBrowserLauncher::Open(const std::string& URL)
-{
-    const std::string command = m_command + ' ' + URL;
-
-    auto status = std::system(command.c_str());
-
-    if (status < 0) {
-        return false;
-    }
-
-    if (WIFEXITED(status)) {
-        return WEXITSTATUS(status) == 0;
-    }
-
-    return false;
 }

@@ -39,10 +39,10 @@ add_library(
   BrowserEventLoop.cpp
   BrowserHandler.cpp
   BrowserWindow.cpp
+  DesktopBrowserLauncher.cpp
   JVMSignals.cpp
   LinuxBrowserContext.cpp
   LinuxBrowserData.cpp
-  LinuxDesktopBrowserLauncher.cpp
 )
 target_precompile_headers(browsercontrol PRIVATE pch.hpp)
 set_library_target_properties(browsercontrol)
