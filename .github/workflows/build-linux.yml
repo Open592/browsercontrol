@@ -1,0 +1,50 @@
+name: Build on Linux
+
+on:
+  workflow_call:
+    inputs:
+      build-type:
+        description: The build type. Can be one of "Debug" or "Release". Defaults to "Release".
+        type: string
+        required: true
+        default: Release
+      store-output:
+        description: Whether the build should be stored. (Useful for release builds). Defaults to false.
+        type: boolean
+        required: true
+        default: false
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: lukka/get-cmake@latest
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "15"
+      - name: Build browsercontrol.dll
+        run: |
+          mkdir build
+          cd build
+          cmake -G Ninja -DUSE_CEF_MINIMAL_DISTRIBUTION=ON -DCMAKE_BUILD_TYPE=${{ inputs.build-type }} ../
+          ninja
+      - name: Package assets
+        if: ${{ inputs.store-output }}
+        id: package-assets
+        working-directory: ./build/output
+        run: |
+          llvm-strip -x *.so*
+          jar cf browsercontrol.jar ./*
+          CKSUM=$( python ${{ github.workspace }}/scripts/checksum.py browsercontrol.jar)
+          mv browsercontrol.jar browsercontrol_3_1_$CKSUM.jar
+      - uses: actions/upload-artifact@v3
+        if: ${{ inputs.store-output }}
+        with:
+          name: linux-x64
+          path: ./build/output/browsercontrol*.jar
+          if-no-files-found: error

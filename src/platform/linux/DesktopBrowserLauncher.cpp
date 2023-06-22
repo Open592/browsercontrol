@@ -72,7 +72,7 @@ std::string resolveBrowserCommand()
     };
 
     for (const auto& [command, commandLineFlags] : browsers) {
-        std::optional<std::string> path = which(command);
+        const std::optional<std::string> path = which(command);
 
         if (path.has_value()) {
             // If the browser requires additional command line commandLineFlags we include them here
@@ -92,12 +92,21 @@ const std::string g_desktopBrowserCommand = resolveBrowserCommand();
 
 namespace DesktopBrowserLauncher {
 
-void Open(const std::string& URL)
+bool Open(const std::string& URL)
 {
     const std::string command = g_desktopBrowserCommand + ' ' + URL;
 
-    // Best effort call
-    std::system(command.c_str());
+    int status = std::system(command.c_str());
+
+    if (status < 0) {
+        return false;
+    }
+
+    if (WIFEXITED(status)) {
+        return WEXITSTATUS(status) == 0;
+    }
+
+    return false;
 }
 
 }

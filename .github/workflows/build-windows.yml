@@ -15,7 +15,7 @@ on:
         default: false
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
     strategy:
       matrix:
@@ -45,21 +45,17 @@ jobs:
       - name: Package assets
         if: ${{ inputs.store-output }}
         id: package-assets
+        working-directory: ${{ github.workspace }}/build/output/${{ inputs.build-type }}
         shell: pwsh
         run: |
-          mkdir ${{ github.workspace }}\ghr-output
+          jar.exe cf browsercontrol.jar .\*
 
-          $assetPath = "${{ github.workspace }}\ghr-output\windows-${{ matrix.arch }}.zip"
-          $compress = @{
-            Path = ".\build\output\${{ inputs.build-type }}\*"
-            CompressionLevel = "Fastest"
-            DestinationPath = ${assetPath}
-          }
+          $checksum = (python ${{ github.workspace}}\scripts\checksum.py browsercontrol.jar) | Out-String -NoNewline
 
-          Compress-Archive @compress
+          Move-Item "browsercontrol.jar" "${{ github.workspace}}\build\output\browsercontrol_0_${{ matrix.arch == 'win32' && '0' || '1' }}_$checksum.jar"
       - uses: actions/upload-artifact@v3
         if: ${{ inputs.store-output }}
         with:
           name: windows-${{ matrix.arch }}
-          path: ${{ github.workspace }}\ghr-output\windows-${{ matrix.arch }}.zip
+          path: ${{ github.workspace }}/build/output/browsercontrol*.jar
           if-no-files-found: error

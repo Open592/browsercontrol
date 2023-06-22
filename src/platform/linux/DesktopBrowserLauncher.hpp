@@ -6,6 +6,6 @@
 
 namespace DesktopBrowserLauncher {
 
-void Open(const std::string&);
+bool Open(const std::string&);
 
 }

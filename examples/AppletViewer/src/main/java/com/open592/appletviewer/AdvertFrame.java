@@ -61,7 +61,7 @@ public final class AdvertFrame {
         }
 
         try {
-            browsercontrol.create(advertContainer, "https://example.com");
+            browsercontrol.create(advertContainer, "https://oldschool.runescape.wiki/");
             browsercontrol.resize(advertContainer.getSize().width, advertContainer.getSize().height);
         } catch (Throwable err) {
             err.printStackTrace();

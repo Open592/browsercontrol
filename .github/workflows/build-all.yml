@@ -15,8 +15,13 @@ on:
         default: false
 
 jobs:
-  build-windows:
+  windows:
     uses: ./.github/workflows/build-windows.yml
+    with:
+      build-type: ${{ inputs.build-type }}
+      store-output: ${{ inputs.store-output }}
+  linux:
+    uses: ./.github/workflows/build-linux.yml
     with:
       build-type: ${{ inputs.build-type }}
       store-output: ${{ inputs.store-output }}
