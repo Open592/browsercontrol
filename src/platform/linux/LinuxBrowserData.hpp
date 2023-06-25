@@ -13,7 +13,7 @@ class LinuxBrowserData : public Base::BrowserData {
 public:
     [[nodiscard]] std::filesystem::path GetWorkingDirectory() const noexcept { return m_workingDirectory; }
     [[nodiscard]] xcb_window_t GetHostWindow() const noexcept { return m_hostWindow; }
-    [[nodiscard]] bool ResolveWorkingDirectory(JNIEnv*) noexcept;
+    void ResolveWorkingDirectory(JNIEnv*) noexcept;
     [[nodiscard]] bool ResolveHostWindow(JNIEnv*, jobject) noexcept;
 
 private:
