@@ -1,7 +1,9 @@
 build/
+build_*/
 cmake-build-release/
 .vscode/
 .idea/
+venv/
 **/third_party/
 examples/AppletViewer/.gradle
 examples/AppletViewer/DawnCache

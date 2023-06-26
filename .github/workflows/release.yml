@@ -26,13 +26,13 @@ jobs:
             exit 1
           fi
   build:
-    needs: [validate]
+    needs: [ validate ]
     uses: ./.github/workflows/build-all.yml
     with:
       build-type: Release
       store-output: true
   release:
-    needs: [build, validate]
+    needs: [ build, validate ]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -42,7 +42,7 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ${{ github.workspace }}/artifacts/windows-*/*.zip
+          artifacts: ${{ github.workspace }}/artifacts/*/*.zip
           artifactErrorsFailBuild: true
           generateReleaseNotes: true
           prerelease: ${{ endsWith(github.ref_name, '-rc') }}

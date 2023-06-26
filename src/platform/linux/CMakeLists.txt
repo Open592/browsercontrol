@@ -2,7 +2,7 @@
 
 include(DownloadCEF)
 
-download_cef("114.2.8+g8746aab+chromium-114.0.5735.91" "${CMAKE_SOURCE_DIR}/third_party/cef")
+download_cef("114.2.11+g87c8807+chromium-114.0.5735.134" "${CMAKE_SOURCE_DIR}/third_party/cef")
 
 list(APPEND CMAKE_MODULE_PATH ${CEF_ROOT}/cmake)
 
@@ -13,11 +13,7 @@ print_cef_config()
 
 # cmake-format: off
 add_compile_options(
-        "-pedantic"
-        "-Wall"
-        "$<$<CONFIG:DEBUG>:-g>"
         "$<$<CONFIG:DEBUG>:-pg>"
-        "$<$<CONFIG:DEBUG>:-Werror>"
         "$<$<CONFIG:RELEASE>:-O3>"
 )
 # cmake-format: on

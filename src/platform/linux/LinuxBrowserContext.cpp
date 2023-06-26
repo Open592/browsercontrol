@@ -50,9 +50,7 @@ void LinuxBrowserContext::OnBrowserWindowDestroyed()
 
 bool LinuxBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
 {
-    if (!m_data->ResolveWorkingDirectory(env)) {
-        return false;
-    }
+    m_data->ResolveWorkingDirectory(env);
 
     if (!m_data->ResolveHostWindow(env, canvas)) {
         return false;

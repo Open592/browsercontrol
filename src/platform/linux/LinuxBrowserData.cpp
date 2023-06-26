@@ -4,18 +4,18 @@
 
 #include "LinuxBrowserData.hpp"
 
+namespace {
+
 /**
- * We require that our host process passes us information about the current working
- * directory of the executable. We use this information to pass the browser subprocess
- * helper path to chromium.
+ * We allow the host application to pass us information about their preferred
+ * working directory. We then use this information to bootstrap CEF with the
+ * correct location of it's required files and the browser subprocess helper.
  *
  * This information is passed in Java system properties under the following key:
  *
  * com.open592.workingDirectory
- *
- * We require that the browser helper is a sibling of the applet viewer.
  */
-bool LinuxBrowserData::ResolveWorkingDirectory(JNIEnv* env) noexcept
+std::filesystem::path ResolveWorkingDirectoryJavaProperty(JNIEnv* env)
 {
     jclass system = env->FindClass("java/lang/System");
 
@@ -25,7 +25,7 @@ bool LinuxBrowserData::ResolveWorkingDirectory(JNIEnv* env) noexcept
             env->ExceptionClear();
         }
 
-        return false;
+        return {};
     }
 
     jmethodID getProperty = env->GetStaticMethodID(system, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
@@ -36,7 +36,7 @@ bool LinuxBrowserData::ResolveWorkingDirectory(JNIEnv* env) noexcept
             env->ExceptionClear();
         }
 
-        return false;
+        return {};
     }
 
     jstring propertyName = env->NewStringUTF("com.open592.workingDirectory");
@@ -47,7 +47,7 @@ bool LinuxBrowserData::ResolveWorkingDirectory(JNIEnv* env) noexcept
             env->ExceptionClear();
         }
 
-        return false;
+        return {};
     }
 
     // reinterpret_cast is fine here since we know our call to CallStaticObjectMethod will return a jstring
@@ -58,20 +58,45 @@ bool LinuxBrowserData::ResolveWorkingDirectory(JNIEnv* env) noexcept
             env->ExceptionClear();
         }
 
-        return false;
+        return {};
     }
 
     const char* property = env->GetStringUTFChars(workingDirectory, JNI_FALSE);
 
     if (property == nullptr) {
-        return false;
+        return {};
     }
 
-    m_workingDirectory = std::filesystem::canonical(property);
+    auto result = std::filesystem::canonical(property);
 
     env->ReleaseStringUTFChars(workingDirectory, property);
 
-    return true;
+    return result;
+}
+
+}
+
+/**
+ * Resolve the working directory of the parent application.
+ *
+ * We allow the parent application to pass an explicit path using
+ * -Dcom.open592.workingDirectory otherwise we use the current
+ * working directory.
+ *
+ * We look for the browser subprocess helper executable at this
+ * location.
+ */
+void LinuxBrowserData::ResolveWorkingDirectory(JNIEnv* env) noexcept
+{
+    auto explicitPath = ResolveWorkingDirectoryJavaProperty(env);
+
+    if (!explicitPath.empty()) {
+        m_workingDirectory = std::move(explicitPath);
+
+        return;
+    }
+
+    m_workingDirectory = std::filesystem::current_path();
 }
 
 /**

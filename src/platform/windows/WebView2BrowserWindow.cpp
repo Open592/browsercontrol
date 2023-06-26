@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <shellapi.h>
-
 #include "src/Browser.hpp"
 
 #include "WebView2BrowserWindow.hpp"
@@ -74,7 +72,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
-    std::wstring command = std::format(L"{} /silent /install", installerPath);
+    std::wstring command = installerPath + L" /silent /install";
     bool success = CreateProcess(nullptr, command.data(), nullptr, nullptr, false, 0, nullptr, nullptr, &si, &pi);
 
     if (!success) {

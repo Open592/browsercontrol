@@ -6,6 +6,7 @@
 #define UNICODE
 #include <Windows.h>
 #include <processthreadsapi.h> // For CreateProcess
+#include <shellapi.h> // For ShellExecute
 #include <urlmon.h> // For URLDownloadToFile
 
 #include <ShlObj.h>
@@ -19,7 +20,6 @@
 
 #include <condition_variable>
 #include <filesystem>
-#include <format>
 #include <memory>
 #include <mutex>
 #include <optional>
