@@ -43,8 +43,8 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: |
-            ${{ github.workspace }}/artifacts/windows-*/*.zip
-            ${{ github.workspace }}/artifacts/linux-*/*.zip
+            ${{ github.workspace }}/artifacts/windows-*
+            ${{ github.workspace }}/artifacts/linux-*
           artifactErrorsFailBuild: true
           generateReleaseNotes: true
           prerelease: ${{ endsWith(github.ref_name, '-rc') }}
