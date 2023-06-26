@@ -42,9 +42,7 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: |
-            ${{ github.workspace }}/artifacts/windows-*
-            ${{ github.workspace }}/artifacts/linux-*
+          artifacts: ${{ github.workspace }}/artifacts/**/*.jar
           artifactErrorsFailBuild: true
           generateReleaseNotes: true
           prerelease: ${{ endsWith(github.ref_name, '-rc') }}
