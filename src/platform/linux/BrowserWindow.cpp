@@ -27,7 +27,7 @@ void BrowserWindow::Create() const
         windowInfo, m_clientHandler.get(), m_data.GetDestination(), browserSettings, nullptr, nullptr);
 
     if (!result) {
-        m_data.SetState(Base::ApplicationState::FAILED);
+        m_data.SetState(ApplicationState::FAILED);
 
         return;
     }
@@ -71,7 +71,7 @@ void BrowserWindow::OnBrowserCreated(CefRefPtr<CefBrowser> browser)
         m_browser = browser;
     }
 
-    m_data.SetState(Base::ApplicationState::STARTED);
+    m_data.SetState(ApplicationState::STARTED);
 }
 
 void BrowserWindow::OnBrowserClosed(CefRefPtr<CefBrowser> browser)

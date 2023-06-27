@@ -6,8 +6,6 @@
 
 #include "BrowserData.hpp"
 
-namespace Base {
-
 /**
  * Provide a generic browser context which exposes a interface for interacting
  * with all of the separate platform's browser controls.
@@ -44,7 +42,7 @@ protected:
 private:
     /**
      * Require implementors to provide their own implementation which exposes their
-     * platform specific implementations of Base::BrowserData
+     * platform specific implementations of BrowserData
      */
     [[nodiscard]] virtual BrowserData& GetBrowserData() const noexcept = 0;
 
@@ -57,5 +55,3 @@ private:
     virtual void PerformResize() = 0;
     virtual void PerformNavigate() = 0;
 };
-
-}

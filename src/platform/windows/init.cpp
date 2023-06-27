@@ -12,7 +12,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpRe
             auto data = std::make_unique<WindowsBrowserData>();
             auto context = std::make_unique<WindowsBrowserContext>(std::move(data));
 
-            return Browser::The().RegisterBrowserContext(std::move(context));
+            return Browser::The().RegisterContext(std::move(context));
         }
 
         return true;

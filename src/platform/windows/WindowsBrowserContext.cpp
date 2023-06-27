@@ -35,7 +35,7 @@ bool WindowsBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
     m_browserThread = std::thread([&] { StartMessagePump(); });
 
     // Block until the browser reports that we are running
-    m_data->WaitForStateOrFailure(Base::ApplicationState::STARTED);
+    m_data->WaitForStateOrFailure(ApplicationState::STARTED);
 
     return m_data->IsRunning();
 }
@@ -70,7 +70,7 @@ void WindowsBrowserContext::StartMessagePump()
 
 handle_error:
     // Notify caller that we failed
-    m_data->SetState(Base::ApplicationState::FAILED);
+    m_data->SetState(ApplicationState::FAILED);
 }
 
 void WindowsBrowserContext::PerformDestroy()

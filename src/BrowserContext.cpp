@@ -2,8 +2,6 @@
 
 #include "BrowserContext.hpp"
 
-namespace Base {
-
 bool BrowserContext::Initialize(JNIEnv* env, jobject parentContainer, std::wstring initialDestination)
 {
     // We should not be initializing more than once.
@@ -47,6 +45,4 @@ void BrowserContext::Navigate(std::wstring destination)
     GetBrowserData().SetDestination(std::move(destination));
 
     PerformNavigate();
-}
-
 }

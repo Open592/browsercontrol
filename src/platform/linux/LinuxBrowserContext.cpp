@@ -45,7 +45,7 @@ void LinuxBrowserContext::OnBrowserWindowDestroyed()
 
     CefShutdown();
 
-    m_data->SetState(Base::ApplicationState::PENDING);
+    m_data->SetState(ApplicationState::PENDING);
 }
 
 bool LinuxBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
@@ -58,7 +58,7 @@ bool LinuxBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
 
     m_eventLoop->EnqueueWork(base::BindOnce(&LinuxBrowserContext::StartCEF, base::Unretained(this)));
 
-    m_data->WaitForStateOrFailure(Base::ApplicationState::STARTED);
+    m_data->WaitForStateOrFailure(ApplicationState::STARTED);
 
     return m_data->IsRunning();
 }
@@ -69,11 +69,11 @@ void LinuxBrowserContext::PerformDestroy()
         CefPostTask(TID_UI,
             base::BindOnce([](BrowserWindow* window) { window->Destroy(); }, base::Unretained(m_browserWindow.get())));
 
-        m_data->WaitForStateOrFailure(Base::ApplicationState::PENDING);
+        m_data->WaitForStateOrFailure(ApplicationState::PENDING);
     } else {
         m_browserWindow->Destroy();
 
-        m_data->WaitForStateOrFailure(Base::ApplicationState::PENDING);
+        m_data->WaitForStateOrFailure(ApplicationState::PENDING);
     }
 }
 
@@ -101,8 +101,8 @@ void LinuxBrowserContext::StartCEF() const
 {
     DCHECK(m_eventLoop->CurrentlyOnBrowserThread());
 
-    auto subProcessHelperPath = m_data->GetWorkingDirectory() / "browsercontrol_helper";
-    auto cefDebugLogPath = m_data->GetWorkingDirectory() / "cef_debug.log";
+    const auto subProcessHelperPath = m_data->GetWorkingDirectory() / "browsercontrol_helper";
+    const auto cefDebugLogPath = m_data->GetWorkingDirectory() / "cef_debug.log";
 
     char* argv[] = { const_cast<char*>("browsercontrol") };
     CefMainArgs args(1, argv);
@@ -120,7 +120,7 @@ void LinuxBrowserContext::StartCEF() const
     JVMSignals::Restore();
 
     if (!result) {
-        m_data->SetState(Base::ApplicationState::FAILED);
+        m_data->SetState(ApplicationState::FAILED);
 
         return;
     }
