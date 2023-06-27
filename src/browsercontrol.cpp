@@ -4,7 +4,9 @@
 
 #include "Browser.hpp"
 
-[[nodiscard]] static std::wstring ConvertJavaStringToWString(JNIEnv* env, jstring input)
+namespace {
+
+[[nodiscard]] std::wstring convertJavaStringToWString(JNIEnv* env, jstring input)
 {
     std::wstring result;
 
@@ -27,16 +29,18 @@
     return result;
 }
 
+}
+
 JNIEXPORT jboolean JNICALL Java_nativeadvert_browsercontrol_browsercontrol0(
     JNIEnv* env, [[maybe_unused]] jclass thisObj, jobject advertCanvas, jstring URL)
 {
-    std::wstring initialDestination = ConvertJavaStringToWString(env, URL);
+    std::wstring initialDestination = convertJavaStringToWString(env, URL);
 
     if (initialDestination.empty()) {
         return JNI_FALSE;
     }
 
-    bool result = Browser::The().GetBrowserContext()->Initialize(env, advertCanvas, std::move(initialDestination));
+    bool result = Browser::The().GetContext()->Initialize(env, advertCanvas, std::move(initialDestination));
 
     if (result) {
         return JNI_TRUE;
@@ -48,23 +52,23 @@ JNIEXPORT jboolean JNICALL Java_nativeadvert_browsercontrol_browsercontrol0(
 JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_destroy0(
     [[maybe_unused]] JNIEnv* env, [[maybe_unused]] jclass thisObj)
 {
-    Browser::The().GetBrowserContext()->Destroy();
+    Browser::The().GetContext()->Destroy();
 }
 
 JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_navigate0(
     JNIEnv* env, [[maybe_unused]] jclass thisObj, jstring URL)
 {
-    std::wstring destination = ConvertJavaStringToWString(env, URL);
+    std::wstring destination = convertJavaStringToWString(env, URL);
 
     if (destination.empty()) {
         return;
     }
 
-    Browser::The().GetBrowserContext()->Navigate(std::move(destination));
+    Browser::The().GetContext()->Navigate(std::move(destination));
 }
 
 JNIEXPORT void JNICALL Java_nativeadvert_browsercontrol_resize0(
     [[maybe_unused]] JNIEnv* env, [[maybe_unused]] jclass thisObj, jint width, jint height)
 {
-    Browser::The().GetBrowserContext()->Resize(width, height);
+    Browser::The().GetContext()->Resize(width, height);
 }

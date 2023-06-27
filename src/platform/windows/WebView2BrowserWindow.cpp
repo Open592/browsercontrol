@@ -6,8 +6,6 @@
 
 using namespace Microsoft::WRL;
 
-using Base::ApplicationState;
-
 namespace {
 
 constexpr auto WINDOW_CLASS_NAME = L"Jb";

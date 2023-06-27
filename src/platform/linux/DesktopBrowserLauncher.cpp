@@ -95,7 +95,6 @@ namespace DesktopBrowserLauncher {
 bool Open(const std::string& URL)
 {
     const std::string command = g_desktopBrowserCommand + ' ' + URL;
-
     int status = std::system(command.c_str());
 
     if (status < 0) {

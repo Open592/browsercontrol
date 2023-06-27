@@ -15,9 +15,9 @@ Browser::Browser()
 {
 }
 
-Base::BrowserContext* Browser::GetBrowserContext() const noexcept { return m_context.get(); }
+BrowserContext* Browser::GetContext() const noexcept { return m_context.get(); }
 
-bool Browser::RegisterBrowserContext(std::unique_ptr<Base::BrowserContext> context) noexcept
+bool Browser::RegisterContext(std::unique_ptr<BrowserContext> context) noexcept
 {
     if (!context) {
         return false;

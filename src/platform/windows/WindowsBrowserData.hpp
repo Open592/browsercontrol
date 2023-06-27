@@ -4,7 +4,7 @@
 
 #include "src/BrowserData.hpp"
 
-class WindowsBrowserData : public Base::BrowserData {
+class WindowsBrowserData : public BrowserData {
 public:
     WindowsBrowserData() noexcept;
     ~WindowsBrowserData() override = default;

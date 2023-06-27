@@ -11,9 +11,7 @@
 #include "BrowserWindow.hpp"
 #include "LinuxBrowserData.hpp"
 
-class LinuxBrowserContext final : public Base::BrowserContext,
-                                  public BrowserWindow::Delegate,
-                                  private BrowserApp::Delegate {
+class LinuxBrowserContext final : public BrowserContext, public BrowserWindow::Delegate, private BrowserApp::Delegate {
 public:
     explicit LinuxBrowserContext(std::unique_ptr<LinuxBrowserData>) noexcept;
     ~LinuxBrowserContext() override = default;

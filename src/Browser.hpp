@@ -41,12 +41,12 @@ public:
     Browser& operator=(const Browser&) = delete;
     Browser& operator=(Browser&&) = delete;
 
-    [[nodiscard]] Base::BrowserContext* GetBrowserContext() const noexcept;
+    [[nodiscard]] BrowserContext* GetContext() const noexcept;
 
-    bool RegisterBrowserContext(std::unique_ptr<Base::BrowserContext>) noexcept;
+    bool RegisterContext(std::unique_ptr<BrowserContext>) noexcept;
 
 private:
     Browser();
 
-    std::unique_ptr<Base::BrowserContext> m_context;
+    std::unique_ptr<BrowserContext> m_context;
 };

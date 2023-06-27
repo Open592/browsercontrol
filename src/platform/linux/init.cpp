@@ -40,5 +40,5 @@ __attribute__((constructor)) void setup()
     auto data = std::make_unique<LinuxBrowserData>();
     auto context = std::make_unique<LinuxBrowserContext>(std::move(data));
 
-    Browser::The().RegisterBrowserContext(std::move(context));
+    Browser::The().RegisterContext(std::move(context));
 }

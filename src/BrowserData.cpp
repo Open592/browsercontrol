@@ -2,8 +2,6 @@
 
 #include "BrowserData.hpp"
 
-namespace Base {
-
 const std::wstring& BrowserData::GetDestination() const noexcept
 {
     std::lock_guard<std::mutex> lk(m_mutex);
@@ -56,7 +54,7 @@ bool BrowserData::SetSize(int width, int height) noexcept
     return true;
 }
 
-void BrowserData::SetState(Base::ApplicationState state) noexcept
+void BrowserData::SetState(ApplicationState state) noexcept
 {
     {
         std::lock_guard<std::mutex> lk(m_mutex);
@@ -67,7 +65,7 @@ void BrowserData::SetState(Base::ApplicationState state) noexcept
     m_cv.notify_one();
 }
 
-void BrowserData::WaitForStateOrFailure(Base::ApplicationState state) noexcept
+void BrowserData::WaitForStateOrFailure(ApplicationState state) noexcept
 {
     std::unique_lock<std::mutex> lk(m_mutex);
 
@@ -78,6 +76,4 @@ void BrowserData::WaitForStateOrFailure(Base::ApplicationState state) noexcept
 
         return m_state == state;
     });
-}
-
 }

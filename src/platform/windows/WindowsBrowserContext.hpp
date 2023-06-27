@@ -6,7 +6,7 @@
 
 #include "WindowsBrowserData.hpp"
 
-class WindowsBrowserContext : public Base::BrowserContext {
+class WindowsBrowserContext : public BrowserContext {
 public:
     explicit WindowsBrowserContext(std::unique_ptr<WindowsBrowserData>);
     ~WindowsBrowserContext() noexcept override;

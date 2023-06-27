@@ -10,8 +10,6 @@
 
 #include <jni.h>
 
-namespace Base {
-
 enum class ApplicationState : uint8_t {
     /**
      * Represents the state of:
@@ -113,5 +111,3 @@ private:
 
     std::condition_variable m_cv;
 };
-
-}
