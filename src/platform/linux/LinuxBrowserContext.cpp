@@ -102,7 +102,6 @@ void LinuxBrowserContext::StartCEF() const
     DCHECK(m_eventLoop->CurrentlyOnBrowserThread());
 
     const auto subProcessHelperPath = m_data->GetWorkingDirectory() / "browsercontrol_helper";
-    const auto cefDebugLogPath = m_data->GetWorkingDirectory() / "cef_debug.log";
 
     char* argv[] = { const_cast<char*>("browsercontrol") };
     CefMainArgs args(1, argv);
@@ -110,8 +109,16 @@ void LinuxBrowserContext::StartCEF() const
     CefSettings settings;
     settings.multi_threaded_message_loop = true;
     CefString(&settings.browser_subprocess_path) = subProcessHelperPath;
-    CefString(&settings.log_file) = cefDebugLogPath;
     CefString(&settings.resources_dir_path) = m_data->GetWorkingDirectory();
+    settings.background_color = CefColorSetARGB(0, 0, 0, 0);
+
+#if defined(DEBUG)
+    const auto cefDebugLogPath = m_data->GetWorkingDirectory() / "cef_debug.log";
+    CefString(&settings.log_file) = cefDebugLogPath;
+    settings.log_severity = LOGSEVERITY_ERROR;
+#elif defined(RELEASE)
+    settings.log_severity = LOGSEVERITY_DISABLE;
+#endif
 
     JVMSignals::Backup();
 

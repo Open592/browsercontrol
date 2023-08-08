@@ -20,6 +20,7 @@ macro(SET_BROWSERCONTROL_TARGET_PROPERTIES target)
                RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
                LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}
   )
+  target_compile_definitions(${target} PRIVATE $<$<CONFIG:Debug>:DEBUG> $<$<CONFIG:Release>:RELEASE>)
 endmacro()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")

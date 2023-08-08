@@ -21,8 +21,13 @@
 
 int main(int argc, char** argv)
 {
-    // FIXME: Without this declaration we are unable to link. Look more into this.
     CefSettings settings;
+
+#if defined(DEBUG)
+    settings.log_severity = LOGSEVERITY_ERROR;
+#elif defined(RELEASE)
+    settings.log_severity = LOGSEVERITY_DISABLE;
+#endif
 
     CefMainArgs mainArgs(argc, argv);
 
