@@ -6,7 +6,7 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
 project(
   browsercontrol
-  VERSION 1.0.1
+  VERSION 1.0.2
   DESCRIPTION "Cross platform browsercontrol library"
   HOMEPAGE_URL "https://github.com/Open592/browsercontrol"
   LANGUAGES C CXX
