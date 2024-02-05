@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <jawt.h>
+#include <optional>
 
 #include "LinuxBrowserData.hpp"
 
@@ -15,7 +16,7 @@ namespace {
  *
  * com.open592.workingDirectory
  */
-std::filesystem::path ResolveWorkingDirectoryJavaProperty(JNIEnv* env)
+std::optional<std::filesystem::path> ResolveWorkingDirectoryJavaProperty(JNIEnv* env) noexcept
 {
     jclass system = env->FindClass("java/lang/System");
 
@@ -25,46 +26,48 @@ std::filesystem::path ResolveWorkingDirectoryJavaProperty(JNIEnv* env)
             env->ExceptionClear();
         }
 
-        return {};
+        return std::nullopt;
     }
 
-    jmethodID getProperty = env->GetStaticMethodID(system, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
+    jmethodID getPropertyMethod
+        = env->GetStaticMethodID(system, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
 
-    if (getProperty == nullptr) {
+    if (getPropertyMethod == nullptr) {
         // Check for `NoSuchMethodError`
-        if (env->ExceptionOccurred()) {
+        if (env->ExceptionCheck()) {
             env->ExceptionClear();
         }
 
-        return {};
+        return std::nullopt;
     }
 
     jstring propertyName = env->NewStringUTF("com.open592.workingDirectory");
 
     if (propertyName == nullptr) {
-        // Check for `NullPointerException`
-        if (env->ExceptionOccurred()) {
+        // Check for `OutOfMemoryError`
+        if (env->ExceptionCheck()) {
             env->ExceptionClear();
         }
 
-        return {};
+        return std::nullopt;
     }
 
     // reinterpret_cast is fine here since we know our call to CallStaticObjectMethod will return a jstring
-    auto workingDirectory = reinterpret_cast<jstring>(env->CallStaticObjectMethod(system, getProperty, propertyName));
+    auto workingDirectory
+        = reinterpret_cast<jstring>(env->CallStaticObjectMethod(system, getPropertyMethod, propertyName));
 
     if (workingDirectory == nullptr) {
-        if (env->ExceptionOccurred()) {
+        if (env->ExceptionCheck()) {
             env->ExceptionClear();
         }
 
-        return {};
+        return std::nullopt;
     }
 
     const char* property = env->GetStringUTFChars(workingDirectory, JNI_FALSE);
 
     if (property == nullptr) {
-        return {};
+        return std::nullopt;
     }
 
     auto result = std::filesystem::canonical(property);
@@ -90,8 +93,8 @@ void LinuxBrowserData::ResolveWorkingDirectory(JNIEnv* env) noexcept
 {
     auto explicitPath = ResolveWorkingDirectoryJavaProperty(env);
 
-    if (!explicitPath.empty()) {
-        m_workingDirectory = std::move(explicitPath);
+    if (explicitPath.has_value()) {
+        m_workingDirectory = std::move(explicitPath.value());
 
         return;
     }
@@ -114,7 +117,6 @@ bool LinuxBrowserData::ResolveHostWindow(JNIEnv* env, jobject canvas) noexcept
 
     if (JAWT_GetAWT(env, &awt) != JNI_TRUE) {
         if (env->ExceptionCheck()) {
-            env->ExceptionDescribe();
             env->ExceptionClear();
         }
 

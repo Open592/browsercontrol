@@ -13,7 +13,14 @@
 
 class LinuxBrowserContext final : public BrowserContext, public BrowserWindow::Delegate, private BrowserApp::Delegate {
 public:
-    explicit LinuxBrowserContext(std::unique_ptr<LinuxBrowserData>) noexcept;
+    [[nodiscard]] explicit LinuxBrowserContext(std::unique_ptr<LinuxBrowserData>) noexcept;
+
+    LinuxBrowserContext(const LinuxBrowserContext&) = delete;
+    LinuxBrowserContext(LinuxBrowserContext&&) = default;
+
+    LinuxBrowserContext& operator=(const LinuxBrowserContext&) = delete;
+    LinuxBrowserContext& operator=(LinuxBrowserContext&&) = default;
+
     ~LinuxBrowserContext() override = default;
 
 private:

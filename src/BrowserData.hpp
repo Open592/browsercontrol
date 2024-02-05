@@ -65,7 +65,7 @@ public:
     /**
      * Setting the destination does not perform any validation about the
      * validity or security of a particular URL. This is left up to the
-     * dll caller as well as the web view.
+     * library caller as well as the web view.
      */
     void SetDestination(std::wstring) noexcept;
     /**
@@ -100,6 +100,9 @@ private:
      *
      * Decompiled example of resize event handler from the Windows DLL:
      * `SetWindowPos(HWND_18000e1a0,(HWND)0x0,0,0,(int)width,(int)height,0x16);`
+     *
+     * As you can see from the third and forth parameter in the above function invocation
+     * both the x and y axis are always 0.
      */
     std::pair<int, int> m_size;
 
