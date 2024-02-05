@@ -20,30 +20,35 @@ namespace {
  * We use this to test for the presence of potential
  * executables which could open the user's browser
  */
-std::optional<std::string> which(const std::string& bin)
+std::optional<std::string> which(const std::string& programName)
 {
-    const std::string cmd = "which " + bin;
-    std::string result;
-    std::array<char, 256> buffer {};
-    FILE* fp;
+    const std::string command = "which " + programName;
+    FILE* pipe = popen(command.c_str(), "r");
 
-    if ((fp = popen(cmd.c_str(), "r")) == nullptr) {
+    if (pipe == nullptr) {
         return std::nullopt;
     }
 
-    while (fgets(buffer.data(), buffer.size(), fp)) {
-        result += buffer.data();
+    // Read result from pipe
+    std::array<char, 1024> chunk {};
+    std::string result;
+
+    while (fgets(chunk.data(), chunk.size(), pipe) != nullptr) {
+        result += chunk.data();
     }
 
-    const auto status = pclose(fp);
+    const auto status = pclose(pipe);
 
     // We expect `which` to return an exit status of 0
     if (status != 0 || result.empty()) {
         return std::nullopt;
     }
 
-    // Remove trailing `\n`
-    return result.erase(result.length() - 1);
+    if (result.back() == '\n') {
+        return result.erase(result.length() - 1);
+    } else {
+        return result;
+    }
 }
 
 /**
@@ -53,25 +58,25 @@ std::optional<std::string> which(const std::string& bin)
  * @returns Path to the executable along with any command line
  * flags which are required to open a URL within the browser.
  */
-std::string resolveBrowserCommand()
+std::optional<std::string> resolveBrowserCommand()
 {
-    const std::array<std::pair<std::string, std::string>, 13> browsers = {
-        std::make_pair("xdg-open", ""),
-        std::make_pair("gio", " open --"),
-        std::make_pair("x-www-browser", ""),
-        std::make_pair("google-chrome", ""),
-        std::make_pair("chromium-browser", ""),
-        std::make_pair("firefox", " -new-tab"),
-        std::make_pair("microsoft-edge", ""),
-        std::make_pair("brave-browser", ""),
-        std::make_pair("epiphany", ""),
-        std::make_pair("opera", ""),
-        std::make_pair("google-chrome-stable", ""),
-        std::make_pair("chrome", ""),
-        std::make_pair("chromium", ""),
+    const std::vector<std::pair<std::string, std::string>> browserCommands = {
+        std::pair("xdg-open", ""),
+        std::pair("gio", " open --"),
+        std::pair("x-www-browser", ""),
+        std::pair("google-chrome", ""),
+        std::pair("chromium-browser", ""),
+        std::pair("firefox", " -new-tab"),
+        std::pair("microsoft-edge", ""),
+        std::pair("brave-browser", ""),
+        std::pair("epiphany", ""),
+        std::pair("opera", ""),
+        std::pair("google-chrome-stable", ""),
+        std::pair("chrome", ""),
+        std::pair("chromium", ""),
     };
 
-    for (const auto& [command, commandLineFlags] : browsers) {
+    for (const auto& [command, commandLineFlags] : browserCommands) {
         const std::optional<std::string> path = which(command);
 
         if (path.has_value()) {
@@ -80,13 +85,13 @@ std::string resolveBrowserCommand()
         }
     }
 
-    return {};
+    return std::nullopt;
 }
 
 /**
  * Store the path to the command which will allow us to open the user's browser
  */
-const std::string g_desktopBrowserCommand = resolveBrowserCommand();
+const std::optional<std::string> g_desktopBrowserCommand = resolveBrowserCommand();
 
 }
 
@@ -94,7 +99,11 @@ namespace DesktopBrowserLauncher {
 
 bool Open(const std::string& URL)
 {
-    const std::string command = g_desktopBrowserCommand + ' ' + URL;
+    if (!g_desktopBrowserCommand.has_value()) {
+        return false;
+    }
+
+    const std::string command = g_desktopBrowserCommand.value() + ' ' + URL;
     int status = std::system(command.c_str());
 
     if (status < 0) {

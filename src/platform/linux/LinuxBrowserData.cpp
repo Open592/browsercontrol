@@ -21,7 +21,6 @@ std::optional<std::filesystem::path> ResolveWorkingDirectoryJavaProperty(JNIEnv*
     jclass system = env->FindClass("java/lang/System");
 
     if (system == nullptr) {
-        // Check for `ClassNotFoundException`
         if (env->ExceptionCheck()) {
             env->ExceptionClear();
         }
@@ -29,11 +28,10 @@ std::optional<std::filesystem::path> ResolveWorkingDirectoryJavaProperty(JNIEnv*
         return std::nullopt;
     }
 
-    jmethodID getPropertyMethod
+    jmethodID getPropertyMethodID
         = env->GetStaticMethodID(system, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
 
-    if (getPropertyMethod == nullptr) {
-        // Check for `NoSuchMethodError`
+    if (getPropertyMethodID == nullptr) {
         if (env->ExceptionCheck()) {
             env->ExceptionClear();
         }
@@ -44,7 +42,6 @@ std::optional<std::filesystem::path> ResolveWorkingDirectoryJavaProperty(JNIEnv*
     jstring propertyName = env->NewStringUTF("com.open592.workingDirectory");
 
     if (propertyName == nullptr) {
-        // Check for `OutOfMemoryError`
         if (env->ExceptionCheck()) {
             env->ExceptionClear();
         }
@@ -54,7 +51,7 @@ std::optional<std::filesystem::path> ResolveWorkingDirectoryJavaProperty(JNIEnv*
 
     // reinterpret_cast is fine here since we know our call to CallStaticObjectMethod will return a jstring
     auto workingDirectory
-        = reinterpret_cast<jstring>(env->CallStaticObjectMethod(system, getPropertyMethod, propertyName));
+        = reinterpret_cast<jstring>(env->CallStaticObjectMethod(system, getPropertyMethodID, propertyName));
 
     if (workingDirectory == nullptr) {
         if (env->ExceptionCheck()) {
@@ -73,6 +70,7 @@ std::optional<std::filesystem::path> ResolveWorkingDirectoryJavaProperty(JNIEnv*
     auto result = std::filesystem::canonical(property);
 
     env->ReleaseStringUTFChars(workingDirectory, property);
+    env->DeleteLocalRef(propertyName);
 
     return result;
 }
