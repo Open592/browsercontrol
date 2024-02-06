@@ -154,13 +154,11 @@ bool LinuxBrowserData::ResolveHostWindow(JNIEnv* env, jobject canvas) noexcept
         return false;
     }
 
-    auto result = static_cast<xcb_window_t>(x11DrawingSurfaceInfo->drawable);
+    m_hostWindow = x11DrawingSurfaceInfo->drawable;
 
     drawingSurface->FreeDrawingSurfaceInfo(drawingSurfaceInfo);
     drawingSurface->Unlock(drawingSurface);
     awt.FreeDrawingSurface(drawingSurface);
-
-    m_hostWindow = result;
 
     return true;
 }
