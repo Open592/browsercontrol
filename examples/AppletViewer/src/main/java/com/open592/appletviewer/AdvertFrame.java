@@ -29,7 +29,6 @@ public final class AdvertFrame {
         frame = new Frame();
         frame.setLayout(new BorderLayout());
 
-        Insets frameInsets = frame.getInsets();
         frame.setTitle("Example Applet Viewer");
         frame.setSize(FRAME_WIDTH, FRAME_HEIGHT + ADVERT_HEIGHT);
         frame.setLocationRelativeTo(null);
@@ -43,14 +42,12 @@ public final class AdvertFrame {
         fakeApplet.setBackground(Color.red);
         fakeApplet.setLayout(null);
 
+        frame.setLayout(new BorderLayout());
         frame.add(innerContainer, "Center");
 
         advertContainer = new Canvas();
         innerContainer.add(advertContainer);
         innerContainer.add(fakeApplet);
-
-        frame.doLayout();
-        setBounds();
 
         while (!advertContainer.isDisplayable() || !advertContainer.isShowing()) {
             try {
@@ -61,8 +58,7 @@ public final class AdvertFrame {
         }
 
         try {
-            browsercontrol.create(advertContainer, "https://oldschool.runescape.wiki/");
-            browsercontrol.resize(advertContainer.getSize().width, advertContainer.getSize().height);
+            browsercontrol.create(advertContainer, "https://runescape.wiki/");
         } catch (Throwable err) {
             err.printStackTrace();
 
@@ -72,6 +68,9 @@ public final class AdvertFrame {
         fakeApplet.setBackground(Color.green);
         frame.addWindowListener(TerminateHandler.initialize());
         innerContainer.addComponentListener(AdvertComponentListener.initialize());
+
+        frame.doLayout();
+        setBounds();
     }
 
     public static void setBounds() {
