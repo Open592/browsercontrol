@@ -128,7 +128,5 @@ void LinuxBrowserContext::StartCEF() const
 
     if (!result) {
         m_data->SetState(ApplicationState::FAILED);
-
-        return;
     }
 }
