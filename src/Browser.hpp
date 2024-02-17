@@ -16,7 +16,7 @@
  * a reference to its platform specific implementation of the
  * BrowserContext
  */
-class Browser {
+class Browser final {
 public:
     /**
      * @brief In order to support the original browsercontrol interface we must

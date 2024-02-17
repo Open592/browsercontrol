@@ -9,7 +9,7 @@
 
 #include "src/BrowserData.hpp"
 
-class LinuxBrowserData : public BrowserData {
+class LinuxBrowserData final : public BrowserData {
 public:
     [[nodiscard]] std::filesystem::path GetWorkingDirectory() const noexcept { return m_workingDirectory; }
     [[nodiscard]] Window GetHostWindow() const noexcept { return m_hostWindow; }

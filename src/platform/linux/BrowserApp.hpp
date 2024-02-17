@@ -12,7 +12,7 @@
  * CEF's default implementation for the other processes, and
  * that logic is handled in the helper.
  */
-class BrowserApp : public CefApp, public CefBrowserProcessHandler {
+class BrowserApp final : public CefApp, public CefBrowserProcessHandler {
 public:
     /**
      * Provides a simple interface for classes which will

@@ -2,6 +2,7 @@
 
 #include <X11/Xlib.h>
 #include <include/base/cef_bind.h>
+#include <include/wrapper/cef_closure_task.h>
 
 #include "BrowserWindow.hpp"
 
@@ -35,6 +36,12 @@ void BrowserWindow::Create() const
 
 void BrowserWindow::Destroy() const
 {
+    if (!CefCurrentlyOn(TID_UI)) {
+        CefPostTask(TID_UI, base::BindOnce(&BrowserWindow::Destroy, base::Unretained(this)));
+
+        return;
+    }
+
     if (m_browser) {
         m_browser->GetHost()->TryCloseBrowser();
     }
@@ -49,24 +56,29 @@ void BrowserWindow::Navigate() const
 
 void BrowserWindow::Resize() const
 {
-    if (m_browser) {
-        auto display = cef_get_xdisplay();
-        auto handle = m_browser->GetHost()->GetWindowHandle();
-        auto window = static_cast<Window>(handle);
+    /**
+     * Required to run on `TID_UI` so we can access `cef_get_xdisplay`
+     */
+    if (!CefCurrentlyOn(TID_UI)) {
+        CefPostTask(TID_UI, base::BindOnce(&BrowserWindow::Resize, base::Unretained(this)));
 
-        XMoveResizeWindow(display, window, 0, 0, m_data.GetWidth(), m_data.GetHeight());
-
-        XFlush(display);
+        return;
     }
+
+    if (!m_browser) {
+        return;
+    }
+
+    auto display = cef_get_xdisplay();
+    auto handle = m_browser->GetHost()->GetWindowHandle();
+    auto window = static_cast<Window>(handle);
+
+    XMoveResizeWindow(display, window, 0, 0, m_data.GetWidth(), m_data.GetHeight());
+    XFlush(display);
 }
 
 void BrowserWindow::OnBrowserCreated(CefRefPtr<CefBrowser> browser)
 {
-    if (!m_eventLoop.CurrentlyOnBrowserThread()) {
-        return m_eventLoop.EnqueueWork(
-            base::BindOnce(&BrowserWindow::OnBrowserCreated, base::Unretained(this), browser));
-    }
-
     if (!m_browser) {
         m_browser = browser;
     }
@@ -76,11 +88,13 @@ void BrowserWindow::OnBrowserCreated(CefRefPtr<CefBrowser> browser)
 
 void BrowserWindow::OnBrowserClosed(CefRefPtr<CefBrowser> browser)
 {
-    if (browser.get()) {
-        DCHECK(m_browser->IsSame(browser));
-
-        m_browser = nullptr;
-
-        m_delegate.OnBrowserWindowDestroyed();
+    if (!browser) {
+        return;
     }
+
+    DCHECK(m_browser->IsSame(browser));
+
+    m_browser = nullptr;
+
+    m_delegate.OnBrowserWindowDestroyed();
 }

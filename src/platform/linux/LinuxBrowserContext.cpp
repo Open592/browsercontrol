@@ -2,8 +2,6 @@
 
 #include <include/base/cef_callback.h>
 #include <include/cef_base.h>
-#include <include/cef_task.h>
-#include <include/wrapper/cef_closure_task.h>
 
 #include "src/BrowserContext.hpp"
 
@@ -16,23 +14,15 @@ LinuxBrowserContext::LinuxBrowserContext(std::unique_ptr<LinuxBrowserData> data)
     , m_data(std::move(data))
     , m_eventLoop(std::make_unique<BrowserEventLoop>())
 {
-    assert(m_data != nullptr && "Expected browser data to exist!");
-    assert(m_eventLoop != nullptr && "Expected browser event loop to exist!");
+    assert(m_data && "Expected browser data to exist!");
+    assert(m_eventLoop && "Expected browser event loop to exist!");
 
     m_browserWindow = std::make_unique<BrowserWindow>(*m_data, *m_eventLoop, *this);
 }
 
 LinuxBrowserData& LinuxBrowserContext::GetBrowserData() const noexcept { return *m_data; }
 
-void LinuxBrowserContext::OnContextInitialized() const
-{
-    if (!m_eventLoop->CurrentlyOnBrowserThread()) {
-        return m_eventLoop->EnqueueWork(
-            base::BindOnce(&LinuxBrowserContext::OnContextInitialized, base::Unretained(this)));
-    }
-
-    m_browserWindow->Create();
-}
+void LinuxBrowserContext::OnContextInitialized() const { m_browserWindow->Create(); }
 
 void LinuxBrowserContext::OnBrowserWindowDestroyed()
 {
@@ -41,7 +31,7 @@ void LinuxBrowserContext::OnBrowserWindowDestroyed()
             base::BindOnce(&LinuxBrowserContext::OnBrowserWindowDestroyed, base::Unretained(this)));
     }
 
-    m_browserWindow.reset();
+    m_browserWindow.reset(nullptr);
 
     CefShutdown();
 
@@ -65,37 +55,14 @@ bool LinuxBrowserContext::PerformInitialize(JNIEnv* env, jobject canvas)
 
 void LinuxBrowserContext::PerformDestroy()
 {
-    if (!CefCurrentlyOn(TID_UI)) {
-        CefPostTask(TID_UI,
-            base::BindOnce([](BrowserWindow* window) { window->Destroy(); }, base::Unretained(m_browserWindow.get())));
+    m_browserWindow->Destroy();
 
-        m_data->WaitForStateOrFailure(ApplicationState::PENDING);
-    } else {
-        m_browserWindow->Destroy();
-
-        m_data->WaitForStateOrFailure(ApplicationState::PENDING);
-    }
+    m_data->WaitForStateOrFailure(ApplicationState::PENDING);
 }
 
-void LinuxBrowserContext::PerformResize()
-{
-    if (!CefCurrentlyOn(TID_UI)) {
-        CefPostTask(TID_UI, base::BindOnce(&LinuxBrowserContext::PerformResize, base::Unretained(this)));
+void LinuxBrowserContext::PerformResize() { m_browserWindow->Resize(); }
 
-        return;
-    }
-
-    m_browserWindow->Resize();
-}
-
-void LinuxBrowserContext::PerformNavigate()
-{
-    if (!m_eventLoop->CurrentlyOnBrowserThread()) {
-        return m_eventLoop->EnqueueWork(base::BindOnce(&LinuxBrowserContext::PerformNavigate, base::Unretained(this)));
-    }
-
-    m_browserWindow->Navigate();
-}
+void LinuxBrowserContext::PerformNavigate() { m_browserWindow->Navigate(); }
 
 void LinuxBrowserContext::StartCEF() const
 {

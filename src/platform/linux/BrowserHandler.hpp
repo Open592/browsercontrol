@@ -4,10 +4,10 @@
 
 #include <include/cef_client.h>
 
-class BrowserHandler : public CefClient,
-                       public CefContextMenuHandler,
-                       public CefLifeSpanHandler,
-                       public CefRequestHandler {
+class BrowserHandler final : public CefClient,
+                             public CefContextMenuHandler,
+                             public CefLifeSpanHandler,
+                             public CefRequestHandler {
 public:
     struct Delegate {
         virtual void OnBrowserCreated(CefRefPtr<CefBrowser>) = 0;

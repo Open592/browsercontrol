@@ -21,7 +21,7 @@
  * `multi_threaded_message_loop` which forces us to have some way of posting tasks
  * to the thread hosting the message loop.
  */
-class BrowserEventLoop {
+class BrowserEventLoop final {
 public:
     BrowserEventLoop();
 
