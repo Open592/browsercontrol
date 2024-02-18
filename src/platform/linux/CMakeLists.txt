@@ -11,13 +11,6 @@ find_package(CEF REQUIRED)
 
 print_cef_config()
 
-# cmake-format: off
-add_compile_options(
-        "$<$<CONFIG:DEBUG>:-pg>"
-        "$<$<CONFIG:RELEASE>:-O3>"
-)
-# cmake-format: on
-
 add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
 
 add_logical_target(libcef_lib ${CEF_LIB_DEBUG} ${CEF_LIB_RELEASE})
@@ -58,5 +51,3 @@ set_browsercontrol_target_properties(browsercontrol_helper)
 # distribution
 copy_files(browsercontrol "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
 copy_files(browsercontrol "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
-
-set_linux_suid_permissions(browsercontrol "${CEF_TARGET_OUT_DIR}/chrome-sandbox")
