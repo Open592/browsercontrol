@@ -33,7 +33,7 @@ bool BrowserHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefF
     CEF_REQUIRE_UI_THREAD()
 
     // Best effort call
-    DesktopBrowserLauncher::Open(target_url);
+    tryOpenUrlInDesktopBrowser(target_url);
 
     // Block popups
     return true;
