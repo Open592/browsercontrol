@@ -105,9 +105,7 @@ const std::optional<std::string> g_desktopBrowserCommand = resolveBrowserCommand
 
 }
 
-namespace DesktopBrowserLauncher {
-
-bool Open(const std::string& URL)
+bool tryOpenUrlInDesktopBrowser(const std::string& URL)
 {
     if (!g_desktopBrowserCommand.has_value()) {
         return false;
@@ -125,6 +123,4 @@ bool Open(const std::string& URL)
     }
 
     return false;
-}
-
 }

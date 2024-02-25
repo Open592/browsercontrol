@@ -4,8 +4,4 @@
 
 #include <string>
 
-namespace DesktopBrowserLauncher {
-
-bool Open(const std::string&);
-
-}
+bool tryOpenUrlInDesktopBrowser(const std::string& URL);
