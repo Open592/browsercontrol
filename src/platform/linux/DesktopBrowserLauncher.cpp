@@ -15,6 +15,17 @@
 namespace {
 
 /**
+ * Represents a command which opens the user's desktop web browser, along with
+ * any optional command line arguments which will be passed along to the binary.
+ */
+struct WebBrowserCommand {
+    // Used at runtime to locate the binary on the user's system.
+    std::string binaryName;
+    // If present, these arguments are appended to the resolved path of the binary.
+    std::optional<std::string> commandLineArguments;
+};
+
+/**
  * Helper function to execute `which`
  *
  * We use this to test for the presence of potential
@@ -60,28 +71,27 @@ std::optional<std::string> which(const std::string& programName)
  */
 std::optional<std::string> resolveBrowserCommand()
 {
-    const std::vector<std::pair<std::string, std::string>> browserCommands = {
-        std::pair("xdg-open", ""),
-        std::pair("gio", " open --"),
-        std::pair("x-www-browser", ""),
-        std::pair("google-chrome", ""),
-        std::pair("chromium-browser", ""),
-        std::pair("firefox", " -new-tab"),
-        std::pair("microsoft-edge", ""),
-        std::pair("brave-browser", ""),
-        std::pair("epiphany", ""),
-        std::pair("opera", ""),
-        std::pair("google-chrome-stable", ""),
-        std::pair("chrome", ""),
-        std::pair("chromium", ""),
+    const std::vector<WebBrowserCommand> browserCommands = {
+        { "xdg-open", std::nullopt },
+        { "gio", " open --" },
+        { "x-www-browser", std::nullopt },
+        { "google-chrome", std::nullopt },
+        { "chromium-browser", std::nullopt },
+        { "firefox", " -new-tab" },
+        { "microsoft-edge", std::nullopt },
+        { "brave-browser", std::nullopt },
+        { "epiphany", std::nullopt },
+        { "opera", std::nullopt },
+        { "google-chrome-stable", std::nullopt },
+        { "chrome", std::nullopt },
+        { "chromium", std::nullopt },
     };
 
-    for (const auto& [command, commandLineFlags] : browserCommands) {
-        const std::optional<std::string> path = which(command);
+    for (const auto& [binaryName, commandLineArguments] : browserCommands) {
+        const std::optional<std::string> path = which(binaryName);
 
         if (path.has_value()) {
-            // If the browser requires additional command line commandLineFlags we include them here
-            return commandLineFlags.empty() ? path.value() : path.value() + commandLineFlags;
+            return commandLineArguments.has_value() ? path.value() + commandLineArguments.value() : path.value();
         }
     }
 

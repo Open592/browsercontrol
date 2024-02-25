@@ -2,10 +2,12 @@
 
 #pragma once
 
+#include <array>
 #include <condition_variable>
 #include <filesystem>
 #include <memory>
 #include <mutex>
+#include <optional>
 
 #include <X11/Xlib.h>
 #include <include/cef_app.h>
