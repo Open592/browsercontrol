@@ -18,16 +18,16 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: lukka/get-cmake@latest
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
       - uses: KyleMayes/install-llvm-action@v1
         with:
-          version: "15"
-      - name: Build browsercontrol.dll
+          version: 15
+      - name: Build browsercontrol library
         run: |
           mkdir build
           cd build
@@ -44,7 +44,7 @@ jobs:
           CKSUM=$( python ${{ github.workspace }}/scripts/checksum.py browsercontrol.jar)
           mv browsercontrol.jar ./dist/browsercontrol_3_1_$CKSUM.jar
           tar --exclude='./dist' -c --lzma -hf ./dist/cef_dependencies.tar.lz ./*
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ inputs.store-output }}
         with:
           name: linux-x64
