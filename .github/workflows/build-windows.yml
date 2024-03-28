@@ -23,9 +23,9 @@ jobs:
           - x64
           - win32
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: lukka/get-cmake@latest
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           # Rewrite 'win32' as 'x86'
           architecture: ${{ matrix.arch == 'win32' && 'x86' || matrix.arch }}
@@ -36,7 +36,7 @@ jobs:
           arch: ${{ matrix.arch }}
           vsversion: 2022
       - uses: nuget/setup-nuget@v1
-      - name: Build browsercontrol.dll
+      - name: Build browsercontrol library
         run: |
           mkdir .\build
           cd .\build\
@@ -48,12 +48,12 @@ jobs:
         working-directory: ${{ github.workspace }}/build/output/${{ inputs.build-type }}
         shell: pwsh
         run: |
-          jar.exe cf browsercontrol.jar .\*
+          jar.exe cf browsercontrol.jar .\*.dll
 
           $checksum = (python ${{ github.workspace}}\scripts\checksum.py browsercontrol.jar) | Out-String -NoNewline
 
           Move-Item "browsercontrol.jar" "${{ github.workspace}}\build\output\browsercontrol_0_${{ matrix.arch == 'win32' && '0' || '1' }}_$checksum.jar"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ inputs.store-output }}
         with:
           name: windows-${{ matrix.arch }}
