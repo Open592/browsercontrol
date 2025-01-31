@@ -27,6 +27,9 @@ jobs:
       - uses: KyleMayes/install-llvm-action@v1
         with:
           version: 15
+      - name: Install X11 dependency
+        run: |
+          sudo apt install -y libx11-dev
       - name: Build browsercontrol library
         run: |
           mkdir build
