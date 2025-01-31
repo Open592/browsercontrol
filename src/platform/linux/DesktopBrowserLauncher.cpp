@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdio>
 #include <optional>
+#include <vector>
 
 #include "DesktopBrowserLauncher.hpp"
 
