@@ -2,7 +2,7 @@
 
 include(DownloadCEF)
 
-download_cef("120.2.7+g4bc6a59+chromium-120.0.6099.234" "${CMAKE_SOURCE_DIR}/third_party/cef")
+download_cef("132.3.1+g144febe+chromium-132.0.6834.83" "${CMAKE_SOURCE_DIR}/third_party/cef")
 
 list(APPEND CMAKE_MODULE_PATH ${CEF_ROOT}/cmake)
 
@@ -51,3 +51,5 @@ set_browsercontrol_target_properties(browsercontrol_helper)
 # distribution
 copy_files(browsercontrol "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
 copy_files(browsercontrol "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
+
+set_linux_suid_permissions(browsercontrol "${CEF_TARGET_OUT_DIR}/chrome-sandbox")
