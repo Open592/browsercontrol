@@ -26,7 +26,7 @@ public:
     CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
     void OnAfterCreated(CefRefPtr<CefBrowser>) override;
     void OnBeforeClose(CefRefPtr<CefBrowser>) override;
-    bool OnBeforePopup(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>, const CefString&, const CefString&,
+    bool OnBeforePopup(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>, int, const CefString&, const CefString&,
         CefLifeSpanHandler::WindowOpenDisposition, bool, const CefPopupFeatures&, CefWindowInfo&, CefRefPtr<CefClient>&,
         CefBrowserSettings&, CefRefPtr<CefDictionaryValue>&, bool*) override;
 
