@@ -5,7 +5,6 @@
 #include <memory>
 
 #include "BrowserContext.hpp"
-#include "BrowserData.hpp"
 
 /**
  * Provides a singleton reference to the underlying BrowserContext
